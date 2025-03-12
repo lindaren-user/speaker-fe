@@ -2,7 +2,7 @@
   <el-card class="Showbody">
     <template #header>
       <div class="Show-head">
-        <span style="font-size: 25px" v-if="showObject!== null">{{ showObject.title }}</span>
+        <span style="font-size: 25px" v-if="showObject !== null">{{ showObject.title }}</span>
         <el-button type="primary" @click="addTag">新增注解</el-button>
       </div>
     </template>
@@ -17,29 +17,26 @@
         您的浏览器不支持视频播放
       </video>
       <div v-else class="video-placeholder">
-        请选择要播放的视频
+        <el-empty description="没有选择视频" />
       </div>
     </div>
   </el-card>
 </template>
 
 <script setup>
-import { ElMessage, ElCard } from 'element-plus';
-import emittr from "@/utils/event-bus";
+import emittr from '@/utils/event-bus';
 
-// 定义 props
 const props = defineProps({
   videoUrl: {
     type: String,
-    default: null
+    default: null,
   },
   showObject: {
     type: Object,
-    default: null
-  }
+    default: null,
+  },
 });
 
-// 定义 emits
 const emit = defineEmits(['update:videoUrl']);
 
 // 处理视频加载错误
@@ -50,14 +47,22 @@ const handleVideoError = () => {
 
 // 触发新增注解事件
 const addTag = () => {
-  emittr.emit("add");
+  if (!props.videoUrl) {
+    ElMessage({
+      showClose: true,
+      message: '请先选择视频',
+      type: 'warning',
+    });
+    return;
+  }
+  emittr.emit('add');
 };
 </script>
 
 <style scoped>
 .Showbody {
-  height: 80%;
-  width: 60%;
+  height: 75vh !important;
+  width: 55%;
   display: flex;
   flex-direction: column;
   border-radius: 10px;
@@ -81,10 +86,7 @@ const addTag = () => {
   object-fit: contain;
 }
 .video-placeholder {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin: 10% auto;
   color: #666;
 }
 </style>

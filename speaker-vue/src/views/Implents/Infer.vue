@@ -1,7 +1,10 @@
 <template>
   <el-card class="infer-card">
     <template #header>
-      <h2>模型训练</h2>
+      <div class="header">
+        <strong>模型训练</strong>
+        <el-button type="success" @click="train" v-if="!started">开始训练</el-button>
+      </div>
     </template>
     <div class="infer">
       <div class="progress-icon-container" v-if="showProgress">
@@ -13,29 +16,23 @@
           striped
           striped-flow
           :duration="10"
-          style="width: 90%; transition: width 1s ease;"
+          style="width: 90%; transition: width 1s ease"
         />
         <!-- 显示百分比 -->
         <div class="percentage-label">{{ percentage }}%</div>
       </div>
-
-      <!-- 开始训练按钮 -->
-      <el-button type="success" @click="train" v-if="!started">开始训练</el-button>
     </div>
   </el-card>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import request from "@/utils/request";
-import { useUserStore } from '@/stores/user.js';
+import request from '@/utils/request';
 
-const user = useUserStore();
-
-const started = ref(false);    // 控制整个过程的开始
-const showIcon = ref(false);   // 控制图标显示
+const started = ref(false); // 控制整个过程的开始
+const showIcon = ref(false); // 控制图标显示
 const showProgress = ref(false); // 控制进度条显示
-const percentage = ref(0);     // 进度条的百分比
+const percentage = ref(0); // 进度条的百分比
 
 const train = () => {
   // 隐藏按钮
@@ -48,24 +45,25 @@ const train = () => {
 };
 
 const startProgress = () => {
-  request.get("/api/train", {
-    params: { username: user.username }
-  }).then(res => {
-    if (res.code === 200) {
-      ElMessage({
-        type: "success",
-        message: "训练成功"
-      });
-      percentage.value += 4;
-    } else {
-      ElMessage({
-        type: "error",
-        message: "训练失败"
-      });
-    }
-  });
+  request
+    .get('/api/train')
+    .then((res) => {
+      if (res.code === 200) {
+        ElMessage({
+          type: 'success',
+          message: '训练成功',
+        });
+        percentage.value += 4;
+      } else {
+        ElMessage({
+          type: 'error',
+          message: '训练失败',
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+
   let kk = 0;
-  // 定义一个计时器，每 100ms 增加 5%
   const interval = setInterval(() => {
     if (kk >= 24) {
       clearInterval(interval);
@@ -78,7 +76,7 @@ const startProgress = () => {
 </script>
 
 <style scoped>
-.infer-card{
+.infer-card {
   width: 55vw;
   margin: auto;
 }
@@ -88,6 +86,12 @@ const startProgress = () => {
   width: 50vw;
   padding: 0;
   margin: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
 }
 
 .icon-container {

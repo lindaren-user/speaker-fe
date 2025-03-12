@@ -1,24 +1,20 @@
 <template>
   <div class="control-panel">
     <el-button type="primary" @click="triggerFileInput" :disabled="disabled">
-      <i class="iconfont icon-shangchuan"/> 选择本地视频
+      <i class="iconfont icon-shangchuan" /> 选择本地视频
     </el-button>
 
-    <el-button type="success" @click="emit('start-recording')" :disabled="disabled">
-      <i class="iconfont icon-luzhi"/> 摄像头录制
-    </el-button>
+    <el-tooltip content="将打开本机摄像头进行录制">
+      <el-button type="success" @click="emit('start-recording')" :disabled="disabled">
+        <i class="iconfont icon-luzhi" /> 摄像头录制
+      </el-button>
+    </el-tooltip>
 
     <el-button type="warning" @click="emit('upload-all')">
-      <i class="iconfont icon-shangchuan1"/> 批量上传
+      <i class="iconfont icon-shangchuan1" /> 批量上传
     </el-button>
 
-    <input
-        type="file"
-        ref="fileInput"
-        hidden
-        accept="video/*"
-        @change="handleFileSelect"
-    >
+    <input type="file" ref="fileInput" hidden accept="video/*" @change="handleFileSelect" />
   </div>
 </template>
 
@@ -28,8 +24,8 @@ import { ref } from 'vue';
 const props = defineProps({
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const emit = defineEmits(['add-video', 'start-recording', 'upload-all']);
@@ -59,7 +55,8 @@ const handleFileSelect = (e) => {
 
 <style scoped>
 .control-panel {
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
 }
 .control-panel button {
   margin-right: 15px;

@@ -1,33 +1,20 @@
 <template>
-  <div class="camera-recorder" >
+  <div class="camera-recorder">
     <video ref="videoPreview" autoplay muted></video>
     <div class="controls">
-      <el-button
-        :type="isRecording ? 'danger' : 'primary'"
-        @click="toggleRecording"
-      >
+      <el-button :type="isRecording && isPaused ? 'primary' : 'danger'" @click="toggleRecording">
         {{ isRecording ? (isPaused ? '继续录制' : '暂停录制') : '开始录制' }}
       </el-button>
-      <el-button
-        v-if="isRecording"
-        type="danger"
-        @click="stopRecording"
-      >
-        停止录制
-      </el-button>
-      {{ formatTime(recordingTime) }}
+      <el-button v-if="isRecording" type="danger" @click="stopRecording"> 停止录制 </el-button>
+      <span v-if="isRecording"> &nbsp;{{ formatTime(recordingTime) }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineEmits } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-// 定义 ref
 const videoPreview = ref(null);
-
-// 定义响应式数据
 const mediaRecorder = ref(null);
 const isRecording = ref(false);
 const isPaused = ref(false);
@@ -37,13 +24,9 @@ const chunks = ref([]);
 
 const emit = defineEmits(['record-complete']);
 
-onMounted(() => {
-  initCamera();
-});
+onMounted(() => initCamera());
 
-onBeforeUnmount(() => {
-  stopCamera();
-});
+onBeforeUnmount(() => stopCamera());
 
 // 初始化摄像头
 const initCamera = async () => {
