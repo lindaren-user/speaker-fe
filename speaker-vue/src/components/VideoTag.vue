@@ -1,5 +1,5 @@
 <template>
-  <el-space direction="vertical">
+  <el-space direction="vertical" :size="20">
     <el-card class="tag-tip" style="width: 28vw">
       <h2 style="margin-bottom: 10px">
         <el-icon><Promotion /></el-icon> 标注事宜
@@ -33,13 +33,12 @@
             >
               <span>{{ value.title }}</span>
               <span
-                v-if="value.tag === true"
                 v-show="iconIfShow[index]"
                 @click.stop="triggerDelete(value.title)"
                 class="right"
                 ><i class="iconfont icon-shanchu"></i>
               </span>
-              <span @click="triggerChange(value)" class="right"
+              <span @click="triggerChange(value)" class="right" v-if="value.tag === true"
                 ><i class="iconfont icon-biaoshi" style="color: #41ae3c"></i>
               </span>
             </div>
@@ -63,6 +62,9 @@
                 @click.stop="triggerDelete(value.title)"
                 class="right"
                 ><i class="iconfont icon-shanchu"></i>
+              </span>
+              <span @click="triggerChange(value)" class="right"
+                ><i class="iconfont icon-biaoshi" style="color: #41ae3c"></i>
               </span>
             </div>
             <el-empty v-if="isTagged.length === 0" description="暂无已标记视频" />
@@ -154,19 +156,20 @@ ul {
 .video-tag {
   height: 55vh !important;
   border-radius: 10px;
-  min-height: 400px;
 }
 .tag-body {
   overflow-y: auto;
   padding: 3px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  max-height: 320px;
+  /* border: 1px solid black; */
+  height: 45vh;
+  /* overflow: auto; */
 }
 .videoinf {
   height: 45px;
   min-height: 45px;
+  width: 95%;
   border-bottom: 1px black dotted;
   margin-top: 10px;
   transition:
@@ -186,5 +189,8 @@ ul {
 }
 .icon-shanchu:hover {
   color: red;
+}
+.tag-tip {
+  font-size: 1vw;
 }
 </style>

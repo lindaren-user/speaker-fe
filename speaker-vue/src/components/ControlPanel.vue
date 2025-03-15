@@ -1,11 +1,11 @@
 <template>
   <div class="control-panel">
-    <el-button type="primary" @click="triggerFileInput" :disabled="disabled">
+    <el-button type="primary" @click="triggerFileInput">
       <i class="iconfont icon-shangchuan" /> 选择本地视频
     </el-button>
 
     <el-tooltip content="将打开本机摄像头进行录制">
-      <el-button type="success" @click="emit('start-recording')" :disabled="disabled">
+      <el-button type="success" @click="emit('start-recording')">
         <i class="iconfont icon-luzhi" /> 摄像头录制
       </el-button>
     </el-tooltip>
@@ -20,13 +20,6 @@
 
 <script setup>
 import { ref } from 'vue';
-
-const props = defineProps({
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-});
 
 const emit = defineEmits(['add-video', 'start-recording', 'upload-all']);
 

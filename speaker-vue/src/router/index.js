@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useUlCounterStore } from '@/stores/ulCounter';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +55,10 @@ const router = createRouter({
         {
           path: 'tag',
           component: () => import('@/views/Implents/Tag.vue'),
+          beforeEnter: (to, from, next) => {
+            useUlCounterStore().clearCounter();
+            next();
+          },
         },
         {
           path: 'share',

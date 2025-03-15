@@ -40,11 +40,11 @@ const form = reactive({
 const rules = {
   username: [
     { required: true, message: '请输入账户（长度为9 - 11）', trigger: 'blur' },
-    { pattern: /^\d{9,11}$/, message: '请输入 9 - 11 位的数字', trigger: 'blur' },
+    { pattern: /^\w{9,11}$/, message: '请输入 9 - 11 位的数字', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码(长度为11 - 15)', trigger: 'blur' },
-    { pattern: /^\d{11,15}$/, message: '请输入 11 - 15 位的数字', trigger: 'blur' },
+    { pattern: /^\w{11,15}$/, message: '请输入 11 - 15 位的数字', trigger: 'blur' },
   ],
 };
 
@@ -56,7 +56,7 @@ const login = () => {
       request
         .post('/api/login', toRaw(form))
         .then((res) => {
-          if (res.code === 200) {
+          if (res.code == 200) {
             ElMessage.success('登录成功');
             userStore.changeUser(form.username);
             router.replace('/implents/dataset');

@@ -12,17 +12,10 @@
       <div style="width: 100%">
         <div class="kuaggle">
           <div class="kuaggle-body">
-            <a style="font-size: 40px; color: #41ae3c">100000000+</a
-            ><a style="font-size: 30px; color: #d4c4b7">用户人数</a>
+            <a class="number">100000000+</a><a class="char">用户人数</a>
           </div>
-          <div class="kuaggle-body">
-            <a style="font-size: 40px; color: #41ae3c">10000+</a
-            ><a style="font-size: 30px; color: #d4c4b7">算法更迭</a>
-          </div>
-          <div class="kuaggle-body">
-            <a style="font-size: 40px; color: #41ae3c">100+</a
-            ><a style="font-size: 30px; color: #d4c4b7">模型优化</a>
-          </div>
+          <div class="kuaggle-body"><a class="number">10000+</a><a class="char">算法更迭</a></div>
+          <div class="kuaggle-body"><a class="number">100+</a><a class="char">模型优化</a></div>
         </div>
       </div>
     </div>
@@ -32,8 +25,7 @@
         fill="none"
         viewBox="0 0 1097 1024"
         height="auto"
-        width="100%"
-        max-width="100%"
+        width="95%"
       >
         <g clip-path="url(#clip0_1_1378)">
           <path
@@ -1236,6 +1228,14 @@
   width: 50%;
   padding-top: 2%;
   margin-left: 12vw;
+}
+.number {
+  font-size: 35px;
+  color: #41ae3c;
+}
+.char {
+  font-size: 25px;
+  color: #d4c4b7;
 }
 @keyframes txx {
   from {

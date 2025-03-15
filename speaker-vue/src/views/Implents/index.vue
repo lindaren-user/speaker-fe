@@ -12,8 +12,16 @@
           </el-menu-item>
           <el-menu-item index="/implents/tag">
             <div style="margin: 0 auto">
-              <el-icon><CollectionTag /></el-icon>
-              <span>数据标注</span>
+              <el-badge
+                :value="ulCounterStore.ulCounter"
+                :max="99"
+                class="item"
+                :offset="[10, 10]"
+                :hidden="ulCounterStore.ulCounter === 0"
+              >
+                <el-icon><CollectionTag /></el-icon>
+                <span>数据标注</span>
+              </el-badge>
             </div>
           </el-menu-item>
           <el-menu-item index="/implents/infer">
@@ -41,9 +49,11 @@
 <script setup>
 import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+import { useUlCounterStore } from '@/stores/ulCounter';
 
 const activeIndex = ref('/implents/dataset');
 const route = useRoute();
+const ulCounterStore = useUlCounterStore();
 
 watchEffect(() => {
   activeIndex.value = route.path;
@@ -69,12 +79,14 @@ watchEffect(() => {
 .el-main {
   margin-left: 12vw; /* 让主内容从侧边栏右侧开始 */
   padding: 0;
-  height: 100vh;
+  height: 83vh;
   overflow: auto;
+  margin-top: -5vh;
 }
 
 .el-menu--vertical .el-menu-item.is-active {
   color: #66c18c;
+  background-color: rgb(242, 244, 243);
 }
 
 .center {

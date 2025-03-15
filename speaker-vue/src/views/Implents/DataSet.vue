@@ -1,7 +1,9 @@
 <template>
   <el-card class="dataset-container-card">
     <template #header>
-      <h2 style="margin-bottom: 10px">数据采集系统</h2>
+      <h2 style="margin-bottom: 10px">
+        <el-icon><ZoomIn /></el-icon> 数据采集系统
+      </h2>
       <div>
         <ul>
           <li>
@@ -25,7 +27,6 @@
         @add-video="handleAddVideo"
         @start-recording="showCameraDialog = true"
         @upload-all="handleUploadAll"
-        :disabled="controlDisabled"
       />
 
       <!-- 视频展示组件 -->
@@ -41,6 +42,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useUlCounterStore } from '@/stores/ulCounter';
 import ControlPanel from '@/components/ControlPanel.vue';
 import VideoList from '@/components/VideoList.vue';
 import CameraRecorder from '@/components/CameraRecorder.vue';
@@ -49,7 +51,7 @@ import formRequest from '@/utils/formRequest';
 const videoList = ref([]);
 const showCameraDialog = ref(false);
 const nextVideoId = ref(1);
-const controlDisabled = ref(false);
+const ulCounterStore = useUlCounterStore();
 
 // 处理添加视频
 const handleAddVideo = (file) => {
@@ -77,26 +79,24 @@ const handleRecordComplete = (blob) => {
 
 // 批量上传
 const handleUploadAll = async () => {
-  controlDisabled.value = true;
   const unUploaded = videoList.value.filter((v) => !v.isUploaded);
-  if (unUploaded.length === 0) {
+  const length = unUploaded.length;
+  if (length === 0) {
     ElMessage({
       type: 'warning',
       message: '所有视频均已上传！',
     });
-    controlDisabled.value = false;
     return;
   }
+  ulCounterStore.changeCounter(length);
   try {
-    await Promise.all(unUploaded.map(uploadVideo)); // 并行处理
+    await Promise.all(unUploaded.map(uploadVideo)); // 异步处理
     if (unUploaded.every((v) => v.isUploaded)) {
       ElMessage.success('全部上传成功');
     }
   } catch (error) {
     console.error('上传失败:', error);
     ElMessage.error('上传失败，请检查网络连接');
-  } finally {
-    controlDisabled.value = false;
   }
 };
 
@@ -114,7 +114,7 @@ const uploadVideo = (video) => {
   return formRequest
     .post('/api/upload', formData)
     .then((response) => {
-      if (response.code === 200) {
+      if (response.code == 200) {
         video.isUploaded = true;
         ElMessage({
           type: 'success',
@@ -130,7 +130,6 @@ const uploadVideo = (video) => {
     })
     .catch((error) => {
       console.error('上传失败:', video.id, error);
-      throw error; // 继续传递错误
     });
 };
 </script>
@@ -138,7 +137,7 @@ const uploadVideo = (video) => {
 <style scoped>
 .dataset-container-card {
   width: 70vw;
-  margin: 0 auto;
+  margin: 4vh auto;
 }
 
 .dataset-container {

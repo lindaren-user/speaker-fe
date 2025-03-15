@@ -41,6 +41,7 @@ import request from '@/utils/request';
 import VideoShow from '@/components/VideoShow.vue';
 import VideoTag from '@/components/VideoTag.vue';
 import emittr from '@/utils/event-bus';
+import { ElMessageBox } from 'element-plus';
 
 const requestLocal = '/api';
 
@@ -64,7 +65,7 @@ const getAllVideos = () => {
   request
     .get('/api/list')
     .then((res) => {
-      if (res.code === 200 && Array.isArray(res.data)) {
+      if (res.code == 200 && Array.isArray(res.data)) {
         videoList.value = res.data;
       } else {
         console.error('视频列表加载失败:', res);
@@ -134,7 +135,7 @@ const changeTag = () => {
   request
     .put('/api/updateTag', changeObject.value)
     .then((res) => {
-      if (res.code === 200) {
+      if (res.code == 200) {
         ElMessage({
           type: 'success',
           message: '标注成功',
@@ -152,7 +153,7 @@ const changeTag = () => {
 };
 
 const deleteVideo = (videoTitle) => {
-  ElMessage.confirm('此操作将永久删除该视频, 是否继续?', '提示', {
+  ElMessageBox.confirm('此操作将永久删除该视频, 是否继续?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
@@ -165,7 +166,7 @@ const deleteVideo = (videoTitle) => {
           },
         })
         .then((res) => {
-          if (res.code === 200) {
+          if (res.code == 200) {
             ElMessage({
               type: 'success',
               message: '删除成功',
@@ -199,7 +200,7 @@ const deleteTag = () => {
       },
     })
     .then((res) => {
-      if (res.code === 200) {
+      if (res.code == 200) {
         ElMessage({
           type: 'success',
           message: '删除标识成功',
@@ -237,8 +238,9 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
-  height: 100%;
+  height: 95%;
   flex: 1;
+  margin-top: 4vh;
 }
 
 .diaglog {

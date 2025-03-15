@@ -80,7 +80,7 @@ const logout = () => {
   request
     .get('/api/quit')
     .then((res) => {
-      if (res.code === 200) {
+      if (res.code == 200) {
         ElMessage.success('退出成功');
         console.log('登出');
         userStore.logout();
@@ -159,7 +159,7 @@ body {
 }
 
 .content {
-  margin-top: 120px;
+  margin-top: 15vh;
 }
 
 .el-divider span {

@@ -48,12 +48,12 @@ const startProgress = () => {
   request
     .get('/api/train')
     .then((res) => {
-      if (res.code === 200) {
+      if (res.code == 200) {
+        percentage.value += 4;
         ElMessage({
           type: 'success',
           message: '训练成功',
         });
-        percentage.value += 4;
       } else {
         ElMessage({
           type: 'error',
@@ -78,7 +78,7 @@ const startProgress = () => {
 <style scoped>
 .infer-card {
   width: 55vw;
-  margin: auto;
+  margin: 4vh auto;
 }
 
 .progress-icon-container {
