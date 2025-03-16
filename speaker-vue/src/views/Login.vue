@@ -3,11 +3,11 @@
     <div class="index-box">
       <h2 class="title">登录</h2>
       <el-form :model="form" :rules="rules" ref="formRef" size="large" style="margin-top: 30px">
-        <el-form-item label="" prop="username">
+        <el-form-item label="账号" prop="username">
           <el-input v-model="form.username" placeholder="请输入账号" class="input"></el-input>
         </el-form-item>
 
-        <el-form-item label="" prop="password">
+        <el-form-item label="密码" prop="password">
           <el-input
             v-model="form.password"
             placeholder="请输入密码"
@@ -49,8 +49,6 @@ const rules = {
 };
 
 const login = () => {
-  userStore.changeUser('lindaren');
-
   formRef.value?.validate((valid) => {
     if (valid) {
       request

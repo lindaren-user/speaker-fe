@@ -3,11 +3,11 @@
     <div class="index-box">
       <h2 class="title">注册</h2>
       <el-form :model="form" :rules="rules" ref="formRef" size="large" style="margin-top: 30px">
-        <el-form-item label="" prop="username">
+        <el-form-item label="账号" prop="username">
           <el-input v-model="form.username" placeholder="请输入账号" class="input"></el-input>
         </el-form-item>
 
-        <el-form-item label="" prop="password">
+        <el-form-item label="密码" prop="password">
           <el-input
             v-model="form.password"
             placeholder="请输入密码"
@@ -16,7 +16,16 @@
           ></el-input>
         </el-form-item>
 
-        <el-button @click="login" type="primary" class="submit-button button">确定</el-button>
+        <el-form-item label="确认密码" prop="secondPwd">
+          <el-input
+            v-model="form.secondPwd"
+            placeholder="再次输入密码"
+            show-password
+            class="sInput"
+          ></el-input>
+        </el-form-item>
+
+        <el-button @click="register" type="primary" class="submit-button button">确定</el-button>
       </el-form>
     </div>
   </div>
@@ -25,38 +34,50 @@
 <script setup>
 import { ref, reactive, toRaw } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
 import request from '@/utils/request';
+import { ElMessage } from 'element-plus';
 
 const formRef = ref(null);
 const router = useRouter();
-const userStore = useUserStore();
 
 const form = reactive({
   username: '',
   password: '',
+  secondPwd: '',
 });
+
+const secondPwd = ref('');
 
 const rules = {
   username: [
     { required: true, message: '请输入账户（长度为9 - 11）', trigger: 'blur' },
-    { pattern: /^\w{9,11}$/, message: '请输入 9 - 11 位的数字', trigger: 'blur' },
+    { pattern: /^\w{9,11}$/, message: '请输入 9 - 11 位', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码(长度为11 - 15)', trigger: 'blur' },
-    { pattern: /^\w{11,15}$/, message: '请输入 11 - 15 位的数字', trigger: 'blur' },
+    { pattern: /^\w{11,15}$/, message: '请输入 11 - 15 位', trigger: 'blur' },
+  ],
+  secondPwd: [
+    { required: true, message: '', trigger: 'blur' },
+    { pattern: /^\w{11,15}$/, message: '请输入 11 - 15 位', trigger: 'blur' },
   ],
 };
 
-const login = () => {
+const register = () => {
   formRef.value?.validate((valid) => {
     if (valid) {
+      if (form.password !== form.secondPwd) {
+        ElMessage.error('前后两次密码不一致');
+        return;
+      }
       request
-        .post('/api/login', toRaw(form))
+        .post('/api/register', {
+          username: form.username,
+          password: form.password,
+        })
         .then((res) => {
           if (res.code == 200) {
             ElMessage.success('注册成功');
-            userStore.changeUser(form.username);
             router.replace('/login');
           } else {
             ElMessage.error(res.msg);
@@ -110,14 +131,22 @@ const login = () => {
   color: #555;
 }
 
-.el-input {
-  border-radius: 8px;
-  transition: border-color 0.3s ease;
+/* 设置所有输入框的宽度 */
+.input {
   width: 80%;
   margin: auto;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
 }
 
-.el-input:hover {
+.sInput {
+  width: 88%;
+  margin: 4px;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.input:hover {
   border-color: #409eff;
 }
 
