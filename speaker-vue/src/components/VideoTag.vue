@@ -133,13 +133,6 @@ const filteredVideos = computed(() => {
   }
 });
 
-filteredVideos.value.push({
-  id: ``,
-  isUploaded: false,
-  type: 'file',
-  timeStamp: new Date(),
-});
-
 const triggerChange = (video) => {
   emittr.emit('changeDialogVisible', video);
 };

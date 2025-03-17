@@ -11,7 +11,7 @@
     </el-tooltip>
 
     <el-button type="warning" @click="emit('upload-all')">
-      <i class="iconfont icon-shangchuan1" /> 批量上传
+      <i class="iconfont icon-shangchuan1" /> 一键上传
     </el-button>
 
     <input type="file" ref="fileInput" hidden accept="video/*" @change="handleFileSelect" />

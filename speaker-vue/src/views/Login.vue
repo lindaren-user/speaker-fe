@@ -49,6 +49,7 @@ const rules = {
 };
 
 const login = () => {
+  // userStore.changeUser('lindaren');
   formRef.value?.validate((valid) => {
     if (valid) {
       request

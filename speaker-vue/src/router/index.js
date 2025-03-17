@@ -61,8 +61,8 @@ const router = createRouter({
           },
         },
         {
-          path: 'share',
-          component: () => import('@/views/Implents/Share.vue'),
+          path: 'interpretation/:id',
+          component: () => import('@/views/Implents/Interpretation.vue'),
         },
       ],
     },
