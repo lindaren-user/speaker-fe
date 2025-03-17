@@ -33,11 +33,11 @@
           <el-sub-menu index="/implents/interpretation">
             <template #title>
               <div style="margin: 0 auto">
-                <el-icon><Link /></el-icon>
+                <el-icon><Connection /></el-icon>
                 <span style="font-size: 18px">翻译</span>
               </div>
             </template>
-            <el-menu-item-group class="subMenu">
+            <el-menu-item-group>
               <el-menu-item index="/implents/interpretation/1">手语->文本</el-menu-item>
               <el-menu-item index="/implents/interpretation/2">文本->手语</el-menu-item>
             </el-menu-item-group>
@@ -109,11 +109,6 @@ watchEffect(() => {
 :deep(.el-menu-item:hover) {
   color: lightgreen;
   background-color: rgb(242, 244, 243);
-}
-
-:deep(.subMenu.el-menu-item:last-child) {
-  /* 去除最后一个菜单项的底部边框 */
-  border-bottom: none;
 }
 
 :deep(.el-menu-item-group__title) {

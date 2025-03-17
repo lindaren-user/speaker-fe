@@ -1,10 +1,12 @@
 <template>
   <el-card class="lCard" style="width: 35vw">
-    <ControlPanel
-      @add-video="handleAddVideo"
-      @start-recording="showCameraDialog = true"
-      @upload-all="uploadVideo"
-    />
+    <template #header>
+      <ControlPanel
+        @add-video="handleAddVideo"
+        @start-recording="showCameraDialog = true"
+        @upload-all="uploadVideo"
+      />
+    </template>
 
     <!-- 摄像头录制对话框 -->
     <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
@@ -112,7 +114,7 @@ const handleDeleteVideo = () => {
 };
 
 // 单个视频上传方法
-const uploadVideo = (video) => {
+const uploadVideo = () => {
   isTranslating.value = true;
 
   const formData = new FormData();
@@ -122,8 +124,7 @@ const uploadVideo = (video) => {
   formRequest
     .post('/api/infer', formData)
     .then((response) => {
-      if (response.code === 200) {
-        video.isUploaded = true;
+      if (response.code == 200) {
         ElMessage({
           type: 'success',
           message: `${video.id}上传成功`,
