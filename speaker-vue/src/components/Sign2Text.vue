@@ -43,7 +43,7 @@
     <template #header>
       <div class="card-header">
         <span v-if="isTranslating">转换中...</span>
-        <span v-else>转换结果 </span>
+        <span v-else>转换结果 {{ resultText }}</span>
       </div>
     </template>
     <div class="video-show">
@@ -76,6 +76,7 @@ const nextVideoId = ref(1);
 const previewVideoUrl = ref('');
 const videoUrl = ref('');
 const isTranslating = ref(false);
+const resultText = ref('');
 
 const handleAddVideo = (file) => {
   video.value = {
@@ -90,12 +91,8 @@ const handleAddVideo = (file) => {
   previewVideoUrl.value = objectUrl;
 };
 
-// 处理录制完成
-// blob 对象是摄像头录制过程中产生的二进制数据，包含了录制的视频内容
 const handleRecordComplete = (blob) => {
-  // 获取当前时间戳作为文件名
   const timeStamp = Date.now();
-  // 转换为AVI格式的File对象，文件名使用时间戳
   const aviFile = new File([blob], `${timeStamp}.avi`, {
     type: 'video/x-msvideo',
   });
@@ -103,9 +100,7 @@ const handleRecordComplete = (blob) => {
   showCameraDialog.value = false;
 };
 
-// 删除视频
 const handleDeleteVideo = () => {
-  // 同时清除预览视频的URL
   previewVideoUrl.value = '';
   // 释放之前创建的ObjectURL
   //   if (video.value && video.value.file) {
@@ -118,8 +113,8 @@ const uploadVideo = () => {
   isTranslating.value = true;
 
   const formData = new FormData();
-  formData.append('video', video.file);
-  formData.append('videoId', video.id);
+  formData.append('video', video.value.file);
+  formData.append('videoId', video.value.id);
 
   formRequest
     .post('/api/infer', formData)
@@ -127,20 +122,21 @@ const uploadVideo = () => {
       if (response.code == 200) {
         ElMessage({
           type: 'success',
-          message: `${video.id}上传成功`,
+          message: `${video.value.id}上传成功`,
         });
         // 上传成功后更新展示视频的URL
-        videoUrl.value = response.data.videoUrl; // 假设响应中有视频的URL
+        videoUrl.value = '/api' + response.data.url;
+        resultText.value = response.data.result;
       } else {
         ElMessage({
           type: 'error',
-          message: `${video.id}上传失败`,
+          message: `${video.value.id}上传失败`,
         });
       }
       isTranslating.value = false;
     })
     .catch((error) => {
-      console.error('上传失败:', video.id, error);
+      console.error('上传失败:', video.value.id, error);
     });
 };
 
@@ -166,8 +162,8 @@ const handleVideoError = (error) => {
 }
 
 .video-player {
-  width: 100%; /* 可以根据需要调整宽度 */
-  height: auto; /* 保持高度自适应，以维持视频的宽高比 */
+  width: 100%;
+  height: auto;
 }
 
 .dataset-container-card {
@@ -189,8 +185,8 @@ const handleVideoError = (error) => {
 }
 
 ul {
-  list-style-type: none; /* 去掉所有列表的标记 */
-  padding-left: 0; /* 去掉默认缩进 */
+  list-style-type: none;
+  padding-left: 0;
 }
 
 .video-system {

@@ -35,7 +35,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { yiyu } from 'https://avatar.gbqr.net/yiyu.js';
-import { ElMessage } from 'element-plus';
 
 const text = ref('');
 
@@ -52,7 +51,7 @@ const startTranslation = () => {
 onMounted(() => {
   try {
     yiyu.init({
-      name: 'ZZiGLQWBBnGFqYjISdnUhqOc+A2D+ifHIMEmXR06b+R4vN3FR0FdtFJAVmwdHWv+iOiJBzd3g9IDjHzYSCXHUeFyBEfreKdNsYc3bltd7ggD3E3AWaLrFmfaB9Vg7Q6o+35CmD3krrBIfxMBjqY5EPfuM5a3WPUmm3l1vi6yIZM=',
+      name: 'UuqwgIrBdzIHx5/KgtODVgK437EK3vkCmRicvp7aMM9/GztABnmLT1KCsbFScroCC9XmCrOAirTu/pKE+mNzW4SW1YorxkvzC2BQq0ihZFXrbJXjRPrFrO72xS6+rPkrx+YT7JqA/jhef/ElJbuYGH12H7MhvGu4+AkCAAZrcN0=',
       readLocalResource: false,
     });
     yiyu.setPosition('20%', '40%');

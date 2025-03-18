@@ -8,7 +8,6 @@ body,
 #app {
   height: 100%;
   margin: 0;
-  /* background-color: hsl(150, 8.30%, 95.30%); */
 }
 body {
   overflow: hidden; /* 取消滚动条 */
