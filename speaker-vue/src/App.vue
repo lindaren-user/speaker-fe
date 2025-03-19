@@ -87,7 +87,10 @@ const logout = () => {
         router.push('/');
       }
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      ElMessage.error(err.message);
+    });
 };
 
 const getPrivacyInfo = () => {

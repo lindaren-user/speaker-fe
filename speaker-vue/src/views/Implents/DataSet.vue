@@ -82,17 +82,18 @@ const handleUploadAll = async () => {
   const unUploaded = videoList.value.filter((v) => !v.isUploaded);
   const length = unUploaded.length;
   if (length === 0) {
-    ElMessage({
-      type: 'warning',
-      message: '所有视频均已上传！',
-    });
+    ElMessage.warning('没有可上传视频');
     return;
   }
-  ulCounterStore.changeCounter(length);
   try {
     await Promise.all(unUploaded.map(uploadVideo)); // 异步处理
     if (unUploaded.every((v) => v.isUploaded)) {
-      ElMessage.success('全部上传成功');
+      ElMessage({
+        showClose: true,
+        type: SuccessFilled,
+        message: '全部上传成功',
+      });
+      ulCounterStore.changeCounter(length);
     }
   } catch (error) {
     console.error('上传失败:', error);
@@ -113,23 +114,22 @@ const uploadVideo = (video) => {
 
   return formRequest
     .post('/api/upload', formData)
-    .then((response) => {
-      if (response.code == 200) {
+    .then((res) => {
+      if (res.code == 200) {
         video.isUploaded = true;
         ElMessage({
+          showClose: true,
           type: 'success',
           message: `${video.id}上传成功`,
         });
       } else {
-        ElMessage({
-          type: 'error',
-          message: `${video.id}上传失败`,
-        });
+        ElMessage.error(`${video.id}上传失败`);
       }
-      return response;
+      return res;
     })
     .catch((error) => {
       console.error('上传失败:', video.id, error);
+      ElMessage.error(`${video.id}上传失败`);
     });
 };
 </script>
@@ -150,8 +150,8 @@ const uploadVideo = (video) => {
 }
 
 ul {
-  list-style-type: none; /* 去掉所有列表的标记 */
-  padding-left: 0; /* 去掉默认缩进 */
+  list-style-type: none;
+  padding-left: 0;
 }
 
 .video-system {

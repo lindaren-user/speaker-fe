@@ -48,11 +48,7 @@ const handleVideoError = () => {
 // 触发新增注解事件
 const addTag = () => {
   if (!props.videoUrl) {
-    ElMessage({
-      showClose: true,
-      message: '请先选择视频',
-      type: 'warning',
-    });
+    ElMessage.warning('请先选择视频');
     return;
   }
   emittr.emit('add');
@@ -68,6 +64,7 @@ const addTag = () => {
   border-radius: 10px;
   margin-right: 10px;
 }
+
 .Show-head {
   display: flex;
   justify-content: space-between; /* 让子元素分别靠左右两侧 */
@@ -76,15 +73,18 @@ const addTag = () => {
   border-radius: 3px;
   width: 100%;
 }
+
 .video-show {
   width: 100%;
   flex: 9;
 }
+
 .video-player {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
+
 .video-placeholder {
   margin: 10% auto;
   color: #666;

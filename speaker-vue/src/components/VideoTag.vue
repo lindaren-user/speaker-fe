@@ -150,13 +150,15 @@ const handleVideoClick = (video) => {
 
 <style scoped>
 ul {
-  list-style-type: none; /* 去掉所有列表的标记 */
-  padding-left: 0; /* 去掉默认缩进 */
+  list-style-type: none;
+  padding-left: 0;
 }
+
 .video-tag {
   height: 55vh !important;
   border-radius: 10px;
 }
+
 .tag-body {
   overflow-y: auto;
   padding: 3px;
@@ -164,8 +166,8 @@ ul {
   flex-direction: column;
   /* border: 1px solid black; */
   height: 45vh;
-  /* overflow: auto; */
 }
+
 .videoinf {
   height: 45px;
   min-height: 45px;
@@ -181,15 +183,19 @@ ul {
   background-color: rgb(242, 244, 243);
   transform: translateY(-2px);
 }
+
 .videoinf.actived {
   background-color: rgb(242, 244, 243);
 }
+
 .right {
   float: right;
 }
+
 .icon-shanchu:hover {
   color: red;
 }
+
 .tag-tip {
   font-size: 1vw;
 }

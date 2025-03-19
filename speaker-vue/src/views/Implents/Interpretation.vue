@@ -1,7 +1,9 @@
 <template>
   <div class="body">
-    <Sign2Text v-if="routeId == 1" />
-    <Text2Sign v-else />
+    <keep-alive>
+      <Sign2Text v-if="routeId == 1" />
+      <Text2Sign v-else />
+    </keep-alive>
   </div>
 </template>
 

@@ -10,7 +10,7 @@ body,
   margin: 0;
 }
 body {
-  overflow: hidden; /* 取消滚动条 */
+  overflow: hidden; /*取消滚动条 */
 }
 * {
   font-family: 'Noto Sans SC', sans-serif !important;

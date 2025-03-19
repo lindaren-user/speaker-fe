@@ -77,13 +77,20 @@ const register = () => {
         })
         .then((res) => {
           if (res.code == 200) {
-            ElMessage.success('注册成功');
+            ElMessage({
+              showClose: true,
+              type: 'success',
+              message: '注册成功',
+            });
             router.replace('/login');
           } else {
             ElMessage.error(res.msg);
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          ElMessage.error(err.message);
+        });
     }
   });
 };
@@ -131,7 +138,6 @@ const register = () => {
   color: #555;
 }
 
-/* 设置所有输入框的宽度 */
 .input {
   width: 80%;
   margin: auto;

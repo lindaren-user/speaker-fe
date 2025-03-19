@@ -38,8 +38,8 @@
               </div>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="/implents/interpretation/1">手语->文本</el-menu-item>
-              <el-menu-item index="/implents/interpretation/2">文本->手语</el-menu-item>
+              <el-menu-item index="/implents/interpretation/1">手语→文本</el-menu-item>
+              <el-menu-item index="/implents/interpretation/2">文本→手语</el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
         </el-menu>

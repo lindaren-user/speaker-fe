@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watchEffect } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import request from '@/utils/request';
 import VideoShow from '@/components/VideoShow.vue';
 import VideoTag from '@/components/VideoTag.vue';
@@ -52,6 +52,7 @@ const changeObject = ref({});
 const jd = ref(1);
 const tag = ref('');
 
+// 由此，传递过去的都是非响应式数据
 const isTagged = computed(() => {
   return videoList.value.filter((video) => video.tag === true);
 });
@@ -101,20 +102,14 @@ const changeDialogVisible = (video) => {
 const addTag = () => {
   if (changeObject.value) {
     if (changeObject.value.tag === true) {
-      ElMessage({
-        type: 'warning',
-        message: '该视频已有标注',
-      });
+      ElMessage.warning('该视频已有标注');
     } else {
       tag.value = '';
       dialogVisible.value = true;
       jd.value = 1;
     }
   } else {
-    ElMessage({
-      type: 'warning',
-      message: '请先选择要操作的视频',
-    });
+    ElMessage.warning('请先选择要操作的视频');
   }
 };
 
@@ -124,10 +119,7 @@ const change = (video) => {
 
 const changeTag = () => {
   if (tag.value === '' || tag.value.length > 15) {
-    ElMessage({
-      type: 'warning',
-      message: '输入的标识字数需要大于0且小于15',
-    });
+    ElMessage.warning('输入的标识字数需要大于0且小于15');
     return;
   }
   changeObject.value.tag = true;
@@ -137,19 +129,20 @@ const changeTag = () => {
     .then((res) => {
       if (res.code == 200) {
         ElMessage({
+          showClose: true,
           type: 'success',
           message: '标注成功',
         });
         dialogVisible.value = false;
         getAllVideos();
       } else {
-        ElMessage({
-          type: 'error',
-          message: '标注失败',
-        });
+        ElMessage.error('标注失败');
       }
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      ElMessage.error('标注失败');
+    });
 };
 
 const deleteVideo = (videoTitle) => {
@@ -168,22 +161,24 @@ const deleteVideo = (videoTitle) => {
         .then((res) => {
           if (res.code == 200) {
             ElMessage({
+              showClose: true,
               type: 'success',
               message: '删除成功',
             });
             changeObject.value = {};
             getAllVideos();
           } else {
-            ElMessage({
-              type: 'error',
-              message: '删除失败',
-            });
+            ElMessage.error('删除失败');
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          ElMessage.error('删除失败');
+        });
     })
     .catch(() => {
       ElMessage({
+        showClose: true,
         type: 'info',
         message: '已取消删除',
       });
@@ -202,19 +197,20 @@ const deleteTag = () => {
     .then((res) => {
       if (res.code == 200) {
         ElMessage({
+          showClose: true,
           type: 'success',
           message: '删除标识成功',
         });
         dialogVisible.value = false;
         getAllVideos();
       } else {
-        ElMessage({
-          type: 'error',
-          message: '删除标识失败',
-        });
+        ElMessage.error('删除标识失败');
       }
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      ElMessage.error('删除标识失败');
+    });
 };
 
 onMounted(() => {

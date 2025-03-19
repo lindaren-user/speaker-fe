@@ -49,21 +49,28 @@ const rules = {
 };
 
 const login = () => {
-  // userStore.changeUser('lindaren');
+  userStore.changeUser('lindaren');
   formRef.value?.validate((valid) => {
     if (valid) {
       request
         .post('/api/login', toRaw(form))
         .then((res) => {
           if (res.code == 200) {
-            ElMessage.success('登录成功');
+            ElMessage({
+              showClose: true,
+              type: 'success',
+              message: '登录成功',
+            });
             userStore.changeUser(form.username);
             router.replace('/implents/dataset');
           } else {
             ElMessage.error(res.msg);
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          ElMessage.error(err.message);
+        });
     }
   });
 };

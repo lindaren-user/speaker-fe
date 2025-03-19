@@ -51,6 +51,7 @@ const handleFileSelect = (e) => {
   display: flex;
   justify-content: center;
 }
+
 .control-panel button {
   margin-right: 15px;
 }

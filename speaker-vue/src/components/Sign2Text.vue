@@ -68,7 +68,8 @@ import { ref } from 'vue';
 import ControlPanel from '@/components/ControlPanel.vue';
 import CameraRecorder from '@/components/CameraRecorder.vue';
 import formRequest from '@/utils/formRequest';
-import { ElMessage } from 'element-plus';
+
+const requestLocal = '/api';
 
 const video = ref(null);
 const showCameraDialog = ref(false);
@@ -110,6 +111,11 @@ const handleDeleteVideo = () => {
 
 // 单个视频上传方法
 const uploadVideo = () => {
+  if (!video.value) {
+    ElMessage.warning('请先选择视频');
+    return;
+  }
+
   isTranslating.value = true;
 
   const formData = new FormData();
@@ -118,30 +124,30 @@ const uploadVideo = () => {
 
   formRequest
     .post('/api/infer', formData)
-    .then((response) => {
-      if (response.code == 200) {
+    .then((res) => {
+      if (res.code == 200) {
         ElMessage({
+          showClose: true,
           type: 'success',
           message: `${video.value.id}上传成功`,
         });
         // 上传成功后更新展示视频的URL
-        videoUrl.value = '/api' + response.data.url;
-        resultText.value = response.data.result;
+        videoUrl.value = requestLocal + res.data.url;
+        resultText.value = res.data.result;
       } else {
-        ElMessage({
-          type: 'error',
-          message: `${video.value.id}上传失败`,
-        });
+        ElMessage.error(`${video.value.id}上传失败`);
       }
-      isTranslating.value = false;
     })
     .catch((error) => {
       console.error('上传失败:', video.value.id, error);
-    });
+      ElMessage.error(`${video.value.id}上传失败`);
+    })
+    .finally(() => (isTranslating.value = false));
 };
 
 const handleVideoError = (error) => {
   console.error('视频播放错误:', error);
+  ElMessage.error('视频播放错误');
 };
 </script>
 
@@ -151,7 +157,6 @@ const handleVideoError = (error) => {
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  margin-right: 10px;
 }
 
 .rCard {

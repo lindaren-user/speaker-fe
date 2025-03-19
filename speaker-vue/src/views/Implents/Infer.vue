@@ -51,17 +51,18 @@ const startProgress = () => {
       if (res.code == 200) {
         percentage.value += 4;
         ElMessage({
+          showClose: true,
           type: 'success',
           message: '训练成功',
         });
       } else {
-        ElMessage({
-          type: 'error',
-          message: '训练失败',
-        });
+        ElMessage.error('训练失败');
       }
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      ElMessage.error('训练失败');
+    });
 
   let kk = 0;
   const interval = setInterval(() => {
