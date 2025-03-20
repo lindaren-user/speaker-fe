@@ -83,7 +83,7 @@ const startProgress = () => {
 }
 
 .progress-icon-container {
-  position: relative; /* 确保子元素相对定位 */
+  position: relative;
   width: 50vw;
   padding: 0;
   margin: 0;

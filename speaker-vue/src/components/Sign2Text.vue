@@ -88,8 +88,7 @@ const handleAddVideo = (file) => {
     timeStamp: new Date(),
   };
   // 更新预览视频的URL
-  const objectUrl = URL.createObjectURL(file);
-  previewVideoUrl.value = objectUrl;
+  previewVideoUrl.value = URL.createObjectURL(file);
 };
 
 const handleRecordComplete = (blob) => {
@@ -134,6 +133,7 @@ const uploadVideo = () => {
         // 上传成功后更新展示视频的URL
         videoUrl.value = requestLocal + res.data.url;
         resultText.value = res.data.result;
+        console.log(videoUrl.value);
       } else {
         ElMessage.error(`${video.value.id}上传失败`);
       }
@@ -146,7 +146,7 @@ const uploadVideo = () => {
 };
 
 const handleVideoError = (error) => {
-  console.error('视频播放错误:', error);
+  console.error('视频播放错误:', error.target.error);
   ElMessage.error('视频播放错误');
 };
 </script>

@@ -41,7 +41,6 @@ import request from '@/utils/request';
 import VideoShow from '@/components/VideoShow.vue';
 import VideoTag from '@/components/VideoTag.vue';
 import emittr from '@/utils/event-bus';
-import { ElMessageBox } from 'element-plus';
 
 const requestLocal = '/api';
 
@@ -75,6 +74,7 @@ const getAllVideos = () => {
     })
     .catch((err) => {
       console.log(err);
+      ElMessage.error(err.message);
     });
 };
 

@@ -86,11 +86,11 @@ const handleUploadAll = async () => {
     return;
   }
   try {
-    await Promise.all(unUploaded.map(uploadVideo)); // 异步处理
+    await Promise.all(unUploaded.map(uploadVideo)); // 等待所有的视频处理完成
     if (unUploaded.every((v) => v.isUploaded)) {
       ElMessage({
         showClose: true,
-        type: SuccessFilled,
+        type: 'success',
         message: '全部上传成功',
       });
       ulCounterStore.changeCounter(length);
@@ -117,11 +117,11 @@ const uploadVideo = (video) => {
     .then((res) => {
       if (res.code == 200) {
         video.isUploaded = true;
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: `${video.id}上传成功`,
-        });
+        // ElMessage({
+        //   showClose: true,
+        //   type: 'success',
+        //   message: `${video.id}上传成功`,
+        // });
       } else {
         ElMessage.error(`${video.id}上传失败`);
       }
@@ -129,7 +129,7 @@ const uploadVideo = (video) => {
     })
     .catch((error) => {
       console.error('上传失败:', video.id, error);
-      ElMessage.error(`${video.id}上传失败`);
+      // ElMessage.error(`${video.id}上传失败`);
     });
 };
 </script>

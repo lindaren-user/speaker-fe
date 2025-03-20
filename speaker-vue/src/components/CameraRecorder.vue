@@ -1,6 +1,6 @@
 <template>
   <div class="camera-recorder">
-    <video ref="videoPreview" autoplay muted></video>
+    <video ref="videoElement" autoplay muted></video>
     <div class="controls">
       <el-button :type="isRecording && isPaused ? 'primary' : 'danger'" @click="toggleRecording">
         {{ isRecording ? (isPaused ? '继续录制' : '暂停录制') : '开始录制' }}
@@ -14,7 +14,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const videoPreview = ref(null);
+const videoElement = ref(null);
 const mediaRecorder = ref(null);
 const isRecording = ref(false);
 const isPaused = ref(false);
@@ -25,29 +25,30 @@ const chunks = ref([]);
 const emit = defineEmits(['record-complete']);
 
 onMounted(() => initCamera());
-
 onBeforeUnmount(() => stopCamera());
 
 // 初始化摄像头
-const initCamera = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoPreview.value.srcObject = stream;
-    mediaRecorder.value = new MediaRecorder(stream);
+const initCamera = () => {
+  navigator.mediaDevices
+    .getUserMedia({ video: true })
+    .then((stream) => {
+      videoElement.value.srcObject = stream;
+      mediaRecorder.value = new MediaRecorder(stream);
 
-    mediaRecorder.value.ondataavailable = (e) => {
-      chunks.value.push(e.data);
-    };
+      mediaRecorder.value.ondataavailable = (e) => {
+        chunks.value.push(e.data);
+      };
 
-    mediaRecorder.value.onstop = () => {
-      const blob = new Blob(chunks.value, { type: 'video/x-msvideo' });
-      emit('record-complete', blob);
-      chunks.value = [];
-    };
-  } catch (error) {
-    console.error('摄像头访问失败:', error);
-    ElMessage.error('无法访问摄像头');
-  }
+      mediaRecorder.value.onstop = () => {
+        const blob = new Blob(chunks.value, { type: 'video/x-msvideo' });
+        emit('record-complete', blob);
+        chunks.value = [];
+      };
+    })
+    .catch((err) => {
+      console.error('摄像头访问失败:', err);
+      ElMessage.error('无法访问摄像头');
+    });
 };
 
 // 停止摄像头
@@ -72,37 +73,50 @@ const toggleRecording = () => {
 
 // 开始录制
 const startRecording = () => {
-  mediaRecorder.value.start();
-  isRecording.value = true;
-  isPaused.value = false;
-  timer.value = setInterval(() => {
-    recordingTime.value++;
-  }, 1000);
+  if (mediaRecorder.value?.stream) {
+    mediaRecorder.value.start();
+
+    isRecording.value = true;
+    isPaused.value = false;
+
+    timer.value = setInterval(() => {
+      recordingTime.value++;
+    }, 1000);
+  }
 };
 
 // 暂停录制
 const pauseRecording = () => {
-  mediaRecorder.value.pause();
-  isPaused.value = true;
-  clearInterval(timer.value);
+  if (mediaRecorder.value) {
+    mediaRecorder.value.pause();
+    isPaused.value = true;
+    clearInterval(timer.value);
+  }
 };
 
 // 继续录制
 const continueRecording = () => {
-  mediaRecorder.value.resume();
-  isPaused.value = false;
-  timer.value = setInterval(() => {
-    recordingTime.value++;
-  }, 1000);
+  if (mediaRecorder.value) {
+    mediaRecorder.value.resume();
+    isPaused.value = false;
+    timer.value = setInterval(() => {
+      recordingTime.value++;
+    }, 1000);
+  }
 };
 
 // 停止录制
 const stopRecording = () => {
-  mediaRecorder.value.stop();
-  clearInterval(timer.value);
-  isRecording.value = false;
-  isPaused.value = false;
-  recordingTime.value = 0;
+  if (mediaRecorder.value) {
+    mediaRecorder.value.stop();
+
+    clearInterval(timer.value);
+
+    isRecording.value = false;
+    isPaused.value = false;
+
+    recordingTime.value = 0;
+  }
 };
 
 // 格式化时间

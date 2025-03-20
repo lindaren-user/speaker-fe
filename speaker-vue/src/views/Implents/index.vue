@@ -1,35 +1,33 @@
 <template>
   <div class="layout-container">
     <el-container>
-      <!-- 侧边栏 -->
       <el-aside class="el-aside">
         <el-menu class="el-menu-vertical-demo" :router="true" :default-active="activeIndex">
-          <el-menu-item index="/implents/dataset">
-            <div style="margin: 0 auto">
+          <el-menu-item index="/implents/myModels">
+            <div style="margin: 0 7%">
               <el-icon><Coin /></el-icon>
-              <span>数据采集</span>
+              <span>我的模型</span>
             </div>
           </el-menu-item>
-          <el-menu-item index="/implents/tag">
-            <div style="margin: 0 auto">
-              <el-badge
-                :value="ulCounterStore.ulCounter"
-                :max="99"
-                class="item"
-                :offset="[10, 10]"
-                :hidden="ulCounterStore.ulCounter === 0"
+          <el-sub-menu index="/implents/models">
+            <template #title>
+              <div style="margin: 0 7%">
+                <el-icon><Connection /></el-icon>
+                <span style="font-size: 18px">创建模型</span>
+              </div>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="/implents/models/dataset"
+                ><el-icon><Coin /></el-icon>数据采集</el-menu-item
               >
-                <el-icon><CollectionTag /></el-icon>
-                <span>数据标注</span>
-              </el-badge>
-            </div>
-          </el-menu-item>
-          <el-menu-item index="/implents/infer">
-            <div style="margin: 0 auto">
-              <el-icon><DataAnalysis /></el-icon>
-              <span>模型训练</span>
-            </div>
-          </el-menu-item>
+              <el-menu-item index="/implents/models/tag"
+                ><el-icon><CollectionTag /></el-icon>语料定义</el-menu-item
+              >
+              <el-menu-item index="/implents/models/infer"
+                ><el-icon><DataAnalysis /></el-icon>模型训练</el-menu-item
+              >
+            </el-menu-item-group>
+          </el-sub-menu>
           <el-sub-menu index="/implents/interpretation">
             <template #title>
               <div style="margin: 0 auto">
@@ -55,12 +53,9 @@
 <script setup>
 import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
-import { useUlCounterStore } from '@/stores/ulCounter';
-import { Coin, CollectionTag, DataAnalysis, Link } from '@element-plus/icons-vue';
 
 const activeIndex = ref('/implents/dataset');
 const route = useRoute();
-const ulCounterStore = useUlCounterStore();
 
 watchEffect(() => {
   activeIndex.value = route.path;

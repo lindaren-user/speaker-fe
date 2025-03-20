@@ -27,7 +27,7 @@
             ><el-icon><User /></el-icon> 登录</RouterLink
           >
           <RouterLink to="/register" active-class="my-active-class" class="nav-item"
-            >注册</RouterLink
+            ><el-icon><Check /></el-icon> 注册</RouterLink
           >
         </template>
         <template v-else>
@@ -35,7 +35,7 @@
             @click="notifyDrawer = true"
             style="display: flex; align-items: center; margin-right: 2vh; margin-top: 8px"
             round
-            >消息
+            ><el-icon><Message /></el-icon>&nbsp;消息
           </el-button>
           <el-dropdown>
             <span class="welcome">
@@ -181,6 +181,7 @@ body {
 }
 
 :deep(.el-button:hover) {
+  border: 1px solid #66c18c !important;
   background-color: #66c18c !important;
   color: white !important;
 }

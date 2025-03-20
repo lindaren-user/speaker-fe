@@ -49,7 +49,7 @@ const rules = {
 };
 
 const login = () => {
-  userStore.changeUser('lindaren');
+  // userStore.changeUser('lindaren');
   formRef.value?.validate((valid) => {
     if (valid) {
       request
@@ -62,7 +62,7 @@ const login = () => {
               message: '登录成功',
             });
             userStore.changeUser(form.username);
-            router.replace('/implents/dataset');
+            router.replace('/implents/myModels');
           } else {
             ElMessage.error(res.msg);
           }

@@ -6,7 +6,7 @@ export const useUlCounterStore = defineStore('ulCounter', () => {
 
   const changeCounter = (value) => {
     ulCounter.value += value;
-    localStorage.setItem('ulCounter', JSON.stringify(ulCounter.value));
+    localStorage.setItem('ulCounter', JSON.stringify(value));
   };
 
   const clearCounter = () => {

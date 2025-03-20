@@ -129,7 +129,7 @@ const filteredVideos = computed(() => {
     case 'noTagged':
       return props.noTagged;
     default:
-      return toRaw(props.videoList);
+      return props.videoList;
   }
 });
 

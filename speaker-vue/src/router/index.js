@@ -31,7 +31,7 @@ const router = createRouter({
     },
     {
       path: '/implents',
-      component: () => import('@/views/Implents/index.vue'),
+      component: () => import('@/views/Implents/Index.vue'),
       beforeEnter: (to, from, next) => {
         if (useUserStore().user) {
           next();
@@ -42,23 +42,33 @@ const router = createRouter({
       children: [
         {
           path: '', // 设置默认子路由
-          redirect: '/implents/dataset',
+          redirect: '/implents/myModels',
         },
         {
-          path: 'dataset',
-          component: () => import('@/views/Implents/DataSet.vue'),
+          path: 'myModels',
+          component: () => import('@/views/Implents/MyModels.vue'),
         },
         {
-          path: 'infer',
-          component: () => import('@/views/Implents/Infer.vue'),
-        },
-        {
-          path: 'tag',
-          component: () => import('@/views/Implents/Tag.vue'),
-          beforeEnter: (to, from, next) => {
-            useUlCounterStore().clearCounter();
-            next();
-          },
+          path: 'models',
+          component: () => import('@/views/Implents/Models/Index.vue'),
+          children: [
+            {
+              path: 'dataset',
+              component: () => import('@/views/Implents/Models/DataSet.vue'),
+            },
+            {
+              path: 'infer',
+              component: () => import('@/views/Implents/Models/Infer.vue'),
+            },
+            {
+              path: 'tag',
+              component: () => import('@/views/Implents/Models/Tag.vue'),
+              beforeEnter: (to, from, next) => {
+                useUlCounterStore().clearCounter();
+                next();
+              },
+            },
+          ],
         },
         {
           path: 'interpretation/:id',

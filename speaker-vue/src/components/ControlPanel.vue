@@ -1,17 +1,17 @@
 <template>
   <div class="control-panel">
     <el-button type="primary" @click="triggerFileInput">
-      <i class="iconfont icon-shangchuan" /> 选择本地视频
+      <i class="iconfont icon-shangchuan" />&nbsp;选择本地视频
     </el-button>
 
     <el-tooltip content="将打开本机摄像头进行录制">
       <el-button type="success" @click="emit('start-recording')">
-        <i class="iconfont icon-luzhi" /> 摄像头录制
+        <i class="iconfont icon-luzhi" />&nbsp;摄像头录制
       </el-button>
     </el-tooltip>
 
     <el-button type="warning" @click="emit('upload-all')">
-      <i class="iconfont icon-shangchuan1" /> 一键上传
+      <i class="iconfont icon-shangchuan1" />&nbsp;一键上传
     </el-button>
 
     <input type="file" ref="fileInput" hidden accept="video/*" @change="handleFileSelect" />
@@ -36,7 +36,6 @@ const handleFileSelect = (e) => {
   if (file) {
     // 验证文件类型
     if (!file.type.includes('video')) {
-      const { ElMessage } = defineExpose({ ElMessage });
       ElMessage.error('请选择视频文件');
       return;
     }
