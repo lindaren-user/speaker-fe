@@ -9,10 +9,10 @@ export const useUlCounterStore = defineStore('ulCounter', () => {
     localStorage.setItem('ulCounter', JSON.stringify(value));
   };
 
-  const clearCounter = () => {
+  const clearStore = () => {
     ulCounter.value = 0;
     localStorage.removeItem('ulCounter');
   };
 
-  return { ulCounter, changeCounter, clearCounter };
+  return { ulCounter, changeCounter, clearStore };
 });

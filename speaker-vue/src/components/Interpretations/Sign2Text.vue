@@ -1,6 +1,11 @@
 <template>
   <el-card class="lCard">
-    <template #header>没有选择模型 </template>
+    <template #header>
+      <span v-if="usedModelStore.usedModel"
+        >当前使用模型为 "{{ usedModelStore.usedModel.name }}"</span
+      >
+      <span v-else>没有选择模型</span>
+    </template>
     <ControlPanel
       @add-video="handleAddVideo"
       @start-recording="showCameraDialog = true"
@@ -64,6 +69,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useUsedModelStore } from '@/stores/usedModel';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import formRequest from '@/utils/formRequest';
@@ -77,6 +83,7 @@ const previewVideoUrl = ref('');
 const videoUrl = ref('');
 const isTranslating = ref(false);
 const resultText = ref('');
+const usedModelStore = useUsedModelStore();
 
 const handleAddVideo = (file) => {
   video.value = {

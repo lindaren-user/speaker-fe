@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useUlCounterStore } from '@/stores/ulCounter';
 import request from '@/utils/request';
 import { useUserStore } from '@/stores/user';
+import { useProcessedModelStore } from '@/stores/processedModel';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -78,7 +79,8 @@ router.beforeEach((to, from, next) => {
       .get('/api/check')
       .then((res) => {
         if (res.code != 200) {
-          useUserStore().logout();
+          useUserStore().clearStore();
+          useProcessedModelStore().clearStore();
 
           next('/login');
           return;

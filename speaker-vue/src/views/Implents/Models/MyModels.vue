@@ -7,8 +7,8 @@
       </div>
     </template>
     <div class="models-list-container">
-      <template v-if="modelsList.length">
-        <el-card v-for="(model, index) in modelsList" :key="index" class="model-item">
+      <template v-if="modelList.length">
+        <el-card v-for="(model, index) in modelList" :key="index" class="model-item">
           <div class="model-content">
             <span class="model-name" @click="editModel(index)">{{ model.name }}</span>
             <div class="model-actions">
@@ -111,70 +111,79 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import { useUsedModelStore } from '@/stores/usedModel';
 import request from '@/utils/request';
+import { useProcessedModelStore } from '@/stores/processedModel';
+import { useUsedModelStore } from '@/stores/usedModel';
 
 const router = useRouter();
 const dialogNewModels = ref(false);
 const dialogEditModels = ref(false);
 const userStore = useUserStore();
+const processedModelStore = useProcessedModelStore();
 const usedModelStore = useUsedModelStore();
 
 const name = ref('');
 const description = ref('');
 
-const modelsList = ref([
-  {
-    name: '日常出行',
-    time: '2025.3.22',
-  },
-  {
-    name: '旅游',
-    time: '2025.3.20',
-  },
-  {
-    name: '购物',
-    time: '2025.1.3',
-  },
-  {
-    name: '医院看病',
-    time: '2025.1.4',
-  },
-  {
-    name: '远门常用',
-    time: '2025.1.5',
-  },
+const modelList = ref([
+  // {
+  //   name: '日常出行',
+  //   time: '2025.3.22',
+  // },
+  // {
+  //   name: '旅游',
+  //   time: '2025.3.20',
+  // },
+  // {
+  //   name: '购物',
+  //   time: '2025.1.3',
+  // },
+  // {
+  //   name: '医院看病',
+  //   time: '2025.1.4',
+  // },
+  // {
+  //   name: '远门常用',
+  //   time: '2025.1.5',
+  // },
 ]);
 
 const names = new Set();
 
 const selectedModel = ref('');
+watchEffect(() => {
+  console.log(selectedModel.value);
+  if (selectedModel.value) {
+    usedModelStore.changeUsedModel(modelList.value[selectedModel.value]);
+    console.log('使用模型');
+  }
+});
 
 const editModelInfo = (index) => {
   dialogEditModels.value = true;
 
-  name.value = modelsList.value[index].name;
-  description.value = modelsList.value[index]?.description;
+  name.value = modelList.value[index].name;
+  description.value = modelList.value[index]?.description;
 };
 
 const SaveModelInfo = () => {
-  const modelId = usedModelStore.usedModel.id;
+  const modelId = processedModelStore.processedModel.id;
   request
     .put('/api/updateModel', {
       name: name.value,
       profile: description.value,
       id: modelId,
       author: userStore.user,
-      datatime: usedModelStore.usedModel.datatime,
+      datatime: processedModelStore.processedModel.datatime,
     })
     .then((res) => {
       if (res.code == 200) {
-        const index = modelsList.value.findIndex((model) => model.id === modelId);
-        modelsList.value[index].name = name.value;
-        modelsList.value[index].description = description.value;
+        const index = modelList.value.findIndex((model) => model.id === modelId);
+        modelList.value[index].name = name.value;
+        modelList.value[index].description = description.value;
 
         ElMessage({
           showClose: true,
@@ -201,13 +210,13 @@ const deleteModel = (index) => {
   }).then(() => {
     request
       .delete('/api/deleteModel', {
-        params: modelsList.value[index].id,
+        params: modelList.value[index].id,
       })
       .then((res) => {
         if (res.code == 200) {
-          names.delete(modelsList.value[index].name);
+          names.delete(modelList.value[index].name);
 
-          modelsList.value.splice(index, 1);
+          modelList.value.splice(index, 1);
           if (selectedModel.value === index) {
             selectedModel.value = '';
           }
@@ -236,7 +245,7 @@ const newModel = () => {
 };
 
 const editModel = (index) => {
-  usedModelStore.changeUsedModel(modelsList.value[index]);
+  processedModelStore.changeProcessedModel(modelList.value[index]);
 
   router.push('/implents/models/newModels');
 };
@@ -268,8 +277,8 @@ const createModel = () => {
           datatime,
           id,
         };
-        modelsList.value.push(newModel);
-        usedModelStore.changeUsedModel(newModel);
+        modelList.value.push(newModel);
+        processedModelStore.changeProcessedModel(newModel);
 
         ElMessage({
           showClose: true,
@@ -293,19 +302,22 @@ const resetInfo = () => {
   description.value = '';
 };
 
-onMounted(() => {
+const getAllModels = () => {
   request
     .get('/api/modelList')
     .then((res) => {
       if (res.code == 200 && Array.isArray(res.data)) {
-        modelsList.value = res.data;
+        modelList.value = res.data;
         ElMessage({
           showClose: true,
           type: 'success',
           message: '成功获取模型列表',
         });
 
-        modelsList.value.forEach((model) => names.add(model.name));
+        modelList.value.forEach((model) => names.add(model.name));
+        selectedModel.value = modelList.value.findIndex(
+          (model) => model.name === usedModelStore.usedModel.name,
+        );
       } else {
         console.log(res.msg);
         ElMessage.error(res.msg);
@@ -315,6 +327,10 @@ onMounted(() => {
       console.log(err.message);
       ElMessage.error('获取模型列表失败');
     });
+};
+
+onMounted(() => {
+  getAllModels();
 });
 </script>
 

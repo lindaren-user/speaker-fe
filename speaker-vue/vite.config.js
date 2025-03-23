@@ -33,8 +33,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        // target: 'http://localhost:9090',
-        target: 'http://8.134.24.85:9090',
+        target: 'http://localhost:9090',
+        // target: 'http://8.134.24.85:9090',
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },

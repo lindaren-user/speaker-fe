@@ -51,7 +51,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useUsedModelStore } from '@/stores/usedModel';
+import { useProcessedModelStore } from '@/stores/processedModel';
 import request from '@/utils/request';
 import VideoShow from '@/components/Others/VideoShow.vue';
 import VideoTag from '@/components/Others/VideoTag.vue';
@@ -65,7 +65,7 @@ const dialogVisible = ref(false);
 const changeObject = ref({});
 const jd = ref(1);
 const tag = ref('');
-const usedModelStore = useUsedModelStore();
+const processedModelStore = useProcessedModelStore();
 
 // 由此，传递过去的都是非响应式数据
 const isTagged = computed(() => {
@@ -80,7 +80,7 @@ const noTagged = computed(() => {
 const getAllVideos = () => {
   request
     .get('/api/list', {
-      params: usedModelStore.usedModel.id,
+      params: processedModelStore.processedModel.id,
     })
     .then((res) => {
       if (res.code == 200 && Array.isArray(res.data)) {

@@ -19,7 +19,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useUsedModelStore } from '@/stores/usedModel';
+import { useProcessedModelStore } from '@/stores/processedModel';
 import request from '@/utils/request';
 
 const showIcon = ref(false); // 控制图标显示
@@ -27,7 +27,7 @@ const showProgress = ref(false); // 控制进度条显示
 const percentage = ref(0); // 进度条的百分比
 const isTraining = ref(false);
 
-const usedModelStore = useUsedModelStore();
+const processedModelStore = useProcessedModelStore();
 
 const train = () => {
   isTraining.value = true;
@@ -41,7 +41,7 @@ const train = () => {
 const startProgress = () => {
   request
     .get('/api/train', {
-      params: usedModelStore.usedModel.name,
+      params: processedModelStore.processedModel.name,
     })
     .then((res) => {
       if (res.code == 200) {

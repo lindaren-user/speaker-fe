@@ -1,6 +1,6 @@
 <template>
   <div class="modelName">
-    <span>当前模型为"{{ usedModelStore.usedModel.name }}"</span>
+    <span>当前模型为"{{ processedModelStore.processedModel.name }}"</span>
   </div>
   <el-card class="models-body">
     <template #header
@@ -21,13 +21,13 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useUsedModelStore } from '@/stores/usedModel';
+import { useProcessedModelStore } from '@/stores/processedModel';
 import DataSet from '@/components/Models/DataSet.vue';
 import Tag from '@/components/Models/Tag.vue';
 import Infer from '@/components/Models/Infer.vue';
 
 const active = ref(0);
-const usedModelStore = useUsedModelStore();
+const processedModelStore = useProcessedModelStore();
 </script>
 
 <style scoped>

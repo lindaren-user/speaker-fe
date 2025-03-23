@@ -76,10 +76,12 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user.js';
+import { useProcessedModelStore } from './stores/processedModel';
 import request from './utils/request';
 import { _isMobile } from './utils/isMobile';
 
 const userStore = useUserStore();
+const processedModelStore = useProcessedModelStore();
 const router = useRouter();
 const notifyDrawer = ref(false);
 
@@ -89,8 +91,8 @@ const logout = () => {
     .then((res) => {
       if (res.code == 200) {
         ElMessage.success('退出成功');
-        console.log('登出');
-        userStore.logout();
+        userStore.clearStore();
+        processedModelStore.clearStore();
         router.push('/');
       } else {
         ElMessage.error(res.msg);

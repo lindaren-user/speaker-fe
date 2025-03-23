@@ -43,7 +43,7 @@
 <script setup>
 import { ref, onDeactivated, onUnmounted } from 'vue';
 import { useUlCounterStore } from '@/stores/ulCounter';
-import { useUsedModelStore } from '@/stores/usedModel';
+import { useProcessedModelStore } from '@/stores/processedModel';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import VideoList from '@/components/Others/VideoList.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
@@ -61,7 +61,7 @@ const videoList = ref([]);
 const showCameraDialog = ref(false);
 const nextVideoId = ref(1);
 const ulCounterStore = useUlCounterStore();
-const usedModelStore = useUsedModelStore();
+const processedModelStore = useProcessedModelStore();
 
 // 处理添加视频
 const handleAddVideo = (file) => {
@@ -121,7 +121,7 @@ const uploadVideo = (video) => {
   const formData = new FormData();
   formData.append('video', video.file);
   formData.append('videoId', video.id);
-  formData.append('modelId', usedModelStore.usedModel.id);
+  formData.append('modelId', processedModelStore.processedModel.id);
 
   return formRequest
     .post('/api/upload', formData)

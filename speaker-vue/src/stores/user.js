@@ -9,10 +9,10 @@ export const useUserStore = defineStore('user', () => {
     sessionStorage.setItem('user', JSON.stringify(value));
   };
 
-  const logout = () => {
+  const clearStore = () => {
     user.value = null;
     sessionStorage.removeItem('user');
   };
 
-  return { user, changeUser, logout };
+  return { user, changeUser, clearStore };
 });
