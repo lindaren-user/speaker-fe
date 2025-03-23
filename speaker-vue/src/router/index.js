@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUlCounterStore } from '@/stores/ulCounter';
 import request from '@/utils/request';
-import { ElMessage } from 'element-plus';
+import { useUserStore } from '@/stores/user';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -74,20 +74,22 @@ const router = createRouter({
 // 权限验证
 router.beforeEach((to, from, next) => {
   if (to?.meta?.requireAuth) {
-    // request
-    //   .get('/api/check')
-    //   .then((res) => {
-    //     if (res.code != 200) {
-    //       next('/login');
-    //       return;
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err.message);
-    //     ElMessage.error(err.message);
-    //     // ...
-    //     return;
-    //   });
+    request
+      .get('/api/check')
+      .then((res) => {
+        if (res.code != 200) {
+          useUserStore().logout();
+
+          next('/login');
+          return;
+        }
+      })
+      .catch((err) => {
+        console.log(err.message);
+        ElMessage.error(err.message);
+        // ...
+        return;
+      });
   }
   next();
 });
