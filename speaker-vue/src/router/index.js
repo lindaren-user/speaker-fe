@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useUserStore } from '@/stores/user';
 import { useUlCounterStore } from '@/stores/ulCounter';
+import request from '@/utils/request';
+import { ElMessage } from 'element-plus';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,45 +29,36 @@ const router = createRouter({
     {
       path: '/privacy',
       component: () => import('@/views/Privacy.vue'),
+      meta: {
+        requireAuth: true,
+      },
     },
     {
       path: '/implents',
       component: () => import('@/views/Implents/Index.vue'),
-      beforeEnter: (to, from, next) => {
-        if (useUserStore().user) {
-          next();
-        } else {
-          next('/login');
-        }
+      meta: {
+        requireAuth: true,
       },
       children: [
         {
           path: '', // 设置默认子路由
-          redirect: '/implents/myModels',
-        },
-        {
-          path: 'myModels',
-          component: () => import('@/views/Implents/MyModels.vue'),
+          redirect: '/implents/models',
         },
         {
           path: 'models',
           component: () => import('@/views/Implents/Models/Index.vue'),
           children: [
             {
-              path: 'dataset',
-              component: () => import('@/views/Implents/Models/DataSet.vue'),
+              path: '', // 设置默认子路由
+              redirect: '/implents/models/myModels',
             },
             {
-              path: 'infer',
-              component: () => import('@/views/Implents/Models/Infer.vue'),
+              path: 'myModels',
+              component: () => import('@/views/Implents/Models/MyModels.vue'),
             },
             {
-              path: 'tag',
-              component: () => import('@/views/Implents/Models/Tag.vue'),
-              beforeEnter: (to, from, next) => {
-                useUlCounterStore().clearCounter();
-                next();
-              },
+              path: 'newModels',
+              component: () => import('@/views/Implents/Models/NewModels.vue'),
             },
           ],
         },
@@ -77,6 +69,27 @@ const router = createRouter({
       ],
     },
   ],
+});
+
+// 权限验证
+router.beforeEach((to, from, next) => {
+  if (to?.meta?.requireAuth) {
+    // request
+    //   .get('/api/check')
+    //   .then((res) => {
+    //     if (res.code != 200) {
+    //       next('/login');
+    //       return;
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err.message);
+    //     ElMessage.error(err.message);
+    //     // ...
+    //     return;
+    //   });
+  }
+  next();
 });
 
 export default router;

@@ -49,9 +49,10 @@ const handleFileSelect = (e) => {
 .control-panel {
   display: flex;
   justify-content: center;
+  height: 1.875rem;
 }
 
 .control-panel button {
-  margin-right: 15px;
+  margin-right: 1.25rem;
 }
 </style>

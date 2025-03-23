@@ -32,21 +32,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, toRaw } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import request from '@/utils/request';
-import { ElMessage } from 'element-plus';
 
 const formRef = ref(null);
 const router = useRouter();
 
-const form = reactive({
+const form = ref({
   username: '',
   password: '',
   secondPwd: '',
 });
-
-const secondPwd = ref('');
 
 const rules = {
   username: [
@@ -66,14 +63,14 @@ const rules = {
 const register = () => {
   formRef.value?.validate((valid) => {
     if (valid) {
-      if (form.password !== form.secondPwd) {
+      if (form.value.password !== form.value.secondPwd) {
         ElMessage.error('前后两次密码不一致');
         return;
       }
       request
         .post('/api/register', {
-          username: form.username,
-          password: form.password,
+          username: form.value.username,
+          password: form.value.password,
         })
         .then((res) => {
           if (res.code == 200) {

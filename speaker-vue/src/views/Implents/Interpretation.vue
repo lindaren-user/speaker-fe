@@ -1,17 +1,15 @@
 <template>
   <div class="body">
-    <keep-alive>
-      <Sign2Text v-if="routeId == 1" />
-      <Text2Sign v-else />
-    </keep-alive>
+    <Sign2Text v-if="routeId == 1" />
+    <Text2Sign v-else />
   </div>
 </template>
 
 <script setup>
 import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
-import Sign2Text from '@/components/Sign2Text.vue';
-import Text2Sign from '@/components/Text2Sign.vue';
+import Sign2Text from '@/components/Interpretations/Sign2Text.vue';
+import Text2Sign from '@/components/Interpretations/Text2Sign.vue';
 
 const routeId = ref('');
 const route = useRoute();
@@ -23,11 +21,17 @@ watchEffect(() => {
 
 <style scoped>
 .body {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  height: 95%;
-  flex: 1;
-  margin-top: 4vh;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 600px 600px;
+  gap: 1.875rem;
+}
+
+@media screen and (max-width: 400px) {
+  .body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
 }
 </style>

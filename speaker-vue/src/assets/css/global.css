@@ -10,8 +10,11 @@ body,
   margin: 0;
 }
 body {
-  overflow: hidden; /*取消滚动条 */
+  overflow: hidden;
 }
-* {
-  font-family: 'Noto Sans SC', sans-serif !important;
+
+@media screen and (max-width: 400px) {
+  html {
+    font-size: 12px;
+  }
 }

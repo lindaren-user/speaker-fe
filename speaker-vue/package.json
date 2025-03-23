@@ -16,6 +16,7 @@
     "axios": "^1.8.1",
     "mitt": "^3.0.1",
     "pinia": "^3.0.1",
+    "vant": "^4.9.18",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },
@@ -29,7 +30,9 @@
     "prettier": "^3.5.1",
     "unplugin-auto-import": "^19.1.1",
     "unplugin-vue-components": "^28.4.1",
+    "vant": "^4.9.18",
     "vite": "^6.1.0",
+    "vite-plugin-purgecss": "^0.2.13",
     "vite-plugin-vue-devtools": "^7.7.2"
   }
 }

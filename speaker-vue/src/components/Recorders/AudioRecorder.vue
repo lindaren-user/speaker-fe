@@ -1,11 +1,19 @@
 <template>
-  <el-tooltip :content="isRecording ? '点击停止' : '语音识别'">
-    <span @click="toggleRecording">
-      <span v-if="isRecording" class="recording-time"> {{ formatTime(recordingTime) }}&nbsp; </span>
-      <el-icon v-if="isRecording" :size="30" class="microphone blinking"><Microphone /></el-icon>
-      <el-icon v-else :size="30" class="microphone"><Mute /></el-icon>
+  <div class="audioRecorder">
+    <el-tooltip :content="isRecording ? '点击停止' : '点击开始'">
+      <span @click="toggleRecording">
+        <el-icon v-if="isRecording" :size="30" class="microphone blinking"><Microphone /></el-icon>
+        <el-icon v-else :size="30" class="microphone"><Mute /></el-icon>
+
+        <span v-if="isRecording" class="recording-time"> {{ formatTime(recordingTime) }}</span>
+      </span>
+    </el-tooltip>
+
+    <span>
+      <el-button type="primary" @click="translateToText" :disabled="!isFinished">识别</el-button>
+      <el-button type="danger" @click="clearAudio" :disabled="!isFinished">清除</el-button>
     </span>
-  </el-tooltip>
+  </div>
 </template>
 
 <script setup>
@@ -16,6 +24,9 @@ const recordingTime = ref(0);
 const timer = ref(null);
 const mediaRecorder = ref(null);
 const chunks = ref([]);
+const isFinished = ref(false);
+
+let blob;
 
 const emit = defineEmits(['record-complete']);
 
@@ -43,9 +54,7 @@ const initMCP = () => {
       };
 
       mediaRecorder.value.onstop = () => {
-        const blob = new Blob(chunks.value, { type: 'audio/wav' });
-        emit('record-complete', blob);
-        chunks.value = [];
+        blob = new Blob(chunks.value, { type: 'audio/wav' });
       };
     })
     .catch((err) => {
@@ -65,8 +74,10 @@ const stopMCP = () => {
 const startRecording = () => {
   if (mediaRecorder.value?.stream) {
     mediaRecorder.value.start();
+    clearAudio();
 
     isRecording.value = true;
+    isFinished.value = false;
 
     timer.value = setInterval(() => {
       recordingTime.value++;
@@ -77,14 +88,30 @@ const startRecording = () => {
 // 停止录制
 const stopRecording = () => {
   if (mediaRecorder.value) {
-    mediaRecorder.value.stop();
+    mediaRecorder.value.onstop();
 
     clearInterval(timer.value);
 
     isRecording.value = false;
+    isFinished.value = true;
 
     recordingTime.value = 0;
   }
+};
+
+// 开始转换
+const translateToText = () => {
+  emit('record-complete', blob);
+  chunks.value = [];
+
+  isFinished.value = false;
+};
+
+// 清除语音
+const clearAudio = () => {
+  chunks.value = [];
+
+  isFinished.value = false;
 };
 
 const formatTime = (seconds) => {
@@ -95,6 +122,13 @@ const formatTime = (seconds) => {
 </script>
 
 <style scoped>
+.audioRecorder {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9375rem 0;
+}
+
 .microphone {
   cursor: pointer;
   transition: color 0.3s ease;
@@ -105,7 +139,7 @@ const formatTime = (seconds) => {
 }
 
 .recording-time {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: #666;
 }
 

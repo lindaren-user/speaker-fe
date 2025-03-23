@@ -1,15 +1,40 @@
 <template>
-  <div class="contain">
+  <!-- <div v-if="_isMobile()">
     <div class="left ani">
-      <h2 style="font-size: 58px; color: #229453">Speaker灵眸智译</h2>
-      <h3 style="font-size: 38px; color: #229453">欢迎来到灵眸智译智能传播平台</h3>
-      <hr style="color: #229453; border-color: #20894d; margin-top: 20px; opacity: 0.2" />
-      <h4 style="color: #248067; font-size: 20px; margin-top: 20px">
+      <h2 style="font-size: 3.625rem; color: #229453">Speaker灵眸智译</h2>
+      <h3 style="font-size: 2.375rem; color: #229453">欢迎来到灵眸智译智能传播平台</h3>
+
+      <el-divider style="margin: 1rem 3vw" />
+
+      <h4 style="color: #248067; font-size: 1.5rem; margin-top: 1.25rem">
         <i class="iconfont icon-shuyeu"></i><i class="iconfont icon-shuyeu"></i
         ><i class="iconfont icon-shuyeu"></i>让我们成为你的声音<i class="iconfont icon-shuyeu"></i
         ><i class="iconfont icon-shuyeu"></i><i class="iconfont icon-shuyeu"></i>
       </h4>
-      <div style="width: 100%">
+      <div>
+        <div class="kuaggle">
+          <div class="kuaggle-body">
+            <a class="number">100000000+</a><a class="char">用户人数</a>
+          </div>
+          <div class="kuaggle-body"><a class="number">10000+</a><a class="char">算法更迭</a></div>
+          <div class="kuaggle-body"><a class="number">100+</a><a class="char">模型优化</a></div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  <div class="contain">
+    <div class="left ani">
+      <h2 style="font-size: 3.625rem; color: #229453">Speaker灵眸智译</h2>
+      <h3 style="font-size: 2.375rem; color: #229453">欢迎来到灵眸智译智能传播平台</h3>
+
+      <el-divider style="margin: 1rem 3vw" />
+
+      <h4 style="color: #248067; font-size: 1.5rem; margin-top: 1.25rem">
+        <i class="iconfont icon-shuyeu"></i><i class="iconfont icon-shuyeu"></i
+        ><i class="iconfont icon-shuyeu"></i>让我们成为你的声音<i class="iconfont icon-shuyeu"></i
+        ><i class="iconfont icon-shuyeu"></i><i class="iconfont icon-shuyeu"></i>
+      </h4>
+      <div>
         <div class="kuaggle">
           <div class="kuaggle-body">
             <a class="number">100000000+</a><a class="char">用户人数</a>
@@ -24,7 +49,7 @@
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 1097 1024"
-        height="auto"
+        :height="auto"
         width="95%"
       >
         <g clip-path="url(#clip0_1_1378)">
@@ -1212,6 +1237,10 @@
   </div>
 </template>
 
+<script setup>
+import { _isMobile } from 'vant/lib/utils';
+</script>
+
 <style scoped>
 .contain {
   display: flex;
@@ -1230,11 +1259,11 @@
   margin-left: 12vw;
 }
 .number {
-  font-size: 35px;
+  font-size: 2.1875rem;
   color: #41ae3c;
 }
 .char {
-  font-size: 25px;
+  font-size: 1.5625rem;
   color: #d4c4b7;
 }
 @keyframes txx {
@@ -1249,7 +1278,7 @@
   transition: all 1s;
   animation: txx 1s;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 1.25rem;
 }
 .kuaggle {
   text-align: left;

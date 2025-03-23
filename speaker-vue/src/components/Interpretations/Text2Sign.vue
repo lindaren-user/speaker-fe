@@ -1,45 +1,41 @@
 <template>
-  <div class="container">
-    <el-card class="lCard">
-      <template #header>
-        <span style="float: left">目标文本</span>
-        <span style="float: right"> <AudioRecorder @record-complete="handleRecordComplete" /></span>
-      </template>
-      <div class="center">
-        <el-input
-          v-model="text"
-          placeholder="输入文本......"
-          show-word-limit
-          type="textarea"
-          maxlength="450"
-          resize="none"
-        />
-        <div class="btn">
-          <el-button type="danger" @click="clearText">
-            <el-icon><Delete /></el-icon> 清空
-          </el-button>
-          <el-button
-            type="primary"
-            :disabled="!text || !yiyuStore.isSuccess"
-            @click="startTranslation"
-          >
-            <el-icon><Switch /></el-icon> 转化
-          </el-button>
-        </div>
+  <el-card class="lCard">
+    <template #header> 目标文本 </template>
+    <AudioRecorder @record-complete="handleRecordComplete" />
+    <div class="center">
+      <el-input
+        v-model="text"
+        placeholder="输入文本......"
+        show-word-limit
+        type="textarea"
+        maxlength="450"
+        resize="none"
+      />
+      <div class="btn">
+        <el-button type="danger" @click="clearText">
+          <el-icon><Delete /></el-icon> 清空
+        </el-button>
+        <el-button
+          type="primary"
+          :disabled="!text || !yiyuStore.isSuccess"
+          @click="startTranslation"
+        >
+          <el-icon><Switch /></el-icon> 转化
+        </el-button>
       </div>
-    </el-card>
+    </div>
+  </el-card>
 
-    <el-card class="rCard" ref="rCard">
-      <template #header>
-        <div class="header">
-          <span>手语数字人</span>
-          <el-button round @click="dialogVisible = true" :disabled="!yiyuStore.isSuccess"
-            ><el-icon><Setting /></el-icon> 设置</el-button
-          >
-        </div>
-      </template>
-    </el-card>
-  </div>
+  <el-card class="rCard" ref="rCard">
+    <template #header>
+      <div class="header">
+        <span>手语数字人</span>
+        <el-button round @click="dialogVisible = true" :disabled="!yiyuStore.isSuccess"
+          ><el-icon><Setting /></el-icon> 设置</el-button
+        >
+      </div>
+    </template>
+  </el-card>
 
   <!-- 设置 -->
   <el-dialog
@@ -69,6 +65,16 @@
           inactive-text="关"
         />
       </li>
+      <li>
+        <span> 跟随翻译 </span>
+        <el-switch
+          v-model="canFollow"
+          size="small"
+          inline-prompt
+          active-text="开"
+          inactive-text="关"
+        />
+      </li>
     </ul>
     <template #footer>
       <span class="dialog-footer">
@@ -80,9 +86,9 @@
 </template>
 
 <script setup>
-import { ref, useTemplateRef, watch, onDeactivated, onActivated } from 'vue';
+import { ref, useTemplateRef, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useElementBounding, useWindowSize } from '@vueuse/core';
-import AudioRecorder from './AudioRecorder.vue';
+import AudioRecorder from '../Recorders/AudioRecorder.vue';
 import { useYiyuStore } from '@/stores/yiyu';
 
 const text = ref('');
@@ -92,12 +98,17 @@ const speed = ref(1.5);
 const rCard = useTemplateRef('rCard');
 const { width: winWidth, height: winHeight } = useWindowSize();
 
-const yiyuStore = useYiyuStore();
+let yiyuStore = useYiyuStore();
 let yiyu = yiyuStore.yiyu;
 
-// 设置
+// 默认设置
 const sliderValue = ref(25);
-const canTextTranslate = ref(false);
+const canTextTranslate = ref(true);
+const canFollow = ref(true);
+
+// 数字人的基本属性
+const yiyuHeight = 427.5;
+const yiyuWeight = 332.5;
 
 const saveSettings = () => {
   dialogVisible.value = false;
@@ -116,7 +127,8 @@ const saveSettings = () => {
 
 const resetSettings = () => {
   sliderValue.value = 25;
-  canTextTranslate.value = false;
+  canTextTranslate.value = true;
+  canFollow.value = true;
 };
 
 const formatTooltip = (val) => {
@@ -138,29 +150,31 @@ const startTranslation = () => {
 const getCardCenter = () => {
   const { width, height, left, top } = useElementBounding(rCard);
 
-  const centerX = top.value + height.value / 2;
-  const centerY = left.value + width.value / 2;
+  const centerX = left.value + width.value / 2;
+  const centerY = top.value + height.value / 2;
+
   return { centerX, centerY };
 };
 
 const updateAvatarPosition = () => {
   const { centerX, centerY } = getCardCenter();
-  yiyu.setPosition(`${centerX - 200}px`, `${centerY - 140}px`);
+  yiyu.setPosition(`${centerY - yiyuHeight / 2}px`, `${centerX - yiyuWeight / 2}px`);
 };
 
 const handleRecordComplete = (blob) => {
   // 处理音频
 };
 
-onActivated(() => {
-  if (yiyuStore.isSuccess) {
-    yiyu.enableYiyuApp();
+onMounted(async () => {
+  await nextTick(); // 等待 DOM 更新完成
 
-    if (!canTextTranslate.value) yiyu.disableTextSelection();
-  }
+  updateAvatarPosition();
+  yiyu.enableYiyuApp();
+
+  if (!canTextTranslate.value) yiyu.disableTextSelection();
 });
 
-onDeactivated(() => {
+onUnmounted(() => {
   if (yiyuStore.isSuccess) {
     yiyu.disableYiyuApp();
   }
@@ -168,17 +182,12 @@ onDeactivated(() => {
 
 // 监听窗口变化，动态调整位置
 watch([winWidth, winHeight], () => {
+  console.log(7666);
   updateAvatarPosition();
 });
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
-}
-
 li {
   list-style: none;
   height: 5vh;
@@ -192,24 +201,21 @@ li {
 }
 
 :deep(.el-textarea__inner) {
-  height: 300px;
+  height: 18.75rem;
 }
 
 .lCard {
-  width: 35vw;
-  height: 70vh;
+  height: 40.625rem !important;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  margin-right: 30px;
+  border-radius: 0.625rem;
 }
 
 .rCard {
-  width: 40vw;
-  height: 70vh;
+  height: 40.625rem !important;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 
 .header {
@@ -224,6 +230,6 @@ li {
 }
 
 .center {
-  margin-top: 5vh;
+  margin-top: 2vh;
 }
 </style>

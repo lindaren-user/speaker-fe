@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, toRaw } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import request from '@/utils/request';
@@ -32,7 +32,7 @@ const formRef = ref(null);
 const router = useRouter();
 const userStore = useUserStore();
 
-const form = reactive({
+const form = ref({
   username: '',
   password: '',
 });
@@ -53,7 +53,7 @@ const login = () => {
   formRef.value?.validate((valid) => {
     if (valid) {
       request
-        .post('/api/login', toRaw(form))
+        .post('/api/login', form.value)
         .then((res) => {
           if (res.code == 200) {
             ElMessage({
@@ -61,8 +61,8 @@ const login = () => {
               type: 'success',
               message: '登录成功',
             });
-            userStore.changeUser(form.username);
-            router.replace('/implents/myModels');
+            userStore.changeUser(form.value.username);
+            router.replace('/implents/models/myModels');
           } else {
             ElMessage.error(res.msg);
           }
@@ -85,19 +85,19 @@ const login = () => {
 }
 
 .index-box {
-  width: 400px;
+  width: 25rem;
   background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px) brightness(102%);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  border-radius: 20px;
-  padding: 30px;
+  box-shadow: 0 0.5rem 2rem 0 rgba(31, 38, 135, 0.37);
+  border-radius: 1.25rem;
+  padding: 1.875rem;
   animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-1.25rem);
   }
   to {
     opacity: 1;
@@ -107,19 +107,19 @@ const login = () => {
 
 .title {
   text-align: center;
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: bold;
   color: #333;
-  margin-bottom: 50px;
+  margin-bottom: 3.125rem;
 }
 
 .el-form-item__label {
-  font-size: 16px;
+  font-size: 1rem;
   color: #555;
 }
 
 .el-input {
-  border-radius: 8px;
+  border-radius: 0.5rem;
   transition: border-color 0.3s ease;
   width: 80%;
   margin: auto;
@@ -131,9 +131,9 @@ const login = () => {
 
 .submit-button {
   width: 50%;
-  height: 40px;
-  font-size: 18px;
-  border-radius: 8px;
+  height: 2.5rem;
+  font-size: 1.125rem;
+  border-radius: 0.5rem;
   transition: background-color 0.3s ease;
 }
 
@@ -148,6 +148,6 @@ const login = () => {
 }
 
 :deep(.el-form-item__error) {
-  margin-left: 30px;
+  margin-left: 1.875rem;
 }
 </style>

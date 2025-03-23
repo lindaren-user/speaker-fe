@@ -1,12 +1,26 @@
 <template>
   <div class="tagbody">
-    <VideoShow :videoUrl="currentVideoUrl" :showObject="changeObject"></VideoShow>
-    <VideoTag
-      :videoList="videoList"
-      :isTagged="isTagged"
-      :noTagged="noTagged"
-      @video-selected="handleVideoSelected"
-    ></VideoTag>
+    <div class="common-layout">
+      <el-container>
+        <el-aside width="500px"
+          ><VideoShow :videoUrl="currentVideoUrl" :showObject="changeObject"></VideoShow
+        ></el-aside>
+
+        <el-divider style="margin: 2% 3vw; height: 60vh" direction="vertical" />
+
+        <el-container>
+          <el-main style="padding: 0"
+            ><VideoTag
+              :videoList="videoList"
+              :isTagged="isTagged"
+              :noTagged="noTagged"
+              @video-selected="handleVideoSelected"
+            ></VideoTag
+          ></el-main>
+        </el-container>
+      </el-container>
+    </div>
+
     <el-dialog
       v-model="dialogVisible"
       top="30vh"
@@ -37,9 +51,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useUsedModelStore } from '@/stores/usedModel';
 import request from '@/utils/request';
-import VideoShow from '@/components/VideoShow.vue';
-import VideoTag from '@/components/VideoTag.vue';
+import VideoShow from '@/components/Others/VideoShow.vue';
+import VideoTag from '@/components/Others/VideoTag.vue';
 import emittr from '@/utils/event-bus';
 
 const requestLocal = '/api';
@@ -50,6 +65,7 @@ const dialogVisible = ref(false);
 const changeObject = ref({});
 const jd = ref(1);
 const tag = ref('');
+const usedModelStore = useUsedModelStore();
 
 // 由此，传递过去的都是非响应式数据
 const isTagged = computed(() => {
@@ -63,7 +79,9 @@ const noTagged = computed(() => {
 // 获取所有的视频
 const getAllVideos = () => {
   request
-    .get('/api/list')
+    .get('/api/list', {
+      params: usedModelStore.usedModel.id,
+    })
     .then((res) => {
       if (res.code == 200 && Array.isArray(res.data)) {
         videoList.value = res.data;
@@ -80,7 +98,7 @@ const getAllVideos = () => {
 
 // 选中的视频在左边框显示
 const handleVideoSelected = (video) => {
-  request
+  request // ????前端发送videoTitle即可，但请求头需设置 'multipart/form-data;charset=UTF-8'???????
     .get('/api/getVideo', {
       params: {
         videoTitle: video.title,
@@ -186,7 +204,14 @@ const deleteVideo = (videoTitle) => {
 };
 
 const deleteTag = () => {
+  // ElMessageBox.confirm('此操作将永久删除该标识, 是否继续?', '提示', {
+  //   confirmButtonText: '确定',
+  //   cancelButtonText: '取消',
+  //   type: 'warning',
+  // });
+
   if (!changeObject.value || changeObject.value.tag === null) return;
+
   let videoTitle = changeObject.value.title;
   request
     .put('/api/deleteTag', null, {
@@ -236,7 +261,6 @@ onBeforeUnmount(() => {
   justify-content: space-evenly;
   height: 95%;
   flex: 1;
-  margin-top: 4vh;
 }
 
 .diaglog {

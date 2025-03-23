@@ -134,13 +134,13 @@ const formatTime = (seconds) => {
 
 .camera-recorder video {
   width: 100%;
-  max-height: 420px;
+  max-height: 26.25rem;
   background: #000;
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 
 .controls {
-  margin-top: 15px;
+  margin-top: 0.9375rem;
   text-align: center;
 }
 </style>

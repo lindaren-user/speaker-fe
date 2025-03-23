@@ -1,57 +1,67 @@
 <template>
-  <el-card class="dataset-container-card">
-    <template #header>
-      <h2 style="margin-bottom: 10px">
-        <el-icon><ZoomIn /></el-icon> 数据采集系统
-      </h2>
-      <div>
-        <ul>
-          <li>
-            <el-icon><Star /></el-icon> 视频数量限制为100，超出该数量的视频会被忽略
-          </li>
-          <li>
-            <el-icon><Star /></el-icon> 视频尽可能覆盖所有使用场景，否则会导致实机部署效果欠佳
-          </li>
-          <li>
-            <el-icon><Star /></el-icon> 每个标签的视频数量最少10份，否则训练效果可能一般
-          </li>
-          <li>
-            <el-icon><Star /></el-icon> 每个标签的视频数量尽量接近
-          </li>
-        </ul>
-      </div>
-    </template>
-    <div class="dataset-container">
-      <!-- 操作按钮组件 -->
-      <ControlPanel
-        @add-video="handleAddVideo"
-        @start-recording="showCameraDialog = true"
-        @upload-all="handleUploadAll"
-      />
-
-      <!-- 视频展示组件 -->
-      <VideoList class="video-list" :videos="videoList" @delete-video="handleDeleteVideo" />
-
-      <!-- 摄像头录制对话框 -->
-      <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
-        <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
-      </el-dialog>
+  <div>
+    <h2 style="margin-bottom: 10px">
+      <el-icon><ZoomIn /></el-icon> 数据采集系统
+    </h2>
+    <div>
+      <ul>
+        <li>
+          <el-icon><Star /></el-icon> 视频数量限制为100，超出该数量的视频会被忽略
+        </li>
+        <li>
+          <el-icon><Star /></el-icon> 视频尽可能覆盖所有使用场景，否则会导致实机部署效果欠佳
+        </li>
+        <li>
+          <el-icon><Star /></el-icon> 每个标签的视频数量最少10份，否则训练效果可能一般
+        </li>
+        <li>
+          <el-icon><Star /></el-icon> 每个标签的视频数量尽量接近
+        </li>
+      </ul>
     </div>
-  </el-card>
+  </div>
+
+  <div class="dataset-container">
+    <!-- 操作按钮组件 -->
+    <ControlPanel
+      @add-video="handleAddVideo"
+      @start-recording="showCameraDialog = true"
+      @upload-all="handleUploadAll"
+    />
+
+    <el-divider style="margin: 2% auto" />
+
+    <VideoList :videos="videoList" @delete-video="handleDeleteVideo" />
+
+    <!-- 摄像头录制对话框 -->
+    <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
+      <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
+    </el-dialog>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onDeactivated, onUnmounted } from 'vue';
 import { useUlCounterStore } from '@/stores/ulCounter';
-import ControlPanel from '@/components/ControlPanel.vue';
-import VideoList from '@/components/VideoList.vue';
-import CameraRecorder from '@/components/CameraRecorder.vue';
+import { useUsedModelStore } from '@/stores/usedModel';
+import ControlPanel from '@/components/Others/ControlPanel.vue';
+import VideoList from '@/components/Others/VideoList.vue';
+import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import formRequest from '@/utils/formRequest';
+
+onDeactivated(() => {
+  console.log('被缓存');
+});
+
+onUnmounted(() => {
+  console.log('被销毁');
+});
 
 const videoList = ref([]);
 const showCameraDialog = ref(false);
 const nextVideoId = ref(1);
 const ulCounterStore = useUlCounterStore();
+const usedModelStore = useUsedModelStore();
 
 // 处理添加视频
 const handleAddVideo = (file) => {
@@ -111,6 +121,7 @@ const uploadVideo = (video) => {
   const formData = new FormData();
   formData.append('video', video.file);
   formData.append('videoId', video.id);
+  formData.append('modelId', usedModelStore.usedModel.id);
 
   return formRequest
     .post('/api/upload', formData)
@@ -141,7 +152,7 @@ const uploadVideo = (video) => {
 }
 
 .dataset-container {
-  padding: 20px;
+  padding: 1.25rem;
 }
 
 .dataset-header {
@@ -155,15 +166,9 @@ ul {
 }
 
 .video-system {
-  margin-top: 30px;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  padding: 20px;
-}
-
-.video-list {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  margin-top: 1.875rem;
+  border: 0.0625rem solid #ebeef5;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
 }
 </style>

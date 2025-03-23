@@ -1,26 +1,19 @@
 <template>
-  <el-card class="Showbody">
-    <template #header>
-      <div class="Show-head">
-        <span style="font-size: 25px" v-if="showObject !== null">{{ showObject.title }}</span>
-        <el-button type="primary" @click="addTag">新增注解</el-button>
-      </div>
-    </template>
-    <div class="video-show">
-      <video
-        v-if="videoUrl"
-        :src="videoUrl"
-        controls
-        class="video-player"
-        @error="handleVideoError"
-      >
-        您的浏览器不支持视频播放
-      </video>
-      <div v-else class="video-placeholder">
-        <el-empty description="没有选择视频" />
-      </div>
+  <div class="Show-head">
+    <span style="font-size: 20px" v-if="showObject !== null">{{ showObject.title }}</span>
+    <el-button type="primary" @click="addTag">新增注解</el-button>
+  </div>
+
+  <el-divider style="margin: 5% auto" />
+
+  <div class="video-show">
+    <video v-if="videoUrl" :src="videoUrl" controls class="video-player" @error="handleVideoError">
+      您的浏览器不支持视频播放
+    </video>
+    <div v-else class="video-placeholder">
+      <el-empty description="没有选择视频" />
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script setup>
@@ -61,16 +54,16 @@ const addTag = () => {
   width: 55%;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  margin-right: 10px;
+  border-radius: 0.625rem;
+  margin-right: 0.625rem;
 }
 
 .Show-head {
   display: flex;
-  justify-content: space-between; /* 让子元素分别靠左右两侧 */
-  align-items: center; /* 垂直居中对齐 */
+  justify-content: space-between;
+  align-items: center;
   flex: 1;
-  border-radius: 3px;
+  border-radius: 0.1875rem;
   width: 100%;
 }
 

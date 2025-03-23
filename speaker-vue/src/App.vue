@@ -1,76 +1,83 @@
 <template>
-  <span class="fixed-nav">
-    <div class="header">
-      <div class="logo">
-        <i class="iconfont icon-siyecao1"></i>
-        <strong>Speaker</strong>
-      </div>
-
-      <div class="navbar-left">
-        <RouterLink to="/" active-class="my-active-class" class="nav-item">
-          <el-icon><House /></el-icon> 首页
-        </RouterLink>
-        <RouterLink to="/implents" active-class="my-active-class" class="nav-item">
-          <el-icon><Monitor /></el-icon> 应用
-        </RouterLink>
-        <RouterLink to="/share" active-class="my-active-class" class="nav-item">
-          <el-icon><Link /></el-icon> 分享
-        </RouterLink>
-        <RouterLink to="/debate" active-class="my-active-class" class="nav-item">
-          <el-icon><ChatRound /></el-icon> 讨论
-        </RouterLink>
-      </div>
-
-      <div class="navbar-right">
-        <template v-if="!userStore.user">
-          <RouterLink to="/login" active-class="my-active-class" class="nav-item"
-            ><el-icon><User /></el-icon> 登录</RouterLink
-          >
-          <RouterLink to="/register" active-class="my-active-class" class="nav-item"
-            ><el-icon><Check /></el-icon> 注册</RouterLink
-          >
-        </template>
-        <template v-else>
-          <el-button
-            @click="notifyDrawer = true"
-            style="display: flex; align-items: center; margin-right: 2vh; margin-top: 8px"
-            round
-            ><el-icon><Message /></el-icon>&nbsp;消息
-          </el-button>
-          <el-dropdown>
-            <span class="welcome">
-              <span>欢迎：</span>
-              <span class="username">{{ userStore.user }}</span>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="getPrivacyInfo">个人信息</el-dropdown-item>
-                <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </template>
-      </div>
-    </div>
-
-    <el-divider content-position="left" class="divider">
-      <span>灵眸智译</span>
-    </el-divider>
-  </span>
-
-  <el-drawer v-model="notifyDrawer" :with-header="false">
-    <span>暂无消息</span>
-  </el-drawer>
-
-  <div class="content">
+  <template v-if="_isMobile()">
     <RouterView />
-  </div>
+  </template>
+  <template v-else>
+    <span class="fixed-nav">
+      <div class="header">
+        <div class="logo">
+          <i class="iconfont icon-siyecao1"></i>
+          <strong>Speaker</strong>
+        </div>
+
+        <div class="navbar-left">
+          <RouterLink to="/" active-class="my-active-class" class="nav-item">
+            <el-icon><House /></el-icon> 首页
+          </RouterLink>
+          <RouterLink to="/implents" active-class="my-active-class" class="nav-item">
+            <el-icon><Monitor /></el-icon> 应用
+          </RouterLink>
+          <RouterLink to="/share" active-class="my-active-class" class="nav-item">
+            <el-icon><Link /></el-icon> 分享
+          </RouterLink>
+          <RouterLink to="/debate" active-class="my-active-class" class="nav-item">
+            <el-icon><ChatRound /></el-icon> 讨论
+          </RouterLink>
+        </div>
+
+        <div class="navbar-right">
+          <template v-if="!userStore.user">
+            <RouterLink to="/login" active-class="my-active-class" class="nav-item"
+              ><el-icon><User /></el-icon> 登录</RouterLink
+            >
+            <RouterLink to="/register" active-class="my-active-class" class="nav-item"
+              ><el-icon><Check /></el-icon>注册</RouterLink
+            >
+          </template>
+          <template v-else>
+            <el-button @click="notifyDrawer = true" class="msgBtn" round
+              ><el-icon><Message /></el-icon>&nbsp;消息
+            </el-button>
+            <el-dropdown>
+              <span class="welcome">
+                <span>欢迎：</span>
+                <span class="username">{{ userStore.user }}</span>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="getPrivacyInfo">个人信息</el-dropdown-item>
+                  <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </div>
+      </div>
+
+      <el-divider content-position="left" class="divider">
+        <span>灵眸智译</span>
+      </el-divider>
+    </span>
+
+    <el-drawer v-model="notifyDrawer" :with-header="false">
+      <span>暂无消息</span>
+    </el-drawer>
+
+    <div class="content">
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
+    </div>
+  </template>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user.js';
 import request from './utils/request';
+import { _isMobile } from './utils/isMobile';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -85,6 +92,8 @@ const logout = () => {
         console.log('登出');
         userStore.logout();
         router.push('/');
+      } else {
+        ElMessage.error(res.msg);
       }
     })
     .catch((err) => {
@@ -100,10 +109,6 @@ const getPrivacyInfo = () => {
 </script>
 
 <style scoped>
-body {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-}
-
 .fixed-nav {
   position: fixed;
   top: 0;
@@ -117,39 +122,39 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  height: 56px;
+  padding: 0 1.25rem;
+  height: 3.5rem;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  font-size: 25px;
+  font-size: 1.5625rem;
   color: #229453;
 }
 
 .logo .iconfont {
-  font-size: 28px;
-  margin-right: 8px;
+  font-size: 1.75rem;
+  margin-right: 0.5rem;
 }
 
 .navbar-left {
   display: flex;
-  gap: 50px;
+  gap: 3.125rem;
   flex-grow: 7.5;
-  margin-left: 30px;
+  margin-left: 1.875rem;
 }
 
 .navbar-right {
   display: flex;
-  gap: 30px;
+  gap: 1.875rem;
   justify-content: flex-end;
   flex-grow: 2.5;
 }
 
 .nav-item {
   color: grey;
-  font-size: 18px;
+  font-size: 1.125rem;
   text-decoration: none;
 }
 
@@ -162,34 +167,41 @@ body {
 }
 
 .content {
-  margin-top: 15vh;
+  margin-top: 12vh;
+}
+
+.msgBtn {
+  display: flex;
+  align-items: center;
+  margin-right: 2vh;
+  margin-top: 0.5rem;
 }
 
 .el-divider span {
-  font-size: 15px;
+  font-size: 0.9375rem;
   color: #20894d;
 }
 
 :deep(.el-divider) {
-  margin: 10px;
+  margin: 0.625rem;
 }
 
 .welcome {
   margin: auto 0;
-  font-size: 20px;
+  font-size: 1.25rem;
   cursor: default;
 }
 
 :deep(.el-button:hover) {
-  border: 1px solid #66c18c !important;
+  border: 0.0625rem solid #66c18c !important;
   background-color: #66c18c !important;
   color: white !important;
 }
 
 :deep(.el-dropdown-menu__item) {
-  width: 100px !important;
+  width: 6.25rem !important;
   text-align: center;
-  font-size: 15px;
+  font-size: 0.9375rem;
 }
 
 :deep(.el-dropdown-menu__item:hover) {

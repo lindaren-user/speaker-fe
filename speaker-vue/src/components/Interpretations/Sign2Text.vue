@@ -1,14 +1,12 @@
 <template>
-  <el-card class="lCard" style="width: 35vw">
-    <template #header>
-      <ControlPanel
-        @add-video="handleAddVideo"
-        @start-recording="showCameraDialog = true"
-        @upload-all="uploadVideo"
-      />
-    </template>
+  <el-card class="lCard">
+    <template #header>没有选择模型 </template>
+    <ControlPanel
+      @add-video="handleAddVideo"
+      @start-recording="showCameraDialog = true"
+      @upload-all="uploadVideo"
+    />
 
-    <!-- 摄像头录制对话框 -->
     <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
       <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
     </el-dialog>
@@ -39,14 +37,15 @@
     </div>
   </el-card>
 
-  <el-card class="rCard" style="width: 45vw">
+  <el-card class="rCard">
     <template #header>
-      <div class="card-header">
+      <div>
         <span v-if="isTranslating">转换中...</span>
-        <span v-else>转换结果 {{ resultText }}</span>
+        <span v-else>转换结果</span>
       </div>
     </template>
     <div class="video-show">
+      <div style="height: 1.875rem">{{ resultText }}</div>
       <video
         v-if="videoUrl"
         :src="videoUrl"
@@ -65,8 +64,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import ControlPanel from '@/components/ControlPanel.vue';
-import CameraRecorder from '@/components/CameraRecorder.vue';
+import ControlPanel from '@/components/Others/ControlPanel.vue';
+import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import formRequest from '@/utils/formRequest';
 
 const requestLocal = '/api';
@@ -153,40 +152,22 @@ const handleVideoError = (error) => {
 
 <style scoped>
 .lCard {
-  height: 70vh !important;
+  height: 40.625rem !important;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 
 .rCard {
-  height: 78vh !important;
+  height: 40.625rem !important;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 
 .video-player {
   width: 100%;
   height: auto;
-}
-
-.dataset-container-card {
-  width: 70vw;
-  margin: 4vh auto;
-}
-
-.dataset-container {
-  padding: 20px;
-}
-
-.dataset-header {
-  display: flex;
-  flex-direction: row;
-}
-
-.card-header {
-  font-size: 3vh;
 }
 
 ul {
@@ -195,10 +176,10 @@ ul {
 }
 
 .video-system {
-  margin-top: 30px;
+  margin-top: 1.875rem;
   border: 1px solid #ebeef5;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
 }
 
 .video-list {
@@ -209,12 +190,12 @@ ul {
 
 .video-show {
   margin-top: 5vh;
-  border-radius: 5px;
+  border-radius: 0.3125rem;
 }
 
 .video-show2 {
-  border-radius: 5px;
-  border: 1px solid black;
+  border-radius: 0.3125rem;
+  border: 0.0625rem solid black;
 }
 
 .btnCenter {
@@ -222,6 +203,6 @@ ul {
 }
 
 .el-main {
-  border: 1px solid black;
+  border: 0.0625rem solid black;
 }
 </style>

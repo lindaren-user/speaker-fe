@@ -1,42 +1,36 @@
 <template>
-  <el-card class="infer-card">
-    <template #header>
-      <div class="header">
-        <strong>模型训练</strong>
-        <el-button type="success" @click="train" v-if="!started">开始训练</el-button>
-      </div>
-    </template>
-    <div class="infer">
-      <div class="progress-icon-container" v-if="showProgress">
-        <!-- 进度条 -->
-        <el-progress
-          :percentage="percentage"
-          :stroke-width="15"
-          status="success"
-          striped
-          striped-flow
-          :duration="10"
-          style="width: 90%; transition: width 1s ease"
-        />
-        <!-- 显示百分比 -->
-        <div class="percentage-label">{{ percentage }}%</div>
-      </div>
-    </div>
-  </el-card>
+  <div class="header">
+    <span>模型训练 {{ percentage }}%</span>
+    <el-button type="success" @click="train" :disabled="isTraining">开始训练</el-button>
+  </div>
+  <div class="progress-icon-container" v-if="showProgress">
+    <!-- 进度条 -->
+    <el-progress
+      :percentage="percentage"
+      :stroke-width="15"
+      status="success"
+      striped
+      striped-flow
+      :duration="10"
+      style="width: 90%; transition: width 1s ease"
+    />
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { useUsedModelStore } from '@/stores/usedModel';
 import request from '@/utils/request';
 
-const started = ref(false); // 控制整个过程的开始
 const showIcon = ref(false); // 控制图标显示
 const showProgress = ref(false); // 控制进度条显示
 const percentage = ref(0); // 进度条的百分比
+const isTraining = ref(false);
+
+const usedModelStore = useUsedModelStore();
 
 const train = () => {
-  // 隐藏按钮
-  started.value = true;
+  isTraining.value = true;
 
   // 延迟显示图标和进度条，以确保按钮隐藏后再开始动画
   showIcon.value = true;
@@ -46,27 +40,33 @@ const train = () => {
 
 const startProgress = () => {
   request
-    .get('/api/train')
+    .get('/api/train', {
+      params: usedModelStore.usedModel.name,
+    })
     .then((res) => {
       if (res.code == 200) {
         percentage.value += 4;
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: '训练成功',
-        });
       } else {
         ElMessage.error('训练失败');
+        return;
       }
     })
     .catch((err) => {
       console.log(err);
       ElMessage.error('训练失败');
+      return;
     });
 
   let kk = 0;
   const interval = setInterval(() => {
     if (kk >= 24) {
+      if (percentage.value === 100) {
+        ElMessage({
+          showClose: true,
+          type: 'success',
+          message: '训练成功',
+        });
+      }
       clearInterval(interval);
     } else {
       percentage.value += 4;
@@ -86,13 +86,16 @@ const startProgress = () => {
   position: relative;
   width: 50vw;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
 }
 
 .header {
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
-  font-size: 20px;
+  font-size: 1.25rem;
+  height: 20vh;
+  width: 50%;
 }
 
 .icon-container {
@@ -103,7 +106,7 @@ const startProgress = () => {
 }
 
 .gun {
-  font-size: 100px;
+  font-size: 6.25rem;
   color: green;
 }
 
@@ -132,7 +135,7 @@ const startProgress = () => {
   right: 0; /* 将百分比显示在右侧 */
   top: 50%;
   transform: translateY(-50%);
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
   color: #409eff;
 }
