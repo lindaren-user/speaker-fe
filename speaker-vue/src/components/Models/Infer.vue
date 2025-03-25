@@ -10,7 +10,7 @@
       :stroke-width="15"
       status="success"
       striped
-      striped-flow
+      :striped-flow="percentage < 100"
       :duration="10"
       style="width: 90%; transition: width 1s ease"
     />
@@ -18,9 +18,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useProcessedModelStore } from '@/stores/processedModel';
-import request from '@/utils/request';
+import { models_service } from '@/apis/models_service';
 
 const showIcon = ref(false); // 控制图标显示
 const showProgress = ref(false); // 控制进度条显示
@@ -39,12 +38,14 @@ const train = () => {
 };
 
 const startProgress = () => {
-  request
-    .get('/api/train', {
-      params: processedModelStore.processedModel.name,
+  models_service
+    .trainModel({
+      params: {
+        modelId: processedModelStore.processedModel.name,
+      },
     })
     .then((res) => {
-      if (res.code == 200) {
+      if (res.code === '200') {
         percentage.value += 4;
       } else {
         ElMessage.error('训练失败');
@@ -61,6 +62,7 @@ const startProgress = () => {
   const interval = setInterval(() => {
     if (kk >= 24) {
       if (percentage.value === 100) {
+        isTraining.value = false;
         ElMessage({
           showClose: true,
           type: 'success',
@@ -108,21 +110,6 @@ const startProgress = () => {
 .gun {
   font-size: 6.25rem;
   color: green;
-}
-
-.move {
-  animation: move-animation 3s forwards;
-}
-
-@keyframes move-animation {
-  0% {
-    left: 0;
-    transform: translateX(-50%) rotate(0deg);
-  }
-  100% {
-    left: 80%; /* 移动到父容器80%宽度处 */
-    transform: translateX(-50%) rotate(720deg);
-  }
 }
 
 .el-progress {

@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 
 export const useProcessedModelStore = defineStore('processedModel', () => {
   const processedModel = ref(JSON.parse(localStorage.getItem('processedModel')) || null);

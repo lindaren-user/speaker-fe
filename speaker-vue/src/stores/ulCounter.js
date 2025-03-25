@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 
 export const useUlCounterStore = defineStore('ulCounter', () => {
   const ulCounter = ref(JSON.parse(localStorage.getItem('ulCounter')) || 0);

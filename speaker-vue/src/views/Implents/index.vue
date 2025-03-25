@@ -1,5 +1,6 @@
 <template>
-  <div class="layout-container">
+  <div v-if="isMobile"><RouterView /></div>
+  <div v-else class="layout-container">
     <span class="menu">
       <el-menu :router="true" :default-active="activeIndex">
         <el-menu-item index="/implents/models">
@@ -29,14 +30,18 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from 'vue';
-import { useRoute } from 'vue-router';
+import { _isMobile } from '@/utils/isMobile';
 
 const activeIndex = ref('/implents/dataset');
 const route = useRoute();
+const isMobile = computed(() => _isMobile());
 
 watchEffect(() => {
-  activeIndex.value = route.path;
+  if (route.path.startsWith('/implents/models')) {
+    activeIndex.value = '/implents/models';
+  } else {
+    activeIndex.value = route.path;
+  }
 });
 </script>
 
@@ -71,11 +76,5 @@ watchEffect(() => {
 
 :deep(.el-menu-item-group__title) {
   padding: 0;
-}
-
-@media screen and (max-width: 400px) {
-  .menu {
-    display: none;
-  }
 }
 </style>

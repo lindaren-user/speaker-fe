@@ -6,7 +6,7 @@ const formRequest = axios.create({
 
 formRequest.interceptors.request.use(
   (config) => {
-    config.headers['Content-Type'] = 'multipart/form-data;charset=UTF-8'; // 确保可以上传文件或表单数据。
+    config.headers['Content-Type'] = 'multipart/form-data;charset=UTF-8'; // 目的是确保请求体以正确的格式来上传文件或表单数据。
     return config;
   },
   (error) => Promise.reject(error),

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h2 style="margin-bottom: 10px">
-      <el-icon><ZoomIn /></el-icon> 数据采集系统
-    </h2>
+    <h2 style="margin-bottom: 10px"></h2>
     <div>
       <ul>
         <li>
@@ -26,7 +24,7 @@
     <ControlPanel
       @add-video="handleAddVideo"
       @start-recording="showCameraDialog = true"
-      @upload-all="handleUploadAll"
+      @upload="handleUploadAll"
     />
 
     <el-divider style="margin: 2% auto" />
@@ -41,21 +39,12 @@
 </template>
 
 <script setup>
-import { ref, onDeactivated, onUnmounted } from 'vue';
 import { useUlCounterStore } from '@/stores/ulCounter';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import VideoList from '@/components/Others/VideoList.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
-import formRequest from '@/utils/formRequest';
-
-onDeactivated(() => {
-  console.log('被缓存');
-});
-
-onUnmounted(() => {
-  console.log('被销毁');
-});
+import { files_service } from '@/apis/files_service';
 
 const videoList = ref([]);
 const showCameraDialog = ref(false);
@@ -113,7 +102,14 @@ const handleUploadAll = async () => {
 
 // 删除视频
 const handleDeleteVideo = (id) => {
-  videoList.value = videoList.value.filter((v) => v.id !== id);
+  ElMessageBox.confirm('此操作将删除该视频, 是否继续?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    videoList.value = videoList.value.filter((v) => v.id !== id);
+    ElMessage.success('删除成功');
+  });
 };
 
 // 单个视频上传方法
@@ -123,16 +119,11 @@ const uploadVideo = (video) => {
   formData.append('videoId', video.id);
   formData.append('modelId', processedModelStore.processedModel.id);
 
-  return formRequest
-    .post('/api/upload', formData)
+  return files_service.video
+    .uploadAllVideos(formData)
     .then((res) => {
-      if (res.code == 200) {
+      if (res.code === '200') {
         video.isUploaded = true;
-        // ElMessage({
-        //   showClose: true,
-        //   type: 'success',
-        //   message: `${video.id}上传成功`,
-        // });
       } else {
         ElMessage.error(`${video.id}上传失败`);
       }

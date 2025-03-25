@@ -1,122 +1,198 @@
 <template>
-  <el-card class="models-container-card">
-    <template #header>
-      <div class="header-container">
-        <span style="font-size: 1.25rem">我的模型</span>
-        <el-button type="primary" @click="newModel">新建模型</el-button>
-      </div>
-    </template>
-    <div class="models-list-container">
-      <template v-if="modelList.length">
-        <el-card v-for="(model, index) in modelList" :key="index" class="model-item">
-          <div class="model-content">
-            <span class="model-name" @click="editModel(index)">{{ model.name }}</span>
-            <div class="model-actions">
-              <el-radio v-model="selectedModel" :label="index">
-                <span class="radio-label">翻译使用</span>
-              </el-radio>
-              <el-dropdown>
-                <el-icon size="20" class="moreFilled"><MoreFilled /></el-icon>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item @click="editModelInfo(index)">
-                      <el-icon><Edit /></el-icon>编辑
-                    </el-dropdown-item>
-                    <el-dropdown-item @click="deleteModel(index)">
-                      <el-icon><Delete /></el-icon>删除
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
+  <div v-if="isMobile">
+    <div>
+      <van-list finished-text="没有更多了">
+        <van-checkbox-group v-model="checked">
+          <van-swipe-cell
+            v-for="(model, index) in modelList"
+            :key="index"
+            style="margin-bottom: 0.625rem; border: 1px dotted black; height: 9vh"
+          >
+            <div style="height: 40px; display: flex; justify-content: space-between; padding: 10px">
+              <span style="font-size: 1.1rem">{{ model.name }}</span
+              ><span
+                ><span><van-checkbox name="a">使用</van-checkbox></span></span
+              >
             </div>
-          </div>
-          <el-divider style="margin: 1% auto" />
-          <div class="footer">
-            <span>{{ model.datatime }}</span>
-          </div>
-        </el-card>
-      </template>
-      <div v-else class="noModel">
-        <el-empty description="暂无模型" />
-      </div>
+            <div style="text-align: right">
+              <span style="margin-right: 10px">{{ model.datetime }}</span>
+            </div>
+            <template #right>
+              <van-button
+                square
+                type="danger"
+                text="删除"
+                @click="deleteModel(index)"
+                style="height: 9vh"
+              />
+              <van-button
+                square
+                type="primary"
+                text="编辑"
+                @click="dialogEditModels = true"
+                style="height: 9vh"
+              />
+            </template>
+          </van-swipe-cell>
+        </van-checkbox-group>
+      </van-list>
     </div>
-  </el-card>
+    <div v-if="modelList.length === 0">
+      <van-empty description="您还没有模型" />
+    </div>
+    <van-popup
+      v-model:show="dialogEditModels"
+      position="bottom"
+      :style="{ height: '50%' }"
+      closeable
+    >
+      <van-cell-group inset style="margin-top: 10%">
+        <van-field v-model="name" label="名称" placeholder="模型名称" required="auto" />
+        <van-field
+          v-model="description"
+          rows="2"
+          autosize
+          label="描述"
+          type="textarea"
+          maxlength="150"
+          placeholder="模型简单介绍"
+          show-word-limit
+        />
+      </van-cell-group>
+      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20%">
+        <van-button type="warning" style="width: 100px" @click="resetModelInfo">重置</van-button>
+        <van-button type="success" style="width: 100px" @click="saveModelInfo">保存</van-button>
+      </div>
+    </van-popup>
+  </div>
+  <div v-else>
+    <el-card class="models-container-card">
+      <template #header>
+        <div class="header-container">
+          <span style="font-size: 1.25rem"
+            >我的模型<span style="font-size: 1rem; margin-left: 10px"
+              >总共{{ modelList.length }}个,已使用{{ selectedModel.length }}个</span
+            ></span
+          >
+          <el-button type="primary" @click="newModel">新建模型</el-button>
+        </div>
+      </template>
+      <div class="models-list-container">
+        <template v-if="modelList.length">
+          <el-checkbox-group v-model="selectedModel" size="small">
+            <el-card v-for="(model, index) in modelList" :key="model.id" class="model-item">
+              <div class="model-content">
+                <span class="model-name" @click="editModel(index)"
+                  ><el-icon><Memo /></el-icon> {{ model.name }}</span
+                >
+                <div class="model-actions">
+                  <el-checkbox :label="model.id">
+                    <span class="radio-label">翻译使用</span>
+                  </el-checkbox>
+                  <el-dropdown>
+                    <el-icon size="20" class="moreFilled"><MoreFilled /></el-icon>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item @click="editModelInfo(index)">
+                          <el-icon><Edit /></el-icon>编辑
+                        </el-dropdown-item>
+                        <el-dropdown-item @click="deleteModel(index)">
+                          <el-icon><Delete /></el-icon>删除
+                        </el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </div>
+              </div>
+              <el-divider style="margin: 2% auto" />
+              <div class="footer">
+                <span>{{ model.datetime }}</span>
+              </div>
+            </el-card>
+          </el-checkbox-group>
+        </template>
+        <div v-else class="noModel">
+          <el-empty description="暂无模型" />
+        </div>
+      </div>
+    </el-card>
 
-  <el-dialog
-    class="dia"
-    v-model="dialogNewModels"
-    title="新建模型"
-    draggable
-    width="30%"
-    :close-on-click-modal="false"
-  >
-    <div class="header">名字：</div>
-    <el-input
-      v-model="name"
-      :rows="2"
-      type="textarea"
-      placeholder="请输入该模型的名称"
-      class="input"
-    />
-    <div class="header">简介：</div>
-    <el-input
-      v-model="description"
-      :rows="5"
-      type="textarea"
-      placeholder="请输入对于该模型的简单介绍"
-      maxlength="150"
-      show-word-limit
-      class="input"
-    />
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="resetInfo">重置</el-button>
-        <el-button type="primary" @click="createModel">确定</el-button>
-      </span>
-    </template>
-  </el-dialog>
+    <el-dialog
+      class="dia"
+      v-model="dialogNewModels"
+      title="新建模型"
+      draggable
+      width="30%"
+      :close-on-click-modal="false"
+    >
+      <div class="header">名字：</div>
+      <el-input
+        v-model="name"
+        :rows="2"
+        type="textarea"
+        placeholder="请输入该模型的名称"
+        class="input"
+      />
+      <div class="header">简介：</div>
+      <el-input
+        v-model="description"
+        :rows="5"
+        type="textarea"
+        placeholder="请输入对于该模型的简单介绍"
+        maxlength="150"
+        show-word-limit
+        class="input"
+      />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="resetModelInfo">重置</el-button>
+          <el-button type="primary" @click="createModel">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
 
-  <el-dialog
-    v-model="dialogEditModels"
-    title="编辑模型"
-    width="30%"
-    draggable
-    :close-on-click-modal="false"
-  >
-    <div class="header">名字：</div>
-    <el-input
-      v-model="name"
-      :rows="2"
-      type="textarea"
-      placeholder="请输入该模型的名称"
-      class="input"
-    />
-    <div class="header">简介：</div>
-    <el-input
-      v-model="description"
-      :rows="5"
-      type="textarea"
-      placeholder="请输入对于该模型的简单介绍"
-      maxlength="150"
-      show-word-limit
-      class="input"
-    />
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="resetInfo">重置</el-button>
-        <el-button type="primary" @click="SaveModelInfo">保存</el-button>
-      </span>
-    </template>
-  </el-dialog>
+    <el-dialog
+      v-model="dialogEditModels"
+      title="编辑模型"
+      width="30%"
+      draggable
+      :close-on-click-modal="false"
+    >
+      <div class="header">名字：</div>
+      <el-input
+        v-model="name"
+        :rows="2"
+        type="textarea"
+        placeholder="请输入该模型的名称"
+        class="input"
+      />
+      <div class="header">简介：</div>
+      <el-input
+        v-model="description"
+        :rows="5"
+        type="textarea"
+        placeholder="请输入对于该模型的简单介绍"
+        maxlength="150"
+        show-word-limit
+        class="input"
+      />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="resetModelInfo">重置</el-button>
+          <el-button type="primary" @click="saveModelInfo">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from 'vue';
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import request from '@/utils/request';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { useUsedModelStore } from '@/stores/usedModel';
+import { _isMobile } from '@/utils/isMobile';
+import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
+import { models_service } from '@/apis/models_service';
 
 const router = useRouter();
 const dialogNewModels = ref(false);
@@ -124,66 +200,96 @@ const dialogEditModels = ref(false);
 const userStore = useUserStore();
 const processedModelStore = useProcessedModelStore();
 const usedModelStore = useUsedModelStore();
+const isMobile = computed(() => _isMobile());
+const checked = ref();
 
 const name = ref('');
 const description = ref('');
 
 const modelList = ref([
-  // {
-  //   name: '日常出行',
-  //   time: '2025.3.22',
-  // },
-  // {
-  //   name: '旅游',
-  //   time: '2025.3.20',
-  // },
-  // {
-  //   name: '购物',
-  //   time: '2025.1.3',
-  // },
-  // {
-  //   name: '医院看病',
-  //   time: '2025.1.4',
-  // },
-  // {
-  //   name: '远门常用',
-  //   time: '2025.1.5',
-  // },
+  {
+    id: 1,
+    name: '日常出行',
+    datetime: '2025.3.20',
+  },
+  {
+    name: '旅游',
+    datetime: '2025.3.20',
+  },
+  {
+    name: '购物',
+    time: '2025.1.3',
+  },
+  {
+    name: '医院看病',
+    time: '2025.1.4',
+  },
+  {
+    name: '远门常用',
+    time: '2025.1.5',
+  },
+  {
+    name: '医院看病',
+    time: '2025.1.4',
+  },
+  {
+    name: '远门常用',
+    time: '2025.1.5',
+  },
+  {
+    name: '医院看病',
+    time: '2025.1.4',
+  },
+  {
+    name: '远门常用',
+    time: '2025.1.5',
+  },
+  {
+    name: '医院看病',
+    time: '2025.1.4',
+  },
+  {
+    name: '远门常用',
+    time: '2025.1.5',
+  },
+  {
+    name: '远门常用',
+    time: '2025.1.5',
+  },
+  {
+    name: '远门常用',
+    time: '2025.1.5',
+  },
 ]);
 
 const names = new Set();
 
-const selectedModel = ref('');
-watchEffect(() => {
-  console.log(selectedModel.value);
-  if (selectedModel.value) {
-    usedModelStore.changeUsedModel(modelList.value[selectedModel.value]);
-    console.log('使用模型');
-  }
-});
+const selectedModel = ref([]);
 
 const editModelInfo = (index) => {
+  processedModelStore.changeProcessedModel(modelList.value[index]);
+
   dialogEditModels.value = true;
 
   name.value = modelList.value[index].name;
   description.value = modelList.value[index]?.description;
 };
 
-const SaveModelInfo = () => {
+const saveModelInfo = () => {
   const modelId = processedModelStore.processedModel.id;
-  request
-    .put('/api/updateModel', {
+  models_service
+    .updateModel({
       name: name.value,
       profile: description.value,
       id: modelId,
       author: userStore.user,
-      datatime: processedModelStore.processedModel.datatime,
     })
     .then((res) => {
-      if (res.code == 200) {
+      if (res.code === '200') {
         const index = modelList.value.findIndex((model) => model.id === modelId);
-        modelList.value[index].name = name.value;
-        modelList.value[index].description = description.value;
+        modelList.value[index].name = res.data.name;
+        modelList.value[index].description = res.data.profile;
+        modelList.value[index].datetime = res.data.datetime;
 
         ElMessage({
           showClose: true,
@@ -208,12 +314,14 @@ const deleteModel = (index) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    request
-      .delete('/api/deleteModel', {
-        params: modelList.value[index].id,
+    models_service
+      .deleteModel({
+        params: {
+          modelId: modelList.value[index].id,
+        },
       })
       .then((res) => {
-        if (res.code == 200) {
+        if (res.code === '200') {
           names.delete(modelList.value[index].name);
 
           modelList.value.splice(index, 1);
@@ -241,7 +349,7 @@ const deleteModel = (index) => {
 const newModel = () => {
   dialogNewModels.value = true;
 
-  resetInfo();
+  resetModelInfo();
 };
 
 const editModel = (index) => {
@@ -261,20 +369,20 @@ const createModel = () => {
     return;
   }
 
-  request
-    .post('/api/addModel', {
+  models_service
+    .addModel({
       name: name.value,
       profile: description.value,
       author: userStore.user,
     })
     .then((res) => {
-      if (res.code == 200) {
-        const { id, datatime } = res.data;
+      if (res.code === '200') {
+        const { id, datetime } = res.data;
 
         const newModel = {
           name: name.value,
           description: description.value,
-          datatime,
+          datetime,
           id,
         };
         modelList.value.push(newModel);
@@ -297,22 +405,17 @@ const createModel = () => {
     });
 };
 
-const resetInfo = () => {
+const resetModelInfo = () => {
   name.value = '';
   description.value = '';
 };
 
 const getAllModels = () => {
-  request
-    .get('/api/modelList')
+  models_service
+    .getAllModels()
     .then((res) => {
-      if (res.code == 200 && Array.isArray(res.data)) {
+      if (res.code === '200' && Array.isArray(res.data)) {
         modelList.value = res.data;
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: '成功获取模型列表',
-        });
 
         modelList.value.forEach((model) => names.add(model.name));
         selectedModel.value = modelList.value.findIndex(
@@ -320,17 +423,25 @@ const getAllModels = () => {
         );
       } else {
         console.log(res.msg);
-        ElMessage.error(res.msg);
+        ErrorMessage(res.msg);
       }
     })
     .catch((err) => {
       console.log(err.message);
-      ElMessage.error('获取模型列表失败');
+      ErrorMessage('获取失败');
     });
 };
 
 onMounted(() => {
   getAllModels();
+
+  if (usedModelStore.usedModel && usedModelStore.usedModel.length !== 0) {
+    selectedModel.value = usedModelStore.usedModel;
+  }
+});
+
+onUnmounted(() => {
+  usedModelStore.changeUsedModel(selectedModel.value);
 });
 </script>
 
@@ -338,7 +449,7 @@ onMounted(() => {
 .models-container-card {
   width: 50vw;
   margin: 0 auto;
-  height: 43.75rem;
+  height: 85vh;
   display: flex;
   flex-direction: column;
 }
@@ -351,7 +462,7 @@ onMounted(() => {
 .models-list-container {
   flex: 1;
   padding: 0.5rem;
-  height: 40.625rem !important;
+  height: 75vh !important;
   overflow-y: auto;
 }
 
@@ -383,6 +494,7 @@ onMounted(() => {
 .radio-label {
   font-size: 0.9rem;
   color: #333;
+  margin-right: 10px;
 }
 
 .moreFilled:hover {
@@ -414,11 +526,5 @@ onMounted(() => {
 :deep(.el-dropdown-menu__item:hover) {
   background-color: rgb(242, 244, 243) !important;
   color: black !important;
-}
-
-@media screen and (max-width: 400px) {
-  :deep(.el-dialog) {
-    width: 90%;
-  }
 }
 </style>

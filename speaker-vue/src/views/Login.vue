@@ -1,5 +1,45 @@
 <template>
-  <div class="container">
+  <div v-if="isMobile">
+    <van-nav-bar title="登录" left-arrow @click-left="router.push('/')" />
+    <div style="margin-top: 20px"></div>
+    <van-form @submit="login">
+      <van-cell-group inset>
+        <van-field
+          v-model="form.username"
+          name="账号"
+          label="账号"
+          placeholder="账号"
+          :rules="rules.username"
+        />
+        <van-field
+          v-model="form.password"
+          type="password"
+          name="密码"
+          label="密码"
+          placeholder="密码"
+          :rules="rules.password"
+        />
+      </van-cell-group>
+      <div style="margin-left: 200px">
+        <RouterLink :to="{ path: '/register' }">
+          <span style="color: red">还没账号？前往注册</span>
+        </RouterLink>
+      </div>
+      <div style="margin: 16px">
+        <van-button
+          round
+          block
+          type="success"
+          native-type="submit"
+          :loading="loading"
+          :disabled="loading"
+        >
+          登录
+        </van-button>
+      </div>
+    </van-form>
+  </div>
+  <div v-else class="container">
     <div class="index-box">
       <h2 class="title">登录</h2>
       <el-form :model="form" :rules="rules" ref="formRef" size="large" style="margin-top: 30px">
@@ -16,21 +56,30 @@
           ></el-input>
         </el-form-item>
 
-        <el-button @click="login" type="primary" class="submit-button button">确定</el-button>
+        <el-button
+          @click="login"
+          type="primary"
+          class="submit-button button"
+          :loading="loading"
+          :disabled="loading"
+        >
+          确定
+        </el-button>
       </el-form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import request from '@/utils/request';
+import { _isMobile } from '@/utils/isMobile';
+import { SuccessMessage, ErrorMessage } from '@/utils/messageTool';
+import { user_service } from '@/apis/user_service';
 
 const formRef = ref(null);
 const router = useRouter();
 const userStore = useUserStore();
+const loading = ref(false); // 加载状态
 
 const form = ref({
   username: '',
@@ -48,31 +97,61 @@ const rules = {
   ],
 };
 
+const isMobile = computed(() => _isMobile());
+
+// 通用的表单验证函数
+const validateForm = () => {
+  if (!form.value.username || !form.value.password) {
+    ErrorMessage('请输入账号和密码');
+    return false;
+  }
+  if (!rules.username[1].pattern.test(form.value.username)) {
+    ErrorMessage(rules.username[1].message);
+    return false;
+  }
+  if (!rules.password[1].pattern.test(form.value.password)) {
+    ErrorMessage(rules.password[1].message);
+    return false;
+  }
+  return true;
+};
+
+// 登录请求
+const loginRequest = () => {
+  loading.value = true; // 开始加载
+  user_service
+    .login(form.value)
+    .then((res) => {
+      if (res.code === '200') {
+        SuccessMessage('登录成功');
+        userStore.changeUser(form.value.username);
+        router.replace('/implents/models/myModels');
+      } else {
+        ErrorMessage(res.msg);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      ErrorMessage(err.message || '登录失败，请重试');
+    })
+    .finally(() => {
+      loading.value = false; // 结束加载
+    });
+};
+
+// 登录逻辑
 const login = () => {
-  // userStore.changeUser('lindaren');
-  formRef.value?.validate((valid) => {
-    if (valid) {
-      request
-        .post('/api/login', form.value)
-        .then((res) => {
-          if (res.code == 200) {
-            ElMessage({
-              showClose: true,
-              type: 'success',
-              message: '登录成功',
-            });
-            userStore.changeUser(form.value.username);
-            router.replace('/implents/models/myModels');
-          } else {
-            ElMessage.error(res.msg);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          ElMessage.error(err.message);
-        });
+  if (isMobile.value) {
+    if (validateForm()) {
+      loginRequest();
     }
-  });
+  } else {
+    formRef.value?.validate((valid) => {
+      if (valid) {
+        loginRequest();
+      }
+    });
+  }
 };
 </script>
 

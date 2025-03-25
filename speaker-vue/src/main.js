@@ -3,10 +3,11 @@ import { createPinia } from 'pinia';
 
 import App from './App.vue';
 import router from './router';
-import 'element-plus/dist/index.css'; //导入 ElementPlus 组件库所需的全局 CSS 样式
+import 'element-plus/dist/index.css';
 import '@/assets/css/global.css';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import '@/assets/iconfont/iconfont.css';
+import 'vant/lib/index.css';
 
 const app = createApp(App);
 

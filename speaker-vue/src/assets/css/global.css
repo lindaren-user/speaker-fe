@@ -3,18 +3,14 @@
   padding: 0;
   box-sizing: border-box;
 }
+
 html,
 body,
 #app {
   height: 100%;
   margin: 0;
 }
+
 body {
   overflow: hidden;
-}
-
-@media screen and (max-width: 400px) {
-  html {
-    font-size: 12px;
-  }
 }

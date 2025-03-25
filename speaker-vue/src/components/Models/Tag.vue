@@ -31,9 +31,8 @@
     >
       <h2 v-if="jd === 1">新增注解</h2>
       <h2 v-if="jd === 0">更改注解</h2>
-      <h3 style="margin-top: 10px">{{ changeObject.title }}</h3>
+      <h3 style="margin: 10px 0">{{ changeObject.title }}</h3>
       <div>
-        <div v-if="jd === 0">旧标注为：{{ changeObject.number }}</div>
         <el-input type="text" v-model="tag" placeholder="请输入标注（字数小于15）" />
       </div>
       <template #footer>
@@ -50,12 +49,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useProcessedModelStore } from '@/stores/processedModel';
-import request from '@/utils/request';
 import VideoShow from '@/components/Others/VideoShow.vue';
 import VideoTag from '@/components/Others/VideoTag.vue';
 import emittr from '@/utils/event-bus';
+import { files_service } from '@/apis/files_service';
 
 const requestLocal = '/api';
 
@@ -67,7 +65,7 @@ const jd = ref(1);
 const tag = ref('');
 const processedModelStore = useProcessedModelStore();
 
-// 由此，传递过去的都是非响应式数据
+// 响应式数据
 const isTagged = computed(() => {
   return videoList.value.filter((video) => video.tag === true);
 });
@@ -78,12 +76,14 @@ const noTagged = computed(() => {
 
 // 获取所有的视频
 const getAllVideos = () => {
-  request
-    .get('/api/list', {
-      params: processedModelStore.processedModel.id,
+  files_service.video
+    .getAllVideos({
+      params: {
+        modelId: processedModelStore.processedModel.id,
+      },
     })
     .then((res) => {
-      if (res.code == 200 && Array.isArray(res.data)) {
+      if (res.code === '200' && Array.isArray(res.data)) {
         videoList.value = res.data;
       } else {
         console.error('视频列表加载失败:', res);
@@ -98,29 +98,38 @@ const getAllVideos = () => {
 
 // 选中的视频在左边框显示
 const handleVideoSelected = (video) => {
-  request // ????前端发送videoTitle即可，但请求头需设置 'multipart/form-data;charset=UTF-8'???????
-    .get('/api/getVideo', {
+  files_service.video
+    .getSelectVideo({
       params: {
         videoTitle: video.title,
       },
     })
     .then((res) => {
-      currentVideoUrl.value = requestLocal + res.url;
+      if (res.code === '200') {
+        currentVideoUrl.value = requestLocal + res.url;
+      } else {
+        console.log(res.msg);
+        ElMessage.error(res.msg);
+      }
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err.message);
+      ElMessage.error('视频展示出错');
+    });
 };
 
+// 标签点击事件 number & tag
 const changeDialogVisible = (video) => {
   changeObject.value = video;
   jd.value = 0;
-  tag.value = '';
+  tag.value = changeObject.value.number;
   dialogVisible.value = true;
 };
 
 const addTag = () => {
   if (changeObject.value) {
     if (changeObject.value.tag === true) {
-      ElMessage.warning('该视频已有标注');
+      changeDialogVisible(changeObject.value);
     } else {
       tag.value = '';
       dialogVisible.value = true;
@@ -140,12 +149,19 @@ const changeTag = () => {
     ElMessage.warning('输入的标识字数需要大于0且小于15');
     return;
   }
-  changeObject.value.tag = true;
-  changeObject.value.number = tag.value;
-  request
-    .put('/api/updateTag', changeObject.value)
+
+  // 发送temp，防止修改失败出现的错误
+  let tempVideo = { ...changeObject.value };
+  tempVideo.tag = true;
+  tempVideo.number = tag.value;
+
+  files_service.video
+    .updateVideoTag(tempVideo)
     .then((res) => {
-      if (res.code == 200) {
+      if (res.code === '200') {
+        changeObject.value.tag = true;
+        changeObject.value.number = tag.value;
+
         ElMessage({
           showClose: true,
           type: 'success',
@@ -168,78 +184,76 @@ const deleteVideo = (videoTitle) => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
-  })
-    .then(() => {
-      request
-        .delete('/api/deleteVideo', {
-          params: {
-            videoTitle: videoTitle,
-          },
-        })
-        .then((res) => {
-          if (res.code == 200) {
-            ElMessage({
-              showClose: true,
-              type: 'success',
-              message: '删除成功',
-            });
-            changeObject.value = {};
-            getAllVideos();
-          } else {
-            ElMessage.error('删除失败');
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+  }).then(() => {
+    files_service.video
+      .deleteVideo({
+        params: {
+          videoTitle: videoTitle,
+        },
+      })
+      .then((res) => {
+        if (res.code === '200') {
+          ElMessage({
+            showClose: true,
+            type: 'success',
+            message: '删除成功',
+          });
+          changeObject.value = {}; // 被选中的视频置空
+          getAllVideos();
+        } else {
           ElMessage.error('删除失败');
-        });
-    })
-    .catch(() => {
-      ElMessage({
-        showClose: true,
-        type: 'info',
-        message: '已取消删除',
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        ElMessage.error('删除失败');
       });
-    });
+  });
 };
 
 const deleteTag = () => {
-  // ElMessageBox.confirm('此操作将永久删除该标识, 是否继续?', '提示', {
-  //   confirmButtonText: '确定',
-  //   cancelButtonText: '取消',
-  //   type: 'warning',
-  // });
-
   if (!changeObject.value || changeObject.value.tag === null) return;
 
   let videoTitle = changeObject.value.title;
-  request
-    .put('/api/deleteTag', null, {
-      params: {
-        videoTitle: videoTitle,
-      },
-    })
-    .then((res) => {
-      if (res.code == 200) {
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: '删除标识成功',
-        });
-        dialogVisible.value = false;
-        getAllVideos();
-      } else {
+  ElMessageBox.confirm('此操作将永久删除该标识, 是否继续?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    files_service.video
+      .deleteVideoTag({
+        params: {
+          videoTitle: videoTitle,
+        },
+      })
+      .then((res) => {
+        if (res.code === '200') {
+          dialogVisible.value = false;
+
+          ElMessage({
+            showClose: true,
+            type: 'success',
+            message: '删除标识成功',
+          });
+
+          changeObject.value.number = '';
+          changeObject.value.tag = false;
+
+          getAllVideos();
+        } else {
+          ElMessage.error('删除标识失败');
+        }
+      })
+      .catch((err) => {
+        console.log(err);
         ElMessage.error('删除标识失败');
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      ElMessage.error('删除标识失败');
-    });
+      });
+  });
 };
 
 onMounted(() => {
   getAllVideos();
+
   emittr.on('changeDialogVisible', changeDialogVisible);
   emittr.on('add', addTag);
   emittr.on('touch', change);

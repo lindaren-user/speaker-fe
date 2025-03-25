@@ -49,7 +49,7 @@
       <li>
         <span>手语翻译速度 x{{ speed }}</span>
         <el-slider
-          v-model="sliderValue"
+          v-model="newSliderValue"
           :format-tooltip="formatTooltip"
           size="small"
           class="slider"
@@ -58,7 +58,7 @@
       <li>
         <span> 划词翻译 </span>
         <el-switch
-          v-model="canTextTranslate"
+          v-model="newCanTextTranslate"
           size="small"
           inline-prompt
           active-text="开"
@@ -68,7 +68,7 @@
       <li>
         <span> 跟随翻译 </span>
         <el-switch
-          v-model="canFollow"
+          v-model="newCanFollow"
           size="small"
           inline-prompt
           active-text="开"
@@ -86,10 +86,10 @@
 </template>
 
 <script setup>
-import { ref, useTemplateRef, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useElementBounding, useWindowSize } from '@vueuse/core';
 import AudioRecorder from '../Recorders/AudioRecorder.vue';
 import { useYiyuStore } from '@/stores/yiyu';
+import { files_service } from '@/apis/files_service';
 
 const text = ref('');
 const isCanceled = ref(false);
@@ -98,13 +98,18 @@ const speed = ref(1.5);
 const rCard = useTemplateRef('rCard');
 const { width: winWidth, height: winHeight } = useWindowSize();
 
-let yiyuStore = useYiyuStore();
-let yiyu = yiyuStore.yiyu;
+const yiyuStore = useYiyuStore();
+const yiyu = yiyuStore.yiyu;
 
 // 默认设置
 const sliderValue = ref(25);
 const canTextTranslate = ref(true);
 const canFollow = ref(true);
+
+// 新设置
+const newSliderValue = ref(25);
+const newCanTextTranslate = ref(false);
+const newCanFollow = ref(false);
 
 // 数字人的基本属性
 const yiyuHeight = 427.5;
@@ -162,27 +167,55 @@ const updateAvatarPosition = () => {
 };
 
 const handleRecordComplete = (blob) => {
-  // 处理音频
+  const audioFile = new File([blob], 'audio.wav', {
+    type: 'audio/wav',
+  });
+
+  const formData = new FormData();
+  formData.append('audio', audioFile);
+
+  files_service.audio
+    .toText({
+      params: {
+        audio: formData,
+      },
+    })
+    .then((res) => {
+      if (res.code === '200') {
+      } else {
+        console.log(res.msg);
+      }
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 };
 
-onMounted(async () => {
-  await nextTick(); // 等待 DOM 更新完成
+// 保证 yiyu 已经被初始化
+watchEffect(async () => {
+  if (yiyuStore.isSuccess) {
+    await nextTick(); // 等待 DOM 更新完成， 才能正确更新位置。
 
-  updateAvatarPosition();
-  yiyu.enableYiyuApp();
+    updateAvatarPosition();
+    yiyu.enableYiyuApp();
 
-  if (!canTextTranslate.value) yiyu.disableTextSelection();
+    if (!canTextTranslate.value) yiyu.disableTextSelection();
+  }
+});
+
+onMounted(() => {
+  yiyu.setAvatarSize(1);
 });
 
 onUnmounted(() => {
   if (yiyuStore.isSuccess) {
-    yiyu.disableYiyuApp();
+    // yiyu.disableYiyuApp();
+    yiyu.setAvatarSize(3);
   }
 });
 
 // 监听窗口变化，动态调整位置
 watch([winWidth, winHeight], () => {
-  console.log(7666);
   updateAvatarPosition();
 });
 </script>

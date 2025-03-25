@@ -34,7 +34,7 @@
           您的浏览器不支持视频播放
         </video>
         <template #footer>
-          <el-button @click="showPreviewDialog = false">关闭</el-button>
+          <el-button @click="closeDlg">关闭</el-button>
         </template>
       </el-dialog>
     </div>
@@ -44,8 +44,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
 const props = defineProps({
   videos: {
     type: Array,
@@ -66,6 +64,11 @@ const showVideoPreview = (videoId) => {
     previewVideoUrl.value = URL.createObjectURL(video.file);
     showPreviewDialog.value = true;
   }
+};
+
+const closeDlg = () => {
+  showPreviewDialog.value = false;
+  URL.revokeObjectURL(previewVideoUrl.value);
 };
 </script>
 

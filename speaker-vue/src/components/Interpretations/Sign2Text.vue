@@ -1,15 +1,21 @@
 <template>
   <el-card class="lCard">
     <template #header>
-      <span v-if="usedModelStore.usedModel"
-        >当前使用模型为 "{{ usedModelStore.usedModel.name }}"</span
-      >
-      <span v-else>没有选择模型</span>
+      <div class="header">
+        <span v-if="hasModels">已选择{{ usedModelStore.usedModel.length }}个模型</span>
+        <span v-else>没有选择模型</span>
+        <el-button
+          type="primary"
+          :class="canBlink && !hasModels ? 'blink-btn' : ''"
+          @click="router.push('/implents/models/myModels')"
+          >{{ hasModels ? '重新选择' : '前往选择' }}</el-button
+        >
+      </div>
     </template>
     <ControlPanel
       @add-video="handleAddVideo"
       @start-recording="showCameraDialog = true"
-      @upload-all="uploadVideo"
+      @upload="uploadVideo"
     />
 
     <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
@@ -44,7 +50,7 @@
 
   <el-card class="rCard">
     <template #header>
-      <div>
+      <div style="height: 30px">
         <span v-if="isTranslating">转换中...</span>
         <span v-else>转换结果</span>
       </div>
@@ -68,11 +74,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useUsedModelStore } from '@/stores/usedModel';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
-import formRequest from '@/utils/formRequest';
+import { files_service } from '@/apis/files_service';
 
 const requestLocal = '/api';
 
@@ -84,6 +89,11 @@ const videoUrl = ref('');
 const isTranslating = ref(false);
 const resultText = ref('');
 const usedModelStore = useUsedModelStore();
+const router = useRouter();
+
+const hasModels = computed(() => usedModelStore.usedModel && usedModelStore.usedModel.length !== 0);
+
+const canBlink = ref(false);
 
 const handleAddVideo = (file) => {
   video.value = {
@@ -107,11 +117,9 @@ const handleRecordComplete = (blob) => {
 };
 
 const handleDeleteVideo = () => {
+  URL.revokeObjectURL(previewVideoUrl.value);
   previewVideoUrl.value = '';
-  // 释放之前创建的ObjectURL
-  //   if (video.value && video.value.file) {
-  //     URL.revokeObjectURL(URL.createObjectURL(video.value.file));
-  //   }
+  video.value = null;
 };
 
 // 单个视频上传方法
@@ -121,16 +129,33 @@ const uploadVideo = () => {
     return;
   }
 
+  if (!hasModels.value) {
+    ElMessage.warning('未选择模型');
+
+    canBlink.value = true;
+
+    setTimeout(() => {
+      canBlink.value = false;
+    }, 2000);
+
+    return;
+  }
+
   isTranslating.value = true;
 
   const formData = new FormData();
   formData.append('video', video.value.file);
   formData.append('videoId', video.value.id);
 
-  formRequest
-    .post('/api/infer', formData)
+  files_service.video
+    .uploadVideo({
+      params: {
+        video: formData,
+        models: usedModelStore.usedModel,
+      },
+    })
     .then((res) => {
-      if (res.code == 200) {
+      if (res.code === '200') {
         ElMessage({
           showClose: true,
           type: 'success',
@@ -158,6 +183,12 @@ const handleVideoError = (error) => {
 </script>
 
 <style scoped>
+.header {
+  display: flex;
+  justify-content: space-between;
+  height: 30px;
+}
+
 .lCard {
   height: 40.625rem !important;
   display: flex;
@@ -211,5 +242,21 @@ ul {
 
 .el-main {
   border: 0.0625rem solid black;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.blink-btn {
+  animation: blink 1s infinite;
 }
 </style>

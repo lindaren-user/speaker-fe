@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 
 export const useUsedModelStore = defineStore('usedModel', () => {
   const usedModel = ref(JSON.parse(localStorage.getItem('usedModel')) || null);

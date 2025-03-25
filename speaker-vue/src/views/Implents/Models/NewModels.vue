@@ -1,10 +1,15 @@
 <template>
-  <div class="modelName">
-    <span>当前模型为"{{ processedModelStore.processedModel.name }}"</span>
-  </div>
+  <el-breadcrumb :separator-icon="ArrowRight">
+    <el-breadcrumb-item :to="{ path: '/implents/models/myModels' }">我的模型</el-breadcrumb-item>
+    <el-breadcrumb-item
+      ><span style="font-size: 1.2rem">{{
+        processedModelStore.processedModel.name
+      }}</span></el-breadcrumb-item
+    >
+  </el-breadcrumb>
   <el-card class="models-body">
-    <template #header
-      ><div class="step">
+    <template #header>
+      <div class="step">
         <el-steps :active="active" align-center>
           <el-step title="数据采集" class="step-item" @click="active = 0" />
           <el-step title="语料定义" class="step-item" @click="active = 1" />
@@ -20,7 +25,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import DataSet from '@/components/Models/DataSet.vue';
 import Tag from '@/components/Models/Tag.vue';
@@ -33,20 +37,20 @@ const processedModelStore = useProcessedModelStore();
 <style scoped>
 .models-body {
   width: 70vw;
-  margin: 0 auto;
-}
-
-.modelName {
-  display: flex;
-  justify-content: center;
+  margin: 2vh auto;
 }
 
 .step {
-  width: 70vw;
-  margin: 0 auto;
+  margin: 10px auto 0;
 }
 
 .step-item {
   cursor: pointer;
+}
+:deep(.el-card__header) {
+  padding-top: 5px;
+}
+:deep(.el-breadcrumb__inner:hover) {
+  color: #66c18c;
 }
 </style>

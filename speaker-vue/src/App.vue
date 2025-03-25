@@ -1,6 +1,22 @@
 <template>
-  <template v-if="_isMobile()">
-    <RouterView />
+  <template v-if="isMobile">
+    <div v-if="isLogin">
+      <div style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 1000">
+        <van-divider>{{ mobileHeader }}</van-divider>
+      </div>
+      <div style="margin-top: 20%; height: 80%; overflow-y: auto'; border: 1px solid red">
+        <RouterView />
+      </div>
+      <div>
+        <van-tabbar v-model="active">
+          <van-tabbar-item name="models" icon="points">模型</van-tabbar-item>
+          <van-tabbar-item name="interpretation" icon="search">翻译</van-tabbar-item>
+          <van-tabbar-item name="debate" icon="friends-o">讨论</van-tabbar-item>
+          <van-tabbar-item name="privacy" icon="user-o">我的</van-tabbar-item>
+        </van-tabbar>
+      </div>
+    </div>
+    <div v-else><Home /></div>
   </template>
   <template v-else>
     <span class="fixed-nav">
@@ -31,7 +47,7 @@
               ><el-icon><User /></el-icon> 登录</RouterLink
             >
             <RouterLink to="/register" active-class="my-active-class" class="nav-item"
-              ><el-icon><Check /></el-icon>注册</RouterLink
+              ><el-icon><Check /></el-icon> 注册</RouterLink
             >
           </template>
           <template v-else>
@@ -74,20 +90,48 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user.js';
 import { useProcessedModelStore } from './stores/processedModel';
-import request from './utils/request';
 import { _isMobile } from './utils/isMobile';
+import { checkLogin } from './utils/checkLogin';
+import { user_service } from './apis/user_service';
+import Home from './views/Home.vue';
+
+const router = useRouter();
+
+const isMobile = computed(() => _isMobile());
+const isLogin = computed(() => checkLogin());
+
+const active = ref('models');
+
+const mobileHeader = ref('');
+watchEffect(() => {
+  if (isMobile) {
+    router.push({ name: active.value });
+
+    switch (active.value) {
+      case 'models':
+        mobileHeader.value = '我的模型';
+        break;
+      case 'interpretation':
+        mobileHeader.value = '翻译';
+        break;
+      case 'debate':
+        mobileHeader.value = '讨论';
+        break;
+      case 'privacy':
+        mobileHeader.value = '我的';
+        break;
+    }
+  }
+});
 
 const userStore = useUserStore();
 const processedModelStore = useProcessedModelStore();
-const router = useRouter();
 const notifyDrawer = ref(false);
 
 const logout = () => {
-  request
-    .get('/api/quit')
+  user_service.logout
     .then((res) => {
       if (res.code == 200) {
         ElMessage.success('退出成功');
@@ -116,8 +160,8 @@ const getPrivacyInfo = () => {
   top: 0;
   left: 0;
   right: 0;
-  background-color: white; /* 可以根据需要修改背景颜色 */
-  z-index: 1000; /* 确保导航栏在其他元素之上 */
+  background-color: white;
+  z-index: 1000;
 }
 
 .header {

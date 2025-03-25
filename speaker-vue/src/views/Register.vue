@@ -1,5 +1,39 @@
 <template>
-  <div class="container">
+  <div v-if="isMobile">
+    <van-nav-bar title="注册" left-arrow @click-left="router.push('/')" />
+    <div style="margin-top: 20px"></div>
+    <van-form @submit="onSubmit">
+      <van-cell-group inset>
+        <van-field
+          v-model="form.username"
+          name="账号"
+          label="账号"
+          placeholder="账号"
+          :rules="rules.username"
+        />
+        <van-field
+          v-model="form.password"
+          type="password"
+          name="密码"
+          label="密码"
+          placeholder="密码"
+          :rules="rules.password"
+        />
+        <van-field
+          v-model="form.secondPwd"
+          type="password"
+          name="再次输入"
+          label="再次输入"
+          placeholder="再次输入密码"
+          :rules="rules.secondPwd"
+        />
+      </van-cell-group>
+      <div style="margin: 16px">
+        <van-button round block type="success" native-type="submit"> 注册 </van-button>
+      </div>
+    </van-form>
+  </div>
+  <div v-else class="container">
     <div class="index-box">
       <h2 class="title">注册</h2>
       <el-form :model="form" :rules="rules" ref="formRef" size="large" style="margin-top: 30px">
@@ -25,16 +59,18 @@
           ></el-input>
         </el-form-item>
 
-        <el-button @click="register" type="primary" class="submit-button button">确定</el-button>
+        <el-button @click="onSubmit" type="primary" class="submit-button button">确定</el-button>
       </el-form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import request from '@/utils/request';
+import { user_service } from '@/apis/user_service';
+import { _isMobile } from '@/utils/isMobile';
+import { SuccessMessage, ErrorMessage } from '@/utils/messageTool';
+
+const isMobile = computed(() => _isMobile());
 
 const formRef = ref(null);
 const router = useRouter();
@@ -55,45 +91,59 @@ const rules = {
     { pattern: /^\w{11,15}$/, message: '请输入 11 - 15 位', trigger: 'blur' },
   ],
   secondPwd: [
-    { required: true, message: '', trigger: 'blur' },
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
     { pattern: /^\w{11,15}$/, message: '请输入 11 - 15 位', trigger: 'blur' },
   ],
 };
 
+// 表单验证逻辑
+const validateForm = () => {
+  if (form.value.password !== form.value.secondPwd) {
+    ErrorMessage('前后两次密码不一致');
+    return false;
+  }
+  return true;
+};
+
+// 注册逻辑
 const register = () => {
-  formRef.value?.validate((valid) => {
-    if (valid) {
-      if (form.value.password !== form.value.secondPwd) {
-        ElMessage.error('前后两次密码不一致');
-        return;
+  user_service
+    .register({
+      username: form.value.username,
+      password: form.value.password,
+    })
+    .then((res) => {
+      if (res.code === '200') {
+        SuccessMessage('注册成功');
+        router.replace('/login');
+      } else {
+        ErrorMessage(res.msg);
       }
-      request
-        .post('/api/register', {
-          username: form.value.username,
-          password: form.value.password,
-        })
-        .then((res) => {
-          if (res.code == 200) {
-            ElMessage({
-              showClose: true,
-              type: 'success',
-              message: '注册成功',
-            });
-            router.replace('/login');
-          } else {
-            ElMessage.error(res.msg);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          ElMessage.error(err.message);
-        });
+    })
+    .catch((err) => {
+      console.log(err);
+      ErrorMessage(err.message);
+    });
+};
+
+// 提交表单
+const onSubmit = () => {
+  if (isMobile.value) {
+    if (validateForm()) {
+      register();
     }
-  });
+  } else {
+    formRef.value?.validate((valid) => {
+      if (valid && validateForm()) {
+        register();
+      }
+    });
+  }
 };
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .container {
   display: flex;
   justify-content: center;
@@ -166,9 +216,9 @@ const register = () => {
 }
 
 .button {
-  display: block; /* 将按钮转换为块级元素 */
-  margin: 0 auto; /* 水平居中 */
-  margin-top: 20px; /* 添加顶部外边距，使其与表单元素有一定间距 */
+  display: block;
+  margin: 0 auto;
+  margin-top: 20px;
 }
 
 :deep(.el-form-item__error) {

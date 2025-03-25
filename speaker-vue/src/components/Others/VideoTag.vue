@@ -39,7 +39,7 @@
             :content="value.number"
             placement="top"
           >
-            <span @click.stop="triggerChange(value)" class="right" v-if="value.tag === true"
+            <span @click="triggerChange(value)" class="right" v-if="value.tag === true"
               ><i class="iconfont icon-biaoshi" style="color: #41ae3c"></i>
             </span>
           </el-tooltip>
@@ -95,7 +95,6 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
 import emittr from '@/utils/event-bus';
 
 const props = defineProps({
@@ -130,10 +129,12 @@ const filteredVideos = computed(() => {
   }
 });
 
+// 标签点击事件
 const triggerChange = (video) => {
   emittr.emit('changeDialogVisible', video);
 };
 
+// 标签删除事件
 const triggerDelete = (videoTitle) => {
   emittr.emit('deleteVideo', videoTitle);
 };

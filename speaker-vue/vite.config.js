@@ -6,7 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 import Components from 'unplugin-vue-components/vite';
 import AutoImport from 'unplugin-auto-import/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
-import { VantResolver } from 'unplugin-vue-components/resolvers';
+import { VantResolver } from '@vant/auto-import-resolver';
 
 import purgeCSS from 'vite-plugin-purgecss';
 
@@ -19,7 +19,7 @@ export default defineConfig({
     }),
     AutoImport({
       imports: ['vue', 'vue-router'],
-      resolvers: [ElementPlusResolver()],
+      resolvers: [ElementPlusResolver(), VantResolver()],
     }),
     purgeCSS({
       content: ['./src/**/*.html', './src/**/*.vue', './src/**/*.js'],
@@ -33,8 +33,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:9090',
-        // target: 'http://8.134.24.85:9090',
+        // target: 'http://localhost:9090',
+        target: 'http://8.134.24.85:9090',
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },

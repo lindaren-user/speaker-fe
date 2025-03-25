@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUlCounterStore } from '@/stores/ulCounter';
-import request from '@/utils/request';
-import { useUserStore } from '@/stores/user';
-import { useProcessedModelStore } from '@/stores/processedModel';
+import { checkLogin } from '@/utils/checkLogin';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +15,7 @@ const router = createRouter({
     },
     {
       path: '/debate',
+      name: 'debate',
       component: () => import('@/views/Debate.vue'),
     },
     {
@@ -29,6 +28,7 @@ const router = createRouter({
     },
     {
       path: '/privacy',
+      name: 'privacy',
       component: () => import('@/views/Privacy.vue'),
       meta: {
         requireAuth: true,
@@ -43,6 +43,7 @@ const router = createRouter({
       children: [
         {
           path: '', // 设置默认子路由
+          name: 'models',
           redirect: '/implents/models',
         },
         {
@@ -65,6 +66,7 @@ const router = createRouter({
         },
         {
           path: 'interpretation/:id',
+          name: 'interpretation',
           component: () => import('@/views/Implents/Interpretation.vue'),
         },
       ],
@@ -74,24 +76,8 @@ const router = createRouter({
 
 // 权限验证
 router.beforeEach((to, from, next) => {
-  if (to?.meta?.requireAuth) {
-    request
-      .get('/api/check')
-      .then((res) => {
-        if (res.code != 200) {
-          useUserStore().clearStore();
-          useProcessedModelStore().clearStore();
-
-          next('/login');
-          return;
-        }
-      })
-      .catch((err) => {
-        console.log(err.message);
-        ElMessage.error(err.message);
-        // ...
-        return;
-      });
+  if (to?.meta?.requireAuth && !checkLogin()) {
+    next('/login');
   }
   next();
 });

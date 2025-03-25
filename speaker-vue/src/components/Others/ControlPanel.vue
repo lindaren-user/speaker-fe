@@ -10,7 +10,7 @@
       </el-button>
     </el-tooltip>
 
-    <el-button type="warning" @click="emit('upload-all')">
+    <el-button type="warning" @click="emit('upload')">
       <i class="iconfont icon-shangchuan1" />&nbsp;一键上传
     </el-button>
 
@@ -19,9 +19,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
-const emit = defineEmits(['add-video', 'start-recording', 'upload-all']);
+const emit = defineEmits(['add-video', 'start-recording', 'upload']);
 
 const fileInput = ref(null);
 

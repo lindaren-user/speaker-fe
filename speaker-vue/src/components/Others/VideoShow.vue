@@ -1,7 +1,7 @@
 <template>
   <div class="Show-head">
-    <span style="font-size: 20px" v-if="showObject !== null">{{ showObject.title }}</span>
-    <el-button type="primary" @click="addTag">新增注解</el-button>
+    <span style="font-size: 20px" v-if="showObject">{{ showObject.title }}</span>
+    <el-button type="primary" @click="addTag">{{ showObject.tag ? '更改' : '新增' }}注解</el-button>
   </div>
 
   <el-divider style="margin: 5% auto" />

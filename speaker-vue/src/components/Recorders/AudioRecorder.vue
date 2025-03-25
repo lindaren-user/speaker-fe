@@ -88,7 +88,7 @@ const startRecording = () => {
 // 停止录制
 const stopRecording = () => {
   if (mediaRecorder.value) {
-    mediaRecorder.value.onstop();
+    mediaRecorder.value.stop();
 
     clearInterval(timer.value);
 
