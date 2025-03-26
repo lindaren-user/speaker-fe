@@ -18,6 +18,7 @@
 
 <script setup>
 import emittr from '@/utils/event-bus';
+import { ErrorMessage, WarningMessage } from '@/utils/messageTool';
 
 const props = defineProps({
   videoUrl: {
@@ -34,14 +35,14 @@ const emit = defineEmits(['update:videoUrl']);
 
 // 处理视频加载错误
 const handleVideoError = () => {
-  ElMessage.error('视频加载失败');
+  ErrorMessage('视频加载失败');
   emit('update:videoUrl', null);
 };
 
 // 触发新增注解事件
 const addTag = () => {
   if (!props.videoUrl) {
-    ElMessage.warning('请先选择视频');
+    WarningMessage('请先选择视频');
     return;
   }
   emittr.emit('add');

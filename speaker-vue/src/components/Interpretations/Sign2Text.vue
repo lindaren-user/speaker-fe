@@ -78,6 +78,7 @@ import { useUsedModelStore } from '@/stores/usedModel';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import { files_service } from '@/apis/files_service';
+import { ErrorMessage, SuccessMessage, WarningMessage } from '@/utils/messageTool';
 
 const requestLocal = '/api';
 
@@ -125,12 +126,12 @@ const handleDeleteVideo = () => {
 // 单个视频上传方法
 const uploadVideo = () => {
   if (!video.value) {
-    ElMessage.warning('请先选择视频');
+    WarningMessage('请先选择视频');
     return;
   }
 
   if (!hasModels.value) {
-    ElMessage.warning('未选择模型');
+    WarningMessage('未选择模型');
 
     canBlink.value = true;
 
@@ -156,29 +157,26 @@ const uploadVideo = () => {
     })
     .then((res) => {
       if (res.code === '200') {
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: `${video.value.id}上传成功`,
-        });
+        SuccessMessage('上传成功');
         // 上传成功后更新展示视频的URL
         videoUrl.value = requestLocal + res.data.url;
         resultText.value = res.data.result;
         console.log(videoUrl.value);
       } else {
-        ElMessage.error(`${video.value.id}上传失败`);
+        console.log(res.msg);
+        ErrorMessage(res.msg);
       }
     })
     .catch((error) => {
       console.error('上传失败:', video.value.id, error);
-      ElMessage.error(`${video.value.id}上传失败`);
+      ErrorMessage('上传失败');
     })
     .finally(() => (isTranslating.value = false));
 };
 
 const handleVideoError = (error) => {
   console.error('视频播放错误:', error.target.error);
-  ElMessage.error('视频播放错误');
+  ErrorMessage('视频播放错误');
 };
 </script>
 

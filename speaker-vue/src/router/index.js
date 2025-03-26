@@ -77,7 +77,7 @@ const router = createRouter({
 // 权限验证
 router.beforeEach((to, from, next) => {
   if (to?.meta?.requireAuth && !checkLogin()) {
-    next('/login');
+    return next('/login');
   }
   next();
 });

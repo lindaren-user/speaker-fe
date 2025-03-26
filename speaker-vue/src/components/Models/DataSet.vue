@@ -1,5 +1,39 @@
 <template>
-  <div>
+  <div v-if="isMobile">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        border: 1px lightgray solid;
+      "
+      @click="dialogTips = true"
+    >
+      <span>注意事项</span>
+      <span><van-icon name="arrow-down" /></span>
+    </div>
+
+    <van-popup v-model:show="dialogTips" position="bottom" style="height: 40%" closeable>
+      <van-divider><span style="color: black; font-size: large">数据采集</span></van-divider>
+      <div>
+        <ul>
+          <li>
+            <el-icon><Star /></el-icon> 视频数量限制为100，超出该数量的视频会被忽略
+          </li>
+          <li>
+            <el-icon><Star /></el-icon> 视频尽可能覆盖所有使用场景，否则会导致实机部署效果欠佳
+          </li>
+          <li>
+            <el-icon><Star /></el-icon> 每个标签的视频数量最少10份，否则训练效果可能一般
+          </li>
+          <li>
+            <el-icon><Star /></el-icon> 每个标签的视频数量尽量接近
+          </li>
+        </ul>
+      </div>
+    </van-popup>
+  </div>
+  <div v-else>
     <h2 style="margin-bottom: 10px"></h2>
     <div>
       <ul>
@@ -45,12 +79,16 @@ import ControlPanel from '@/components/Others/ControlPanel.vue';
 import VideoList from '@/components/Others/VideoList.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import { files_service } from '@/apis/files_service';
+import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
+import { _isMobile } from '@/utils/isMobile';
 
 const videoList = ref([]);
 const showCameraDialog = ref(false);
 const nextVideoId = ref(1);
 const ulCounterStore = useUlCounterStore();
 const processedModelStore = useProcessedModelStore();
+const isMobile = computed(() => _isMobile());
+const dialogTips = ref(false);
 
 // 处理添加视频
 const handleAddVideo = (file) => {
@@ -81,34 +119,26 @@ const handleUploadAll = async () => {
   const unUploaded = videoList.value.filter((v) => !v.isUploaded);
   const length = unUploaded.length;
   if (length === 0) {
-    ElMessage.warning('没有可上传视频');
+    WarningMessage('无可上传视频');
     return;
   }
   try {
     await Promise.all(unUploaded.map(uploadVideo)); // 等待所有的视频处理完成
     if (unUploaded.every((v) => v.isUploaded)) {
-      ElMessage({
-        showClose: true,
-        type: 'success',
-        message: '全部上传成功',
-      });
+      SuccessMessage('全部上传成功');
       ulCounterStore.changeCounter(length);
     }
-  } catch (error) {
-    console.error('上传失败:', error);
-    ElMessage.error('上传失败，请检查网络连接');
+  } catch (err) {
+    console.error('上传失败:', err);
+    ErrorMessage('上传失败，请检查网络连接');
   }
 };
 
 // 删除视频
 const handleDeleteVideo = (id) => {
-  ElMessageBox.confirm('此操作将删除该视频, 是否继续?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  }).then(() => {
+  MessageBox('视频').then(() => {
     videoList.value = videoList.value.filter((v) => v.id !== id);
-    ElMessage.success('删除成功');
+    SuccessMessage('删除成功');
   });
 };
 
@@ -125,13 +155,13 @@ const uploadVideo = (video) => {
       if (res.code === '200') {
         video.isUploaded = true;
       } else {
-        ElMessage.error(`${video.id}上传失败`);
+        console.log(res.msg);
+        ErrorMessage(`${video.id}上传失败`);
       }
       return res;
     })
     .catch((error) => {
       console.error('上传失败:', video.id, error);
-      // ElMessage.error(`${video.id}上传失败`);
     });
 };
 </script>

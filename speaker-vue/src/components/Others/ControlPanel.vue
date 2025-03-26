@@ -19,6 +19,8 @@
 </template>
 
 <script setup>
+import { ErrorMessage } from '@/utils/messageTool';
+
 const emit = defineEmits(['add-video', 'start-recording', 'upload']);
 
 const fileInput = ref(null);
@@ -34,7 +36,7 @@ const handleFileSelect = (e) => {
   if (file) {
     // 验证文件类型
     if (!file.type.includes('video')) {
-      ElMessage.error('请选择视频文件');
+      ErrorMessage('请选择视频文件');
       return;
     }
     emit('add-video', file);

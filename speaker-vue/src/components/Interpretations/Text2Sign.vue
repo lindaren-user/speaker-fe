@@ -87,9 +87,10 @@
 
 <script setup>
 import { useElementBounding, useWindowSize } from '@vueuse/core';
-import AudioRecorder from '../Recorders/AudioRecorder.vue';
+import AudioRecorder from '@/components/Recorders/AudioRecorder.vue';
 import { useYiyuStore } from '@/stores/yiyu';
 import { files_service } from '@/apis/files_service';
+import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
 
 const text = ref('');
 const isCanceled = ref(false);
@@ -123,11 +124,7 @@ const saveSettings = () => {
   if (canTextTranslate.value) yiyu.enableTextSelection();
   else yiyu.disableTextSelection();
 
-  ElMessage({
-    showClose: true,
-    type: 'success',
-    message: '设置成功',
-  });
+  SuccessMessage('设置成功');
 };
 
 const resetSettings = () => {
@@ -184,10 +181,12 @@ const handleRecordComplete = (blob) => {
       if (res.code === '200') {
       } else {
         console.log(res.msg);
+        ErrorMessage(res.msg);
       }
     })
     .catch((err) => {
       console.log(err.message);
+      ErrorMessage('识别失败');
     });
 };
 

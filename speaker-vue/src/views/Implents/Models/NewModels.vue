@@ -1,37 +1,61 @@
 <template>
-  <el-breadcrumb :separator-icon="ArrowRight">
-    <el-breadcrumb-item :to="{ path: '/implents/models/myModels' }">我的模型</el-breadcrumb-item>
-    <el-breadcrumb-item
-      ><span style="font-size: 1.2rem">{{
-        processedModelStore.processedModel.name
-      }}</span></el-breadcrumb-item
-    >
-  </el-breadcrumb>
-  <el-card class="models-body">
-    <template #header>
-      <div class="step">
-        <el-steps :active="active" align-center>
-          <el-step title="数据采集" class="step-item" @click="active = 0" />
-          <el-step title="语料定义" class="step-item" @click="active = 1" />
-          <el-step title="模型训练" class="step-item" @click="active = 2" />
-        </el-steps></div
-    ></template>
-    <keep-alive
-      ><DataSet v-if="active === 0" />
-      <Tag v-else-if="active === 1" />
-      <Infer v-else
-    /></keep-alive>
-  </el-card>
+  <div v-if="isMobile">
+    <van-nav-bar :title="modelName" left-arrow @click-left="router.go(-1)" />
+    <van-steps :active="active">
+      <van-step @click="active = 0">数据采集</van-step>
+      <van-step @click="active = 1">语料定义</van-step>
+      <van-step @click="active = 2">模型训练</van-step>
+    </van-steps>
+    <van-floating-bubble icon="arrow" @click="nextStep" />
+    <div style="border: 1px black solid; height: 76vh; overflow-y: auto; overflow-x: hidden">
+      <keep-alive
+        ><DataSet v-if="active === 0" />
+        <Tag v-else-if="active === 1" />
+        <Infer v-else
+      /></keep-alive>
+    </div>
+  </div>
+  <div v-else>
+    <el-breadcrumb :separator-icon="ArrowRight">
+      <el-breadcrumb-item :to="{ path: '/implents/models/myModels' }">我的模型</el-breadcrumb-item>
+      <el-breadcrumb-item
+        ><span style="font-size: 1.2rem">{{ modelName }}</span></el-breadcrumb-item
+      >
+    </el-breadcrumb>
+    <el-card class="models-body">
+      <template #header>
+        <div class="step">
+          <el-steps :active="active" align-center>
+            <el-step title="数据采集" class="step-item" @click="active = 0" />
+            <el-step title="语料定义" class="step-item" @click="active = 1" />
+            <el-step title="模型训练" class="step-item" @click="active = 2" />
+          </el-steps></div
+      ></template>
+      <keep-alive
+        ><DataSet v-if="active === 0" />
+        <Tag v-else-if="active === 1" />
+        <Infer v-else
+      /></keep-alive>
+    </el-card>
+  </div>
 </template>
 
 <script setup>
+import { ArrowRight } from '@element-plus/icons-vue';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import DataSet from '@/components/Models/DataSet.vue';
 import Tag from '@/components/Models/Tag.vue';
 import Infer from '@/components/Models/Infer.vue';
+import { _isMobile } from '@/utils/isMobile';
 
 const active = ref(0);
 const processedModelStore = useProcessedModelStore();
+const isMobile = computed(() => _isMobile());
+const modelName = computed(() => processedModelStore.processedModel.name);
+const router = useRouter();
+const nextStep = () => {
+  active.value = (active.value + 1) % 3;
+};
 </script>
 
 <style scoped>

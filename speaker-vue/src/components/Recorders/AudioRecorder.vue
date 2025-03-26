@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ErrorMessage } from '@/utils/messageTool';
 
 const isRecording = ref(false);
 const recordingTime = ref(0);
@@ -59,7 +59,7 @@ const initMCP = () => {
     })
     .catch((err) => {
       console.error('麦克风访问失败:', err);
-      ElMessage.error('无法访问麦克风');
+      ErrorMessage('无法访问麦克风');
     });
 };
 

@@ -1,21 +1,29 @@
 <template>
   <div v-if="isMobile">
-    <div>
+    <van-divider><span style="color: black; font-size: large">我的模型</span></van-divider>
+    <div style="display: flex; justify-content: right; margin-bottom: 1vh">
+      <el-button type="primary"><van-icon name="plus" /></el-button>
+    </div>
+    <div style="height: 78vh; border: 1px black solid; overflow: auto">
       <van-list finished-text="没有更多了">
-        <van-checkbox-group v-model="checked">
+        <van-checkbox-group v-model="selectedModels">
           <van-swipe-cell
             v-for="(model, index) in modelList"
             :key="index"
             style="margin-bottom: 0.625rem; border: 1px dotted black; height: 9vh"
           >
-            <div style="height: 40px; display: flex; justify-content: space-between; padding: 10px">
-              <span style="font-size: 1.1rem">{{ model.name }}</span
-              ><span
-                ><span><van-checkbox name="a">使用</van-checkbox></span></span
+            <div @click="editModel(index)">
+              <div
+                style="height: 10vh; display: flex; justify-content: space-between; padding: 10px"
               >
-            </div>
-            <div style="text-align: right">
-              <span style="margin-right: 10px">{{ model.datetime }}</span>
+                <span style="font-size: 1.1rem">{{ model.name }}</span
+                ><span
+                  ><span><van-checkbox :name="model.id">使用</van-checkbox></span></span
+                >
+              </div>
+              <div style="text-align: right">
+                <span style="margin-right: 10px">{{ model.datetime }}</span>
+              </div>
             </div>
             <template #right>
               <van-button
@@ -71,7 +79,7 @@
         <div class="header-container">
           <span style="font-size: 1.25rem"
             >我的模型<span style="font-size: 1rem; margin-left: 10px"
-              >总共{{ modelList.length }}个,已使用{{ selectedModel.length }}个</span
+              >总共{{ modelList.length }}个,已使用{{ selectedModels.length }}个</span
             ></span
           >
           <el-button type="primary" @click="newModel">新建模型</el-button>
@@ -79,14 +87,14 @@
       </template>
       <div class="models-list-container">
         <template v-if="modelList.length">
-          <el-checkbox-group v-model="selectedModel" size="small">
+          <el-checkbox-group v-model="selectedModels" size="small">
             <el-card v-for="(model, index) in modelList" :key="model.id" class="model-item">
               <div class="model-content">
                 <span class="model-name" @click="editModel(index)"
                   ><el-icon><Memo /></el-icon> {{ model.name }}</span
                 >
                 <div class="model-actions">
-                  <el-checkbox :label="model.id">
+                  <el-checkbox :value="model.id">
                     <span class="radio-label">翻译使用</span>
                   </el-checkbox>
                   <el-dropdown>
@@ -191,7 +199,7 @@ import { useUserStore } from '@/stores/user';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { useUsedModelStore } from '@/stores/usedModel';
 import { _isMobile } from '@/utils/isMobile';
-import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
+import { ErrorMessage, MessageBox, SuccessMessage, WarningMessage } from '@/utils/messageTool';
 import { models_service } from '@/apis/models_service';
 
 const router = useRouter();
@@ -201,7 +209,6 @@ const userStore = useUserStore();
 const processedModelStore = useProcessedModelStore();
 const usedModelStore = useUsedModelStore();
 const isMobile = computed(() => _isMobile());
-const checked = ref();
 
 const name = ref('');
 const description = ref('');
@@ -264,7 +271,7 @@ const modelList = ref([
 
 const names = new Set();
 
-const selectedModel = ref([]);
+const selectedModels = ref([]);
 
 const editModelInfo = (index) => {
   processedModelStore.changeProcessedModel(modelList.value[index]);
@@ -291,29 +298,21 @@ const saveModelInfo = () => {
         modelList.value[index].description = res.data.profile;
         modelList.value[index].datetime = res.data.datetime;
 
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: '编辑成功',
-        });
+        SuccessMessage('编辑成功');
         dialogEditModels.value = false;
       } else {
         console.log(res.msg);
-        ElMessage.error(res.msg);
+        ErrorMessage(res.msg);
       }
     })
     .catch((err) => {
       console.log(err.message);
-      ElMessage.error('编辑失败');
+      ErrorMessage('编辑失败');
     });
 };
 
 const deleteModel = (index) => {
-  ElMessageBox.confirm('此操作将永久删除该模型, 是否继续?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  }).then(() => {
+  MessageBox('模型').then(() => {
     models_service
       .deleteModel({
         params: {
@@ -325,23 +324,19 @@ const deleteModel = (index) => {
           names.delete(modelList.value[index].name);
 
           modelList.value.splice(index, 1);
-          if (selectedModel.value === index) {
-            selectedModel.value = '';
+          if (selectedModels.value === index) {
+            selectedModels.value = '';
           }
 
-          ElMessage({
-            showClose: true,
-            type: 'success',
-            message: '删除成功',
-          });
+          SuccessMessage('删除成功');
         } else {
           console.log(res.msg);
-          ElMessage.error(res.msg);
+          ErrorMessage(res.msg);
         }
       })
       .catch((err) => {
         console.log(err.message);
-        ElMessage.error('删除失败');
+        ErrorMessage('删除失败');
       });
   });
 };
@@ -360,12 +355,12 @@ const editModel = (index) => {
 
 const createModel = () => {
   if (!name.value) {
-    ElMessage.warning('名字不能为空');
+    WarningMessage('名字不能为空');
     return;
   }
 
   if (names.has(name.value)) {
-    ElMessage.warning('名字重复，重新输入');
+    WarningMessage('名字重复，重新输入');
     return;
   }
 
@@ -388,20 +383,16 @@ const createModel = () => {
         modelList.value.push(newModel);
         processedModelStore.changeProcessedModel(newModel);
 
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: '创建成功',
-        });
+        SuccessMessage('创建成功');
         router.push('/implents/models/newModels');
       } else {
         console.log(res.msg);
-        ElMessage.error(res.msg);
+        ErrorMessage(res.msg);
       }
     })
     .catch((err) => {
       console.log(err.message);
-      ElMessage.error('创建失败');
+      ErrorMessage('创建失败');
     });
 };
 
@@ -418,7 +409,7 @@ const getAllModels = () => {
         modelList.value = res.data;
 
         modelList.value.forEach((model) => names.add(model.name));
-        selectedModel.value = modelList.value.findIndex(
+        selectedModels.value = modelList.value.findIndex(
           (model) => model.name === usedModelStore.usedModel.name,
         );
       } else {
@@ -436,12 +427,12 @@ onMounted(() => {
   getAllModels();
 
   if (usedModelStore.usedModel && usedModelStore.usedModel.length !== 0) {
-    selectedModel.value = usedModelStore.usedModel;
+    selectedModels.value = usedModelStore.usedModel;
   }
 });
 
 onUnmounted(() => {
-  usedModelStore.changeUsedModel(selectedModel.value);
+  usedModelStore.changeUsedModel(selectedModels.value);
 });
 </script>
 

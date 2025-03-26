@@ -1,30 +1,47 @@
 <template>
-  <div class="header">
-    <span>模型训练 {{ percentage }}%</span>
-    <el-button type="success" @click="train" :disabled="isTraining">开始训练</el-button>
-  </div>
-  <div class="progress-icon-container" v-if="showProgress">
-    <!-- 进度条 -->
-    <el-progress
+  <div v-if="isMobile">
+    <div class="header" style="margin-top: 10vh">
+      <span>模型训练 {{ percentage }}%</span>
+      <el-button type="success" @click="train" :disabled="isTraining">开始训练</el-button>
+    </div>
+    <van-progress
       :percentage="percentage"
-      :stroke-width="15"
-      status="success"
-      striped
-      :striped-flow="percentage < 100"
-      :duration="10"
-      style="width: 90%; transition: width 1s ease"
+      stroke-width="8"
+      color="lightgreen"
+      style="width: 80%; transition: width 1s ease; margin: auto"
     />
+  </div>
+  <div v-else>
+    <div class="header">
+      <span>模型训练 {{ percentage }}%</span>
+      <el-button type="success" @click="train" :disabled="isTraining">开始训练</el-button>
+    </div>
+    <div class="progress-icon-container" v-if="showProgress">
+      <!-- 进度条 -->
+      <el-progress
+        :percentage="percentage"
+        :stroke-width="15"
+        status="success"
+        striped
+        :striped-flow="percentage < 100"
+        :duration="10"
+        style="width: 90%; transition: width 1s ease"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { models_service } from '@/apis/models_service';
+import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
+import { _isMobile } from '@/utils/isMobile';
 
 const showIcon = ref(false); // 控制图标显示
 const showProgress = ref(false); // 控制进度条显示
 const percentage = ref(0); // 进度条的百分比
 const isTraining = ref(false);
+const isMobile = computed(() => _isMobile());
 
 const processedModelStore = useProcessedModelStore();
 
@@ -41,20 +58,20 @@ const startProgress = () => {
   models_service
     .trainModel({
       params: {
-        modelId: processedModelStore.processedModel.name,
+        modelid: processedModelStore.processedModel.id,
       },
     })
     .then((res) => {
       if (res.code === '200') {
         percentage.value += 4;
       } else {
-        ElMessage.error('训练失败');
+        ErrorMessage('训练失败');
         return;
       }
     })
     .catch((err) => {
       console.log(err);
-      ElMessage.error('训练失败');
+      ErrorMessage('训练失败');
       return;
     });
 
@@ -63,11 +80,7 @@ const startProgress = () => {
     if (kk >= 24) {
       if (percentage.value === 100) {
         isTraining.value = false;
-        ElMessage({
-          showClose: true,
-          type: 'success',
-          message: '训练成功',
-        });
+        SuccessMessage('训练成功');
       }
       clearInterval(interval);
     } else {
@@ -97,7 +110,7 @@ const startProgress = () => {
   justify-content: space-between;
   font-size: 1.25rem;
   height: 20vh;
-  width: 50%;
+  width: 60%;
 }
 
 .icon-container {

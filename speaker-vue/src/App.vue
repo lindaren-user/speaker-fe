@@ -1,10 +1,7 @@
 <template>
-  <template v-if="isMobile">
+  <div v-if="isMobile">
     <div v-if="isLogin">
-      <div style="position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 1000">
-        <van-divider>{{ mobileHeader }}</van-divider>
-      </div>
-      <div style="margin-top: 20%; height: 80%; overflow-y: auto'; border: 1px solid red">
+      <div style="height: 92vh; border: 1px solid red">
         <RouterView />
       </div>
       <div>
@@ -17,8 +14,8 @@
       </div>
     </div>
     <div v-else><Home /></div>
-  </template>
-  <template v-else>
+  </div>
+  <div v-else>
     <span class="fixed-nav">
       <div class="header">
         <div class="logo">
@@ -86,16 +83,17 @@
         </keep-alive>
       </router-view>
     </div>
-  </template>
+  </div>
 </template>
 
 <script setup>
 import { useUserStore } from '@/stores/user.js';
-import { useProcessedModelStore } from './stores/processedModel';
-import { _isMobile } from './utils/isMobile';
-import { checkLogin } from './utils/checkLogin';
-import { user_service } from './apis/user_service';
-import Home from './views/Home.vue';
+import { useProcessedModelStore } from '@/stores/processedModel';
+import { _isMobile } from '@/utils/isMobile';
+import { checkLogin } from '@/utils/checkLogin';
+import { user_service } from '@/apis/user_service';
+import { ErrorMessage, SuccessMessage } from './utils/messageTool';
+import Home from '@/views/Home.vue';
 
 const router = useRouter();
 
@@ -106,8 +104,12 @@ const active = ref('models');
 
 const mobileHeader = ref('');
 watchEffect(() => {
-  if (isMobile) {
-    router.push({ name: active.value });
+  if (isMobile.value) {
+    if (active.value === 'interpretation') {
+      router.push('/implents/interpretation/1');
+    } else {
+      // router.push({ name: active.value });
+    }
 
     switch (active.value) {
       case 'models':
@@ -131,20 +133,22 @@ const processedModelStore = useProcessedModelStore();
 const notifyDrawer = ref(false);
 
 const logout = () => {
-  user_service.logout
+  user_service
+    .logout()
     .then((res) => {
-      if (res.code == 200) {
-        ElMessage.success('退出成功');
+      if (res.code === '200') {
+        SuccessMessage('退出成功');
         userStore.clearStore();
         processedModelStore.clearStore();
         router.push('/');
       } else {
-        ElMessage.error(res.msg);
+        console.log(res.msg);
+        ErrorMessage(res.msg);
       }
     })
     .catch((err) => {
       console.log(err);
-      ElMessage.error(err.message);
+      ErrorMessage(err.message);
     });
 };
 
@@ -156,7 +160,7 @@ const getPrivacyInfo = () => {
 
 <style scoped>
 .fixed-nav {
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
   right: 0;
@@ -213,7 +217,7 @@ const getPrivacyInfo = () => {
 }
 
 .content {
-  margin-top: 12vh;
+  margin-top: 5vh;
 }
 
 .msgBtn {

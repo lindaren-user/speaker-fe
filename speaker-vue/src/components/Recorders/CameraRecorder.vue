@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ErrorMessage } from '@/utils/messageTool';
 
 const videoElement = ref(null);
 const mediaRecorder = ref(null);
@@ -47,7 +47,7 @@ const initCamera = () => {
     })
     .catch((err) => {
       console.error('摄像头访问失败:', err);
-      ElMessage.error('无法访问摄像头');
+      ErrorMessage('无法访问摄像头');
     });
 };
 
