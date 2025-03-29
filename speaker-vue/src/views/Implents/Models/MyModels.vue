@@ -2,21 +2,22 @@
   <div v-if="isMobile">
     <van-divider><span style="color: black; font-size: large">我的模型</span></van-divider>
     <div style="display: flex; justify-content: right; margin-bottom: 1vh">
-      <el-button type="primary"><van-icon name="plus" /></el-button>
+      <el-button type="primary" @click="newModel"><van-icon name="plus" /></el-button>
     </div>
-    <div style="height: 78vh; border: 1px black solid; overflow: auto">
+    <div style="height: 78vh; overflow: auto">
       <van-list finished-text="没有更多了">
         <van-checkbox-group v-model="selectedModels">
           <van-swipe-cell
             v-for="(model, index) in modelList"
             :key="index"
-            style="margin-bottom: 0.625rem; border: 1px dotted black; height: 9vh"
+            style="border-bottom: 1px dotted black; height: 9vh"
           >
-            <div @click="editModel(index)">
+            <div>
               <div
                 style="height: 10vh; display: flex; justify-content: space-between; padding: 10px"
               >
-                <span style="font-size: 1.1rem">{{ model.name }}</span
+                <span style="font-size: 1.1rem" @click="editModel(index)"
+                  ><van-icon name="desktop-o" /> {{ model.name }}</span
                 ><span
                   ><span><van-checkbox :name="model.id">使用</van-checkbox></span></span
                 >
@@ -37,7 +38,7 @@
                 square
                 type="primary"
                 text="编辑"
-                @click="dialogEditModels = true"
+                @click="editModelInfo(index)"
                 style="height: 9vh"
               />
             </template>
@@ -49,30 +50,58 @@
       <van-empty description="您还没有模型" />
     </div>
     <van-popup
-      v-model:show="dialogEditModels"
+      v-model:show="dialogNewModels"
       position="bottom"
       :style="{ height: '50%' }"
       closeable
+      :close-on-click-overlay="false"
     >
-      <van-cell-group inset style="margin-top: 10%">
+      <van-divider><span style="color: black; font-size: large">新建模型</span></van-divider>
+      <van-cell-group inset>
         <van-field v-model="name" label="名称" placeholder="模型名称" required="auto" />
         <van-field
           v-model="description"
-          rows="2"
-          autosize
+          rows="5"
           label="描述"
           type="textarea"
           maxlength="150"
           placeholder="模型简单介绍"
           show-word-limit
+          style="height: 25vh"
         />
       </van-cell-group>
-      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20%">
+      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 2vh">
+        <van-button type="warning" style="width: 100px" @click="resetModelInfo">重置</van-button>
+        <van-button type="success" style="width: 100px" @click="createModel">确定</van-button>
+      </div>
+    </van-popup>
+    <van-popup
+      v-model:show="dialogEditModels"
+      position="bottom"
+      :style="{ height: '50%' }"
+      closeable
+      :close-on-click-overlay="false"
+    >
+      <van-cell-group inset style="margin-top: 10%">
+        <van-field v-model="name" label="名称" placeholder="模型名称" required="auto" />
+        <van-field
+          v-model="description"
+          rows="5"
+          label="描述"
+          type="textarea"
+          maxlength="150"
+          placeholder="模型简单介绍"
+          show-word-limit
+          style="height: 25vh"
+        />
+      </van-cell-group>
+      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 5vh">
         <van-button type="warning" style="width: 100px" @click="resetModelInfo">重置</van-button>
         <van-button type="success" style="width: 100px" @click="saveModelInfo">保存</van-button>
       </div>
     </van-popup>
   </div>
+
   <div v-else>
     <el-card class="models-container-card">
       <template #header>
@@ -154,7 +183,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="resetModelInfo">重置</el-button>
-          <el-button type="primary" @click="createModel">确定</el-button>
+          <el-button type="primary" @click="">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -213,61 +242,7 @@ const isMobile = computed(() => _isMobile());
 const name = ref('');
 const description = ref('');
 
-const modelList = ref([
-  {
-    id: 1,
-    name: '日常出行',
-    datetime: '2025.3.20',
-  },
-  {
-    name: '旅游',
-    datetime: '2025.3.20',
-  },
-  {
-    name: '购物',
-    time: '2025.1.3',
-  },
-  {
-    name: '医院看病',
-    time: '2025.1.4',
-  },
-  {
-    name: '远门常用',
-    time: '2025.1.5',
-  },
-  {
-    name: '医院看病',
-    time: '2025.1.4',
-  },
-  {
-    name: '远门常用',
-    time: '2025.1.5',
-  },
-  {
-    name: '医院看病',
-    time: '2025.1.4',
-  },
-  {
-    name: '远门常用',
-    time: '2025.1.5',
-  },
-  {
-    name: '医院看病',
-    time: '2025.1.4',
-  },
-  {
-    name: '远门常用',
-    time: '2025.1.5',
-  },
-  {
-    name: '远门常用',
-    time: '2025.1.5',
-  },
-  {
-    name: '远门常用',
-    time: '2025.1.5',
-  },
-]);
+const modelList = ref([]);
 
 const names = new Set();
 
@@ -409,9 +384,6 @@ const getAllModels = () => {
         modelList.value = res.data;
 
         modelList.value.forEach((model) => names.add(model.name));
-        selectedModels.value = modelList.value.findIndex(
-          (model) => model.name === usedModelStore.usedModel.name,
-        );
       } else {
         console.log(res.msg);
         ErrorMessage(res.msg);

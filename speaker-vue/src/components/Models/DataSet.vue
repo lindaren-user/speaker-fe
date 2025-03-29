@@ -1,17 +1,23 @@
 <template>
   <div v-if="isMobile">
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        padding: 10px;
-        border: 1px lightgray solid;
-      "
-      @click="dialogTips = true"
-    >
-      <span>注意事项</span>
-      <span><van-icon name="arrow-down" /></span>
-    </div>
+    <van-notice-bar left-icon="volume-o" :scrollable="false" mode="link" @click="dialogTips = true">
+      <van-swipe
+        vertical
+        class="notice-swipe"
+        :autoplay="3000"
+        :touchable="false"
+        :show-indicators="false"
+      >
+        <van-swipe-item>视频数量限制为100，超出该数量的视频会被忽略</van-swipe-item>
+        <van-swipe-item>视频尽可能覆盖所有使用场景，否则会导致实机部署效果欠佳</van-swipe-item>
+        <van-swipe-item>每个标签的视频数量最少10份，否则训练效果可能一般</van-swipe-item>
+        <van-swipe-item>每个标签的视频数量尽量接近</van-swipe-item>
+      </van-swipe>
+    </van-notice-bar>
+
+    <ControlPanel @add-video="handleAddVideo" @upload="handleUploadAll" />
+
+    <VideoList :videos="videoList" @delete-video="handleDeleteVideo" />
 
     <van-popup v-model:show="dialogTips" position="bottom" style="height: 40%" closeable>
       <van-divider><span style="color: black; font-size: large">数据采集</span></van-divider>
@@ -32,7 +38,12 @@
         </ul>
       </div>
     </van-popup>
+
+    <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
+      <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
+    </el-dialog>
   </div>
+
   <div v-else>
     <h2 style="margin-bottom: 10px"></h2>
     <div>
@@ -51,24 +62,24 @@
         </li>
       </ul>
     </div>
-  </div>
 
-  <div class="dataset-container">
-    <!-- 操作按钮组件 -->
-    <ControlPanel
-      @add-video="handleAddVideo"
-      @start-recording="showCameraDialog = true"
-      @upload="handleUploadAll"
-    />
+    <div class="dataset-container">
+      <!-- 操作按钮组件 -->
+      <ControlPanel
+        @add-video="handleAddVideo"
+        @start-recording="showCameraDialog = true"
+        @upload="handleUploadAll"
+      />
 
-    <el-divider style="margin: 2% auto" />
+      <el-divider style="margin: 2% auto" />
 
-    <VideoList :videos="videoList" @delete-video="handleDeleteVideo" />
+      <VideoList :videos="videoList" @delete-video="handleDeleteVideo" />
 
-    <!-- 摄像头录制对话框 -->
-    <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
-      <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
-    </el-dialog>
+      <!-- 摄像头录制对话框 -->
+      <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
+        <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -167,6 +178,11 @@ const uploadVideo = (video) => {
 </script>
 
 <style scoped>
+.notice-swipe {
+  height: 40px;
+  line-height: 40px;
+}
+
 .dataset-container-card {
   width: 70vw;
   margin: 4vh auto;

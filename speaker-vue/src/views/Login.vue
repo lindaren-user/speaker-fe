@@ -39,6 +39,7 @@
       </div>
     </van-form>
   </div>
+
   <div v-else class="container">
     <div class="index-box">
       <h2 class="title">登录</h2>
@@ -76,11 +77,13 @@ import { _isMobile } from '@/utils/isMobile';
 import { SuccessMessage, ErrorMessage } from '@/utils/messageTool';
 import { user_service } from '@/apis/user_service';
 
+// 表单引用和路由实例
 const formRef = ref(null);
 const router = useRouter();
 const userStore = useUserStore();
 const loading = ref(false); // 加载状态
 
+// 表单数据和验证规则
 const form = ref({
   username: '',
   password: '',
@@ -97,6 +100,7 @@ const rules = {
   ],
 };
 
+// 判断是否为移动端
 const isMobile = computed(() => _isMobile());
 
 // 通用的表单验证函数
@@ -160,7 +164,7 @@ const login = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20vh;
+  margin-top: 10vh;
 }
 
 .index-box {

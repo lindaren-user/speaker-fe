@@ -6,7 +6,33 @@
       :noTagged="noTagged"
       @video-selected="handleVideoSelected"
     ></VideoTag>
+
+    <van-popup v-model:show="dialogVisible" position="bottom" :style="{ height: '50%' }" closeable>
+      <van-divider
+        ><span style="color: black">{{ changeObject.title }}</span></van-divider
+      >
+      <van-cell-group inset style="margin-top: 10%">
+        <van-field
+          v-model="tag"
+          rows="2"
+          autosize
+          label="标注"
+          type="textarea"
+          maxlength="15"
+          show-word-limit
+        />
+      </van-cell-group>
+      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 8vh">
+        <van-button type="warning" style="width: 100px" @click="dialogVisible = false"
+          >取消</van-button
+        >
+        <van-button type="success" style="width: 100px" @click="changeTag">确认</van-button>
+      </div>
+    </van-popup>
+
+    <VideoShow :videoUrl="currentVideoUrl" :showObject="changeObject"></VideoShow>
   </div>
+
   <div v-else class="tagbody">
     <div class="common-layout">
       <el-container>
@@ -49,7 +75,7 @@
             >删除标签</el-button
           >
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="changeTag"> 确认 </el-button>
+          <el-button type="primary" @click="changeTag">确认</el-button>
         </div>
       </template>
     </el-dialog>
@@ -76,14 +102,8 @@ const tag = ref('');
 const processedModelStore = useProcessedModelStore();
 const isMobile = computed(() => _isMobile());
 
-// 响应式数据
-const isTagged = computed(() => {
-  return videoList.value.filter((video) => video.tag === true);
-});
-
-const noTagged = computed(() => {
-  return videoList.value.filter((video) => video.tag === false);
-});
+const isTagged = computed(() => videoList.value.filter((video) => video.tag === true));
+const noTagged = computed(() => videoList.value.filter((video) => video.tag === false));
 
 // 获取所有的视频
 const getAllVideos = () => {
@@ -133,7 +153,11 @@ const handleVideoSelected = (video) => {
 const changeDialogVisible = (video) => {
   changeObject.value = video;
   jd.value = 0;
-  tag.value = changeObject.value.number;
+  if (changeObject.value.tag) {
+    tag.value = changeObject.value.number;
+  } else {
+    tag.value = '';
+  }
   dialogVisible.value = true;
 };
 
@@ -175,7 +199,7 @@ const changeTag = () => {
 
         SuccessMessage('标注成功');
         dialogVisible.value = false;
-        getAllVideos();
+        // getAllVideos();
       } else {
         ErrorMessage('标注失败');
       }
@@ -198,7 +222,10 @@ const deleteVideo = (videoTitle) => {
         if (res.code === '200') {
           SuccessMessage('删除成功');
           changeObject.value = {}; // 被选中的视频置空
-          getAllVideos();
+
+          videoList.value = videoList.value.filter((video) => video.title !== videoTitle);
+
+          // getAllVideos();
         } else {
           console.log(res.msg);
           ErrorMessage('删除失败');

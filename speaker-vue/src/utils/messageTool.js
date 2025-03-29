@@ -39,7 +39,7 @@ export const WarningMessage = (msg) => {
 export const MessageBox = (object) => {
   if (_isMobile()) {
     return showConfirmDialog({
-      title: '!注意',
+      title: '! 注意',
       message: `此操作将删除该${object}, 是否继续?`,
     });
   }

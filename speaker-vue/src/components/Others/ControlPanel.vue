@@ -1,5 +1,14 @@
 <template>
-  <div class="control-panel">
+  <div v-if="isMobile" style="display: flex; justify-content: center; gap: 20vw; margin-top: 2vh">
+    <van-button type="primary" @click="triggerFileInput">
+      <i class="iconfont icon-shangchuan" />&nbsp;视频选择
+    </van-button>
+    <van-button type="warning" @click="emit('upload')">
+      <i class="iconfont icon-shangchuan1" />&nbsp;一键上传
+    </van-button>
+  </div>
+
+  <div v-else class="control-panel">
     <el-button type="primary" @click="triggerFileInput">
       <i class="iconfont icon-shangchuan" />&nbsp;选择本地视频
     </el-button>
@@ -13,15 +22,17 @@
     <el-button type="warning" @click="emit('upload')">
       <i class="iconfont icon-shangchuan1" />&nbsp;一键上传
     </el-button>
-
-    <input type="file" ref="fileInput" hidden accept="video/*" @change="handleFileSelect" />
   </div>
+
+  <input type="file" ref="fileInput" hidden accept="video/*" @change="handleFileSelect" />
 </template>
 
 <script setup>
 import { ErrorMessage } from '@/utils/messageTool';
+import { _isMobile } from '@/utils/isMobile';
 
 const emit = defineEmits(['add-video', 'start-recording', 'upload']);
+const isMobile = computed(() => _isMobile());
 
 const fileInput = ref(null);
 

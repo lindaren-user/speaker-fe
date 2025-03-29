@@ -33,7 +33,6 @@
     "unplugin-vue-components": "^28.4.1",
     "vant": "^4.9.18",
     "vite": "^6.1.0",
-    "vite-plugin-purgecss": "^0.2.13",
     "vite-plugin-vue-devtools": "^7.7.2"
   }
 }

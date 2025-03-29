@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
 export const useUsedModelStore = defineStore('usedModel', () => {
-  const usedModel = ref(JSON.parse(localStorage.getItem('usedModel')) || null);
+  const usedModel = ref(JSON.parse(localStorage.getItem('usedModel')) || []);
 
   const changeUsedModel = (value) => {
     usedModel.value = value;

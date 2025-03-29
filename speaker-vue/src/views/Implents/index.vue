@@ -1,5 +1,6 @@
 <template>
   <div v-if="isMobile"><RouterView /></div>
+
   <div v-else class="layout-container">
     <span class="menu">
       <el-menu :router="true" :default-active="activeIndex">
@@ -25,7 +26,7 @@
       </el-menu>
     </span>
 
-    <div class="models-body"><router-view></router-view></div>
+    <div class="models-body"><RouterView /></div>
   </div>
 </template>
 

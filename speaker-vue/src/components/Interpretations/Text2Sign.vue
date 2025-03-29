@@ -1,88 +1,131 @@
 <template>
-  <el-card class="lCard">
-    <template #header> 目标文本 </template>
-    <AudioRecorder @record-complete="handleRecordComplete" />
-    <div class="center">
-      <el-input
-        v-model="text"
-        placeholder="输入文本......"
-        show-word-limit
-        type="textarea"
-        maxlength="450"
-        resize="none"
-      />
-      <div class="btn">
-        <el-button type="danger" @click="clearText">
-          <el-icon><Delete /></el-icon> 清空
-        </el-button>
-        <el-button
-          type="primary"
-          :disabled="!text || !yiyuStore.isSuccess"
-          @click="startTranslation"
-        >
-          <el-icon><Switch /></el-icon> 转化
-        </el-button>
-      </div>
-    </div>
-  </el-card>
-
-  <el-card class="rCard" ref="rCard">
-    <template #header>
-      <div class="header">
-        <span>手语数字人</span>
-        <el-button round @click="dialogVisible = true" :disabled="!yiyuStore.isSuccess"
-          ><el-icon><Setting /></el-icon> 设置</el-button
-        >
-      </div>
-    </template>
-  </el-card>
-
-  <!-- 设置 -->
-  <el-dialog
-    v-model="dialogVisible"
-    title="设置"
-    width="30%"
-    draggable
-    :close-on-click-modal="false"
-  >
-    <ul>
-      <li>
-        <span>手语翻译速度 x{{ speed }}</span>
-        <el-slider
-          v-model="newSliderValue"
-          :format-tooltip="formatTooltip"
-          size="small"
-          class="slider"
-        />
-      </li>
-      <li>
-        <span> 划词翻译 </span>
-        <el-switch
-          v-model="newCanTextTranslate"
-          size="small"
-          inline-prompt
-          active-text="开"
-          inactive-text="关"
-        />
-      </li>
-      <li>
-        <span> 跟随翻译 </span>
-        <el-switch
-          v-model="newCanFollow"
-          size="small"
-          inline-prompt
-          active-text="开"
-          inactive-text="关"
-        />
-      </li>
-    </ul>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="resetSettings">重置</el-button>
-        <el-button type="primary" @click="saveSettings">保存</el-button>
+  <div v-if="isMobile">
+    <div style="height: 50vh; display: flex; gap: 2vw; justify-content: center">
+      <span
+        style="height: 50vh; width: 48vw; border: 1px solid lightgray; border-radius: 5%"
+        ref="rCard"
+        ><div style="margin-top: 60%">
+          <van-loading v-show="loading" size="24px" vertical>数字人加载中...</van-loading>
+        </div>
       </span>
-    </template>
-  </el-dialog>
+      <span style="height: 50vh; width: 48vw; border: 1px solid lightgray; border-radius: 5%"
+        ><van-cell-group inset>
+          <van-field
+            v-model="text"
+            rows="11"
+            autosize
+            label="目标文本"
+            type="textarea"
+            maxlength="450"
+            placeholder="请输入留言"
+            show-word-limit
+          />
+        </van-cell-group>
+      </span>
+    </div>
+    <div style="height: 10vh; display: flex; justify-content: center; gap: 5vh; margin-top: 2vh">
+      <van-button type="warning" @click="clearText"><van-icon name="delete-o" /> 清空</van-button>
+      <van-button type="success" @click="startTranslation" :disabled="!text || !yiyuStore.isSuccess"
+        ><van-icon name="exchange" /> 转化</van-button
+      >
+    </div>
+    <div style="height: 10vh; display: flex; justify-content: center; gap: 50px">
+      <AudioRecorder @record-complete="handleRecordComplete" />
+    </div>
+    <!-- <audio :src="audioUrl" controls></audio> -->
+  </div>
+
+  <div v-else class="body">
+    <el-card class="lCard">
+      <template #header> 目标文本 </template>
+      <AudioRecorder @record-complete="handleRecordComplete" />
+      <div class="center">
+        <el-input
+          v-model="text"
+          placeholder="输入文本......"
+          show-word-limit
+          type="textarea"
+          maxlength="450"
+          resize="none"
+        />
+        <div class="btn">
+          <el-button type="danger" @click="clearText">
+            <el-icon><Delete /></el-icon> 清空
+          </el-button>
+          <el-button
+            type="primary"
+            :disabled="!text || !yiyuStore.isSuccess"
+            @click="startTranslation"
+          >
+            <el-icon><Switch /></el-icon> 转化
+          </el-button>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card
+      class="rCard"
+      ref="rCard"
+      v-loading="loading"
+      element-loading-text="正在加载手语数字人..."
+    >
+      <template #header>
+        <div class="header">
+          <span>手语数字人</span>
+          <el-button round @click="dialogVisible = true" :disabled="!yiyuStore.isSuccess"
+            ><el-icon><Setting /></el-icon> 设置</el-button
+          >
+        </div>
+      </template>
+    </el-card>
+
+    <!-- 设置 -->
+    <el-dialog
+      v-model="dialogVisible"
+      title="设置"
+      width="30%"
+      draggable
+      :close-on-click-modal="false"
+    >
+      <ul>
+        <li>
+          <span>手语翻译速度 x{{ speed }}</span>
+          <el-slider
+            v-model="newSliderValue"
+            :format-tooltip="formatTooltip"
+            size="small"
+            class="slider"
+          />
+        </li>
+        <li>
+          <span> 划词翻译 </span>
+          <el-switch
+            v-model="newCanTextTranslate"
+            size="small"
+            inline-prompt
+            active-text="开"
+            inactive-text="关"
+          />
+        </li>
+        <li>
+          <span> 跟随翻译 </span>
+          <el-switch
+            v-model="newCanFollow"
+            size="small"
+            inline-prompt
+            active-text="开"
+            inactive-text="关"
+          />
+        </li>
+      </ul>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="resetSettings">重置</el-button>
+          <el-button type="primary" @click="saveSettings">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script setup>
@@ -91,6 +134,7 @@ import AudioRecorder from '@/components/Recorders/AudioRecorder.vue';
 import { useYiyuStore } from '@/stores/yiyu';
 import { files_service } from '@/apis/files_service';
 import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
+import { _isMobile } from '@/utils/isMobile';
 
 const text = ref('');
 const isCanceled = ref(false);
@@ -98,6 +142,9 @@ const dialogVisible = ref(false);
 const speed = ref(1.5);
 const rCard = useTemplateRef('rCard');
 const { width: winWidth, height: winHeight } = useWindowSize();
+const loading = ref(true);
+
+const isMobile = computed(() => _isMobile());
 
 const yiyuStore = useYiyuStore();
 const yiyu = yiyuStore.yiyu;
@@ -160,10 +207,20 @@ const getCardCenter = () => {
 
 const updateAvatarPosition = () => {
   const { centerX, centerY } = getCardCenter();
-  yiyu.setPosition(`${centerY - yiyuHeight / 2}px`, `${centerX - yiyuWeight / 2}px`);
+
+  let top;
+  if (isMobile.value) {
+    top = centerY - (yiyuHeight * 3) / 4;
+  } else top = centerY - yiyuHeight / 2;
+
+  yiyu.setPosition(`${top}px`, `${centerX - yiyuWeight / 2}px`);
 };
 
+const audioUrl = ref('');
+
 const handleRecordComplete = (blob) => {
+  audioUrl.value = URL.createObjectURL(blob);
+
   const audioFile = new File([blob], 'audio.wav', {
     type: 'audio/wav',
   });
@@ -172,13 +229,10 @@ const handleRecordComplete = (blob) => {
   formData.append('audio', audioFile);
 
   files_service.audio
-    .toText({
-      params: {
-        audio: formData,
-      },
-    })
+    .toText(formData)
     .then((res) => {
       if (res.code === '200') {
+        text.value = res.data;
       } else {
         console.log(res.msg);
         ErrorMessage(res.msg);
@@ -193,22 +247,29 @@ const handleRecordComplete = (blob) => {
 // 保证 yiyu 已经被初始化
 watchEffect(async () => {
   if (yiyuStore.isSuccess) {
+    loading.value = false;
+
     await nextTick(); // 等待 DOM 更新完成， 才能正确更新位置。
 
     updateAvatarPosition();
     yiyu.enableYiyuApp();
+
+    if (isMobile.value) yiyu.setAvatarSize(5);
 
     if (!canTextTranslate.value) yiyu.disableTextSelection();
   }
 });
 
 onMounted(() => {
-  yiyu.setAvatarSize(1);
+  let size;
+  if (isMobile.value) size = 5;
+  else size = 1;
+
+  yiyu.setAvatarSize(size);
 });
 
 onUnmounted(() => {
   if (yiyuStore.isSuccess) {
-    // yiyu.disableYiyuApp();
     yiyu.setAvatarSize(3);
   }
 });
@@ -220,6 +281,13 @@ watch([winWidth, winHeight], () => {
 </script>
 
 <style scoped>
+.body {
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 600px 600px;
+  gap: 1.875rem;
+}
+
 li {
   list-style: none;
   height: 5vh;
@@ -263,5 +331,9 @@ li {
 
 .center {
   margin-top: 2vh;
+}
+
+:deep(.el-loading-text) {
+  /* color: #66c18c; */
 }
 </style>

@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useUlCounterStore } from '@/stores/ulCounter';
-import { checkLogin } from '@/utils/checkLogin';
+import { user_service } from '@/apis/user_service';
+import { _isMobile } from '@/utils/isMobile';
+import { useYiyuStore } from '@/stores/yiyu';
+import { clearAllStores } from '@/utils/clearAllStores';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,6 +67,10 @@ const router = createRouter({
           ],
         },
         {
+          path: 'interpretation',
+          redirect: '/interpretation/1',
+        },
+        {
           path: 'interpretation/:id',
           name: 'interpretation',
           component: () => import('@/views/Implents/Interpretation.vue'),
@@ -74,12 +80,26 @@ const router = createRouter({
   ],
 });
 
-// 权限验证
-router.beforeEach((to, from, next) => {
-  if (to?.meta?.requireAuth && !checkLogin()) {
-    return next('/login');
+// 权限验证;
+router.beforeEach(async (to, from, next) => {
+  const yiyuStore = useYiyuStore();
+  if (to?.meta?.requireAuth) {
+    try {
+      const res = await user_service.check();
+      if (res.code !== '200') {
+        clearAllStores();
+        return next('/login'); // 确保只调用一次 next()
+      }
+      if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
+      next();
+    } catch {
+      clearAllStores();
+      return next('/login');
+    }
+  } else {
+    if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
+    next();
   }
-  next();
 });
 
 export default router;

@@ -1,20 +1,26 @@
 <template>
   <div v-if="isMobile">
+    <div style="height: 92vh; overflow: hidden">
+      <RouterView />
+    </div>
     <div v-if="isLogin">
-      <div style="height: 92vh; border: 1px solid red">
-        <RouterView />
-      </div>
       <div>
-        <van-tabbar v-model="active">
-          <van-tabbar-item name="models" icon="points">模型</van-tabbar-item>
-          <van-tabbar-item name="interpretation" icon="search">翻译</van-tabbar-item>
-          <van-tabbar-item name="debate" icon="friends-o">讨论</van-tabbar-item>
-          <van-tabbar-item name="privacy" icon="user-o">我的</van-tabbar-item>
+        <van-tabbar route class="van-tabbar">
+          <van-tabbar-item icon="points" to="/implents/models">模型</van-tabbar-item>
+          <van-tabbar-item
+            :class="isActive ? 'van-tabbar-item--active' : ''"
+            icon="search"
+            to="/implents/interpretation/1"
+            :aria-selected="isActive"
+            >翻译</van-tabbar-item
+          >
+          <van-tabbar-item icon="friends-o" to="/debate">讨论</van-tabbar-item>
+          <van-tabbar-item icon="user-o" to="/privacy">我的</van-tabbar-item>
         </van-tabbar>
       </div>
     </div>
-    <div v-else><Home /></div>
   </div>
+
   <div v-else>
     <span class="fixed-nav">
       <div class="header">
@@ -89,68 +95,24 @@
 <script setup>
 import { useUserStore } from '@/stores/user.js';
 import { useProcessedModelStore } from '@/stores/processedModel';
+import { useUsedModelStore } from './stores/usedModel';
 import { _isMobile } from '@/utils/isMobile';
-import { checkLogin } from '@/utils/checkLogin';
-import { user_service } from '@/apis/user_service';
-import { ErrorMessage, SuccessMessage } from './utils/messageTool';
-import Home from '@/views/Home.vue';
+import { logout } from './utils/logout';
 
 const router = useRouter();
+const route = useRoute();
 
 const isMobile = computed(() => _isMobile());
-const isLogin = computed(() => checkLogin());
 
-const active = ref('models');
-
-const mobileHeader = ref('');
-watchEffect(() => {
-  if (isMobile.value) {
-    if (active.value === 'interpretation') {
-      router.push('/implents/interpretation/1');
-    } else {
-      // router.push({ name: active.value });
-    }
-
-    switch (active.value) {
-      case 'models':
-        mobileHeader.value = '我的模型';
-        break;
-      case 'interpretation':
-        mobileHeader.value = '翻译';
-        break;
-      case 'debate':
-        mobileHeader.value = '讨论';
-        break;
-      case 'privacy':
-        mobileHeader.value = '我的';
-        break;
-    }
-  }
-});
+const isActive = computed(() => route.path.startsWith('/implents/interpretation'));
 
 const userStore = useUserStore();
 const processedModelStore = useProcessedModelStore();
-const notifyDrawer = ref(false);
+const usedModelStore = useUsedModelStore();
 
-const logout = () => {
-  user_service
-    .logout()
-    .then((res) => {
-      if (res.code === '200') {
-        SuccessMessage('退出成功');
-        userStore.clearStore();
-        processedModelStore.clearStore();
-        router.push('/');
-      } else {
-        console.log(res.msg);
-        ErrorMessage(res.msg);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      ErrorMessage(err.message);
-    });
-};
+const isLogin = computed(() => userStore.user !== null);
+
+const notifyDrawer = ref(false);
 
 const getPrivacyInfo = () => {
   console.log('个人');
@@ -240,6 +202,14 @@ const getPrivacyInfo = () => {
   margin: auto 0;
   font-size: 1.25rem;
   cursor: default;
+}
+
+.van-tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 :deep(.el-button:hover) {

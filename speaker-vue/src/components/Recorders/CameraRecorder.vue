@@ -14,6 +14,7 @@
 <script setup>
 import { ErrorMessage } from '@/utils/messageTool';
 
+// 状态和引用
 const videoElement = ref(null);
 const mediaRecorder = ref(null);
 const isRecording = ref(false);
@@ -22,8 +23,10 @@ const recordingTime = ref(0);
 const timer = ref(null);
 const chunks = ref([]);
 
+// 事件发射器
 const emit = defineEmits(['record-complete']);
 
+// 生命周期钩子
 onMounted(() => initCamera());
 onBeforeUnmount(() => stopCamera());
 
@@ -35,10 +38,7 @@ const initCamera = () => {
       videoElement.value.srcObject = stream;
       mediaRecorder.value = new MediaRecorder(stream);
 
-      mediaRecorder.value.ondataavailable = (e) => {
-        chunks.value.push(e.data);
-      };
-
+      mediaRecorder.value.ondataavailable = (e) => chunks.value.push(e.data);
       mediaRecorder.value.onstop = () => {
         const blob = new Blob(chunks.value, { type: 'video/x-msvideo' });
         emit('record-complete', blob);
@@ -63,11 +63,7 @@ const toggleRecording = () => {
   if (!isRecording.value) {
     startRecording();
   } else {
-    if (isPaused.value) {
-      continueRecording();
-    } else {
-      pauseRecording();
-    }
+    isPaused.value ? continueRecording() : pauseRecording();
   }
 };
 
@@ -75,13 +71,9 @@ const toggleRecording = () => {
 const startRecording = () => {
   if (mediaRecorder.value?.stream) {
     mediaRecorder.value.start();
-
     isRecording.value = true;
     isPaused.value = false;
-
-    timer.value = setInterval(() => {
-      recordingTime.value++;
-    }, 1000);
+    timer.value = setInterval(() => recordingTime.value++, 1000);
   }
 };
 
@@ -99,9 +91,7 @@ const continueRecording = () => {
   if (mediaRecorder.value) {
     mediaRecorder.value.resume();
     isPaused.value = false;
-    timer.value = setInterval(() => {
-      recordingTime.value++;
-    }, 1000);
+    timer.value = setInterval(() => recordingTime.value++, 1000);
   }
 };
 
@@ -109,12 +99,9 @@ const continueRecording = () => {
 const stopRecording = () => {
   if (mediaRecorder.value) {
     mediaRecorder.value.stop();
-
     clearInterval(timer.value);
-
     isRecording.value = false;
     isPaused.value = false;
-
     recordingTime.value = 0;
   }
 };

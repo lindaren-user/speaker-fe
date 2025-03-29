@@ -33,6 +33,7 @@
       </div>
     </van-form>
   </div>
+
   <div v-else class="container">
     <div class="index-box">
       <h2 class="title">注册</h2>
@@ -40,7 +41,6 @@
         <el-form-item label="账号" prop="username">
           <el-input v-model="form.username" placeholder="请输入账号" class="input"></el-input>
         </el-form-item>
-
         <el-form-item label="密码" prop="password">
           <el-input
             v-model="form.password"
@@ -49,7 +49,6 @@
             class="input"
           ></el-input>
         </el-form-item>
-
         <el-form-item label="确认密码" prop="secondPwd">
           <el-input
             v-model="form.secondPwd"
@@ -58,7 +57,6 @@
             class="sInput"
           ></el-input>
         </el-form-item>
-
         <el-button @click="onSubmit" type="primary" class="submit-button button">确定</el-button>
       </el-form>
     </div>
@@ -70,11 +68,13 @@ import { user_service } from '@/apis/user_service';
 import { _isMobile } from '@/utils/isMobile';
 import { SuccessMessage, ErrorMessage } from '@/utils/messageTool';
 
+// 判断是否为移动端
 const isMobile = computed(() => _isMobile());
 
-const formRef = ref(null);
+// 路由实例
 const router = useRouter();
 
+// 表单数据和验证规则
 const form = ref({
   username: '',
   password: '',
@@ -95,6 +95,9 @@ const rules = {
     { pattern: /^\w{11,15}$/, message: '请输入 11 - 15 位', trigger: 'blur' },
   ],
 };
+
+// 表单引用（用于 PC 端验证）
+const formRef = ref(null);
 
 // 表单验证逻辑
 const validateForm = () => {
@@ -121,7 +124,7 @@ const register = () => {
       }
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       ErrorMessage(err.message);
     });
 };
@@ -143,12 +146,11 @@ const onSubmit = () => {
 </script>
 
 <style scoped>
-/* 样式保持不变 */
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20vh;
+  margin-top: 10vh;
 }
 
 .index-box {

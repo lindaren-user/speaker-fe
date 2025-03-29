@@ -1,0 +1,1 @@
+import{_ as s,c as a,a as o,o as t}from"./index-W0IEFz95.js";const c={},r={class:"about"};function n(i,e){return t(),a("div",r,e[0]||(e[0]=[o("h1",null,"This is an privacy page",-1)]))}const l=s(c,[["render",n]]);export{l as default};

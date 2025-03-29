@@ -1,5 +1,47 @@
 <template>
-  <div class="main">
+  <div v-if="isMobile">
+    <van-list finished-text="没有更多了" style="margin-top: 1vh">
+      <van-swipe-cell
+        v-for="video in videos"
+        :key="video.id"
+        style="border-bottom: 1px solid lightgray"
+      >
+        <van-cell
+          :border="false"
+          icon="video-o"
+          :title="video.id"
+          :value="video.isUploaded ? '已上传' : ''"
+          @click="showVideoPreview(video.id)"
+        />
+        <template #right>
+          <van-button square type="danger" text="删除" @click="emit('delete-video', video.id)" />
+        </template>
+      </van-swipe-cell>
+    </van-list>
+
+    <van-popup
+      v-model:show="showPreviewDialog"
+      position="bottom"
+      style="height: 50vh"
+      closeable
+      :close-on-click-overlay="false"
+    >
+      <van-divider><span style="color: black; font-size: large">视频预览</span></van-divider>
+      <video
+        v-if="previewVideoUrl"
+        :src="previewVideoUrl"
+        controls
+        style="width: 100%"
+        @error="handleVideoError"
+      >
+        您的浏览器不支持视频播放
+      </video>
+    </van-popup>
+
+    <van-empty v-if="videos.length === 0" description="暂无视频" />
+  </div>
+
+  <div v-else class="main">
     <div class="video-grid">
       <div
         v-for="video in videos"
@@ -16,10 +58,7 @@
           <!-- 悬浮删除按钮 -->
           <div v-if="hoverId === video.id" class="overlay">
             <button class="dltBtn" @click.stop="emit('delete-video', video.id)">
-              <i
-                class="iconfont icon-shanchu1"
-                style="color: red; font-size: 1.75rem; cursor: pointer"
-              ></i>
+              <i class="iconfont icon-shanchu1" style="color: red; font-size: 1.75rem"></i>
             </button>
           </div>
 
@@ -44,6 +83,10 @@
 </template>
 
 <script setup>
+import { _isMobile } from '@/utils/isMobile';
+
+const isMobile = computed(() => _isMobile());
+
 const props = defineProps({
   videos: {
     type: Array,
@@ -58,6 +101,7 @@ const hoverId = ref(null);
 const showPreviewDialog = ref(false);
 const previewVideoUrl = ref('');
 
+// 显示视频预览
 const showVideoPreview = (videoId) => {
   const video = props.videos.find((v) => v.id === videoId);
   if (video) {
@@ -66,6 +110,7 @@ const showVideoPreview = (videoId) => {
   }
 };
 
+// 关闭预览弹窗
 const closeDlg = () => {
   showPreviewDialog.value = false;
   URL.revokeObjectURL(previewVideoUrl.value);
@@ -126,14 +171,6 @@ const closeDlg = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.success-badge {
-  position: absolute;
-  top: 0.3125rem;
-  right: 0.3125rem;
-  color: #67c23a;
-  font-size: 18px;
 }
 
 .icon-shipin {

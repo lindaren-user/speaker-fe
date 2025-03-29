@@ -6,8 +6,15 @@
       <van-step @click="active = 1">语料定义</van-step>
       <van-step @click="active = 2">模型训练</van-step>
     </van-steps>
-    <van-floating-bubble icon="arrow" @click="nextStep" />
-    <div style="border: 1px black solid; height: 76vh; overflow-y: auto; overflow-x: hidden">
+    <van-floating-bubble
+      axis="xy"
+      icon="arrow"
+      magnetic="x"
+      @click="nextStep"
+      v-model:offset="offset"
+    />
+
+    <div style="height: 76vh; overflow-y: auto; overflow-x: hidden">
       <keep-alive
         ><DataSet v-if="active === 0" />
         <Tag v-else-if="active === 1" />
@@ -15,6 +22,7 @@
       /></keep-alive>
     </div>
   </div>
+
   <div v-else>
     <el-breadcrumb :separator-icon="ArrowRight">
       <el-breadcrumb-item :to="{ path: '/implents/models/myModels' }">我的模型</el-breadcrumb-item>
@@ -53,6 +61,7 @@ const processedModelStore = useProcessedModelStore();
 const isMobile = computed(() => _isMobile());
 const modelName = computed(() => processedModelStore.processedModel.name);
 const router = useRouter();
+const offset = ref({ x: 300, y: 400 });
 const nextStep = () => {
   active.value = (active.value + 1) % 3;
 };

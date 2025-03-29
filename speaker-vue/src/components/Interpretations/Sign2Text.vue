@@ -1,76 +1,159 @@
 <template>
-  <el-card class="lCard">
-    <template #header>
-      <div class="header">
-        <span v-if="hasModels">已选择{{ usedModelStore.usedModel.length }}个模型</span>
-        <span v-else>没有选择模型</span>
-        <el-button
-          type="primary"
-          :class="canBlink && !hasModels ? 'blink-btn' : ''"
-          @click="router.push('/implents/models/myModels')"
-          >{{ hasModels ? '重新选择' : '前往选择' }}</el-button
-        >
-      </div>
-    </template>
-    <ControlPanel
-      @add-video="handleAddVideo"
-      @start-recording="showCameraDialog = true"
-      @upload="uploadVideo"
-    />
+  <div v-if="isMobile">
+    <van-notice-bar
+      :color="hasModels ? '#1989fa' : ''"
+      :background="hasModels ? '#ecf9ff' : ''"
+      left-icon="info-o"
+      mode="link"
+      @click="router.push('/implents/models')"
+      style="margin-top: 1vh"
+    >
+      <span v-if="hasModels">已选择{{ usedModelStore.usedModel.length }}个模型</span>
+      <span v-else>没有选择模型</span>
+    </van-notice-bar>
 
+    <ControlPanel @add-video="handleAddVideo" @upload="uploadVideo" />
     <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
       <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
     </el-dialog>
 
-    <div class="video-show">
+    <div
+      style="margin-top: 3vh; border-top: 1px solid lightgray; border-bottom: 1px solid lightgray"
+    >
+      <van-swipe-cell v-if="video">
+        <van-cell icon="video-o" :border="false" :title="video.id" @click="openVideo = true" />
+        <template #right>
+          <van-button square type="danger" text="删除" @click="handleDeleteVideo" />
+        </template>
+      </van-swipe-cell>
+      <div v-else style="height: 44px; text-align: center; align-content: center">
+        ! 没有选择视频
+      </div>
+    </div>
+
+    <div style="height: 40vh; margin-top: 5vh">
+      <van-notice-bar
+        :color="videoUrl ? '#1989fa' : ''"
+        :background="videoUrl ? '#ecf9ff' : ''"
+        left-icon="info-o"
+        :mode="videoUrl ? 'link' : ''"
+        @click="getResultText"
+        style="margin-top: 1vh"
+      >
+        <span v-if="videoUrl">查看转换结果</span>
+        <span v-else>无转换</span>
+      </van-notice-bar>
+      <video v-if="videoUrl" :src="videoUrl" controls style="width: 100%" @error="handleVideoError">
+        您的浏览器不支持视频播放
+      </video>
+      <van-empty v-else description="未转换" style="height: 33vh" />
+    </div>
+
+    <van-popup
+      v-model:show="openResult"
+      position="bottom"
+      style="height: 40vh"
+      closeable
+      :close-on-click-overlay="false"
+    >
+      <van-divider><span style="color: black; font-size: large">转化结果</span></van-divider>
+
+      {{ resultText }}
+    </van-popup>
+
+    <van-popup
+      v-model:show="openVideo"
+      position="bottom"
+      style="height: 35vh"
+      closeable
+      :close-on-click-overlay="false"
+    >
       <video
         v-if="previewVideoUrl"
         :src="previewVideoUrl"
         controls
-        class="video-player"
+        style="width: 100%"
         @error="handleVideoError"
       >
         您的浏览器不支持视频播放
       </video>
-      <div v-else class="video-placeholder">
-        <el-empty description="没有选择视频" />
-      </div>
-    </div>
+    </van-popup>
+  </div>
 
-    <div class="btnCenter">
-      <el-button
-        v-if="previewVideoUrl"
-        type="danger"
-        @click="handleDeleteVideo"
-        style="margin: 20px auto"
-        >删除</el-button
-      >
-    </div>
-  </el-card>
+  <div v-else class="body">
+    <el-card class="lCard">
+      <template #header>
+        <div class="header">
+          <span v-if="hasModels">已选择{{ usedModelStore.usedModel.length }}个模型</span>
+          <span v-else>没有选择模型</span>
+          <el-button
+            type="primary"
+            :class="canBlink && !hasModels ? 'blink-btn' : ''"
+            @click="router.push('/implents/models/myModels')"
+            >{{ hasModels ? '重新选择' : '前往选择' }}</el-button
+          >
+        </div>
+      </template>
+      <ControlPanel
+        @add-video="handleAddVideo"
+        @start-recording="showCameraDialog = true"
+        @upload="uploadVideo"
+      />
 
-  <el-card class="rCard">
-    <template #header>
-      <div style="height: 30px">
-        <span v-if="isTranslating">转换中...</span>
-        <span v-else>转换结果</span>
+      <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
+        <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
+      </el-dialog>
+
+      <div class="video-show">
+        <video
+          v-if="previewVideoUrl"
+          :src="previewVideoUrl"
+          controls
+          class="video-player"
+          @error="handleVideoError"
+        >
+          您的浏览器不支持视频播放
+        </video>
+        <div v-else class="video-placeholder">
+          <el-empty description="没有选择视频" />
+        </div>
       </div>
-    </template>
-    <div class="video-show">
-      <div style="height: 1.875rem">{{ resultText }}</div>
-      <video
-        v-if="videoUrl"
-        :src="videoUrl"
-        controls
-        class="video-player"
-        @error="handleVideoError"
-      >
-        您的浏览器不支持视频播放
-      </video>
-      <div v-else class="video-placeholder">
-        <el-empty description="暂无结果" />
+
+      <div class="btnCenter">
+        <el-button
+          v-if="previewVideoUrl"
+          type="danger"
+          @click="handleDeleteVideo"
+          style="margin: 20px auto"
+          >删除</el-button
+        >
       </div>
-    </div>
-  </el-card>
+    </el-card>
+
+    <el-card class="rCard">
+      <template #header>
+        <div style="height: 30px">
+          <span v-if="isTranslating">转换中...</span>
+          <span v-else>转换结果</span>
+        </div>
+      </template>
+      <div class="video-show">
+        <div style="height: 1.875rem">{{ resultText }}</div>
+        <video
+          v-if="videoUrl"
+          :src="videoUrl"
+          controls
+          class="video-player"
+          @error="handleVideoError"
+        >
+          您的浏览器不支持视频播放
+        </video>
+        <div v-else class="video-placeholder">
+          <el-empty description="暂无结果" />
+        </div>
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script setup>
@@ -78,9 +161,12 @@ import { useUsedModelStore } from '@/stores/usedModel';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import { files_service } from '@/apis/files_service';
-import { ErrorMessage, SuccessMessage, WarningMessage } from '@/utils/messageTool';
+import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
+import { _isMobile } from '@/utils/isMobile';
 
 const requestLocal = '/api';
+
+const isMobile = computed(() => _isMobile());
 
 const video = ref(null);
 const showCameraDialog = ref(false);
@@ -91,6 +177,8 @@ const isTranslating = ref(false);
 const resultText = ref('');
 const usedModelStore = useUsedModelStore();
 const router = useRouter();
+const openVideo = ref(false);
+const openResult = ref(false);
 
 const hasModels = computed(() => usedModelStore.usedModel && usedModelStore.usedModel.length !== 0);
 
@@ -118,9 +206,11 @@ const handleRecordComplete = (blob) => {
 };
 
 const handleDeleteVideo = () => {
-  URL.revokeObjectURL(previewVideoUrl.value);
-  previewVideoUrl.value = '';
-  video.value = null;
+  MessageBox('视频').then(() => {
+    URL.revokeObjectURL(previewVideoUrl.value);
+    previewVideoUrl.value = '';
+    video.value = null;
+  });
 };
 
 // 单个视频上传方法
@@ -146,15 +236,10 @@ const uploadVideo = () => {
 
   const formData = new FormData();
   formData.append('video', video.value.file);
-  formData.append('videoId', video.value.id);
+  formData.append('models', usedModelStore.usedModel);
 
   files_service.video
-    .uploadVideo({
-      params: {
-        video: formData,
-        models: usedModelStore.usedModel,
-      },
-    })
+    .uploadVideo(formData)
     .then((res) => {
       if (res.code === '200') {
         SuccessMessage('上传成功');
@@ -175,12 +260,37 @@ const uploadVideo = () => {
 };
 
 const handleVideoError = (error) => {
-  console.error('视频播放错误:', error.target.error);
-  ErrorMessage('视频播放错误');
+  switch (error.target.error.code) {
+    case error.target.error.MEDIA_ERR_ABORTED:
+      ErrorMessage('视频加载被中止');
+      break;
+    case error.target.error.MEDIA_ERR_NETWORK:
+      ErrorMessage('网络错误，无法加载视频');
+      break;
+    case error.target.error.MEDIA_ERR_DECODE:
+      ErrorMessage('视频解码错误，可能是格式不支持');
+      break;
+    case error.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+      ErrorMessage('视频格式不支持');
+      break;
+    default:
+      ErrorMessage('未知错误');
+  }
+};
+
+const getResultText = () => {
+  if (videoUrl.value) openResult.value = true;
 };
 </script>
 
 <style scoped>
+.body {
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 600px 600px;
+  gap: 1.875rem;
+}
+
 .header {
   display: flex;
   justify-content: space-between;

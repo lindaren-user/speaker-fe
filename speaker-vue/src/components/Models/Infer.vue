@@ -11,6 +11,7 @@
       style="width: 80%; transition: width 1s ease; margin: auto"
     />
   </div>
+
   <div v-else>
     <div class="header">
       <span>模型训练 {{ percentage }}%</span>
@@ -110,7 +111,7 @@ const startProgress = () => {
   justify-content: space-between;
   font-size: 1.25rem;
   height: 20vh;
-  width: 60%;
+  width: 70%;
 }
 
 .icon-container {

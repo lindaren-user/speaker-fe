@@ -1,0 +1,1 @@
+import{_ as o,h as s,i as t,o as a}from"./index-CC-TFbUu.js";import"https://avatar.gbqr.net/yiyu.js";const r={},n={class:"about"};function c(i,e){return a(),s("div",n,e[0]||(e[0]=[t("h1",null,"This is an about page",-1)]))}const d=o(r,[["render",c]]);export{d as default};

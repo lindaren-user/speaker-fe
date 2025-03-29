@@ -1,13 +1,22 @@
 <template>
   <div v-if="isMobile">
-    <div class="notice-section" @click="dialogTips = true">
-      <span>注意事项</span>
-      <span><van-icon name="arrow-down" /></span>
-    </div>
+    <van-notice-bar left-icon="volume-o" :scrollable="false" mode="link" @click="dialogTips = true">
+      <van-swipe
+        vertical
+        class="notice-swipe"
+        :autoplay="3000"
+        :touchable="false"
+        :show-indicators="false"
+      >
+        <van-swipe-item>请选择对应的视频进行相应意思标注方便模型训练</van-swipe-item>
+        <van-swipe-item>标注字数请勿超过15字</van-swipe-item>
+        <van-swipe-item>如果想要更改标注可以左滑点击标记进行更改</van-swipe-item>
+      </van-swipe>
+    </van-notice-bar>
 
     <van-tabs v-model:active="activeName">
       <van-tab :title="'全部 ' + videoList.length.toString()" name="a">
-        <div v-if="videoList.length" style="height: 62vh; border: 1px solid blue; overflow-y: auto">
+        <div v-if="videoList.length" style="height: 62vh; overflow-y: auto; margin-top: 1vh">
           <van-list finished-text="没有更多了">
             <van-swipe-cell
               v-for="(video, index) in videoList"
@@ -15,9 +24,11 @@
               style="border-bottom: 1px solid lightgray"
             >
               <van-cell
+                icon="video-o"
                 :border="false"
                 :title="video.title"
                 :value="video.tag === true ? '已标记' : ''"
+                @click="handleVideoClick(video)"
               />
               <template #right>
                 <van-button square type="danger" text="删除" @click="triggerDelete(video.title)" />
@@ -29,14 +40,20 @@
         <van-empty v-else description="暂无视频" />
       </van-tab>
       <van-tab :title="'已标记 ' + isTagged.length.toString()" name="b">
-        <div v-if="isTagged.length" style="height: 62vh; border: 1px solid blue; overflow-y: auto">
+        <div v-if="isTagged.length" style="height: 62vh; overflow-y: auto; margin-top: 1vh">
           <van-list finished-text="没有更多了">
             <van-swipe-cell
               v-for="(video, index) in isTagged"
               :key="index"
               style="border-bottom: 1px solid lightgray"
             >
-              <van-cell :border="false" :title="video.title" value="已标记" />
+              <van-cell
+                icon="video-o"
+                :border="false"
+                :title="video.title"
+                value="已标记"
+                @click="handleVideoClick(video)"
+              />
               <template #right>
                 <van-button square type="danger" text="删除" @click="triggerDelete(video.title)" />
                 <van-button square type="primary" text="标记" @click="triggerChange(video)" />
@@ -47,14 +64,19 @@
         <van-empty v-else description="暂无已标记视频" />
       </van-tab>
       <van-tab :title="'未标记 ' + noTagged.length.toString()" name="c">
-        <div v-if="noTagged.length" style="height: 62vh; border: 1px solid blue; overflow-y: auto">
+        <div v-if="noTagged.length" style="height: 62vh; overflow-y: auto; margin-top: 1vh">
           <van-list finished-text="没有更多了">
             <van-swipe-cell
               v-for="(video, index) in noTagged"
               :key="index"
               style="border-bottom: 1px solid lightgray"
             >
-              <van-cell :border="false" :title="video.title" />
+              <van-cell
+                icon="video-o"
+                :border="false"
+                :title="video.title"
+                @click="handleVideoClick(video)"
+              />
               <template #right>
                 <van-button square type="danger" text="删除" @click="triggerDelete(video.title)" />
                 <van-button square type="primary" text="标记" @click="triggerChange(video)" />
@@ -66,7 +88,6 @@
       </van-tab>
     </van-tabs>
 
-    <!-- 提示弹窗 -->
     <van-popup v-model:show="dialogTips" position="bottom" style="height: 30%" closeable>
       <van-divider><span style="color: black; font-size: large">标注事宜</span></van-divider>
       <div class="tips-content">
@@ -75,33 +96,16 @@
             <el-icon><Star /></el-icon> 请选择对应的视频进行相应意思标注方便模型训练
           </li>
           <li>
-            <el-icon><Star /></el-icon> 标注字数请勿超过50字
+            <el-icon><Star /></el-icon> 标注字数请勿超过15字
           </li>
           <li>
-            <el-icon><Star /></el-icon> 如果想要更改标注可以点击视频标签上的标识图案
-          </li>
-        </ul>
-      </div>
-    </van-popup>
-
-    <van-popup v-model:show="dialogTags" position="bottom" style="height: 30%" closeable>
-      <van-divider><span style="color: black; font-size: large">标注事宜</span></van-divider>
-      <div class="tips-content">
-        <ul>
-          <li>
-            <el-icon><Star /></el-icon> 请选择对应的视频进行相应意思标注方便模型训练
-          </li>
-          <li>
-            <el-icon><Star /></el-icon> 标注字数请勿超过50字
-          </li>
-          <li>
-            <el-icon><Star /></el-icon> 如果想要更改标注可以点击视频标签上的标识图案
+            <el-icon><Star /></el-icon> 如果想要更改标注可以右滑点击标记进行更改
           </li>
         </ul>
       </div>
     </van-popup>
   </div>
-  <!-- 非移动端内容 -->
+
   <div v-else>
     <h2 style="margin-bottom: 10px">
       <el-icon><Promotion /></el-icon> 标注事宜
@@ -112,7 +116,7 @@
           <el-icon><Star /></el-icon> 请选择对应的视频进行相应的意思标注方便模型训练
         </li>
         <li>
-          <el-icon><Star /></el-icon> 标注字数请勿超过50字
+          <el-icon><Star /></el-icon> 标注字数请勿超过15字
         </li>
         <li>
           <el-icon><Star /></el-icon> 如果想要更改标注可以点击视频标签上的标识图案
@@ -204,8 +208,6 @@ import emittr from '@/utils/event-bus';
 import { _isMobile } from '@/utils/isMobile';
 
 const dialogTips = ref(false);
-const dialogTags = ref(false);
-const dialogEditModels = ref(false);
 
 const props = defineProps({
   videoList: {
@@ -255,6 +257,7 @@ const handleVideoClick = (video) => {
   selectedVideo.value = video;
   emit('video-selected', video);
   emittr.emit('touch', video);
+  console.log(video);
 };
 </script>
 
@@ -265,6 +268,11 @@ const handleVideoClick = (video) => {
   justify-content: space-between;
   padding: 10px;
   border: 1px lightgray solid;
+}
+
+.notice-swipe {
+  height: 40px;
+  line-height: 40px;
 }
 
 /* 提示内容样式 */
