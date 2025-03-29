@@ -15,5 +15,6 @@
 import { _isMobile } from '@/utils/isMobile';
 import { logout } from '@/utils/logout';
 
+/* 移动端 */
 const isMobile = computed(() => _isMobile());
 </script>

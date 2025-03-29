@@ -33,9 +33,14 @@
 <script setup>
 import { _isMobile } from '@/utils/isMobile';
 
-const activeIndex = ref('/implents/dataset');
+/* 公共变量 */
 const route = useRoute();
+
+/* 移动端 */
 const isMobile = computed(() => _isMobile());
+
+/* pc端 */
+const activeIndex = ref('/implents/dataset');
 
 watchEffect(() => {
   if (route.path.startsWith('/implents/models')) {

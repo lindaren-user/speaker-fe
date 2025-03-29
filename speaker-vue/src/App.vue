@@ -94,26 +94,23 @@
 
 <script setup>
 import { useUserStore } from '@/stores/user.js';
-import { useProcessedModelStore } from '@/stores/processedModel';
-import { useUsedModelStore } from './stores/usedModel';
 import { _isMobile } from '@/utils/isMobile';
 import { logout } from './utils/logout';
 
+/* 公共变量 */
 const router = useRouter();
 const route = useRoute();
-
-const isMobile = computed(() => _isMobile());
-
-const isActive = computed(() => route.path.startsWith('/implents/interpretation'));
-
 const userStore = useUserStore();
-const processedModelStore = useProcessedModelStore();
-const usedModelStore = useUsedModelStore();
 
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
+const isActive = computed(() => route.path.startsWith('/implents/interpretation'));
 const isLogin = computed(() => userStore.user !== null);
 
+/* pc端 */
 const notifyDrawer = ref(false);
 
+/* 函数 */
 const getPrivacyInfo = () => {
   console.log('个人');
   router.push('/privacy');

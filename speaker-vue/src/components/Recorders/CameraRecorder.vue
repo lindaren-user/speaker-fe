@@ -14,7 +14,7 @@
 <script setup>
 import { ErrorMessage } from '@/utils/messageTool';
 
-// 状态和引用
+/* 公共逻辑 */
 const videoElement = ref(null);
 const mediaRecorder = ref(null);
 const isRecording = ref(false);
@@ -23,10 +23,9 @@ const recordingTime = ref(0);
 const timer = ref(null);
 const chunks = ref([]);
 
-// 事件发射器
 const emit = defineEmits(['record-complete']);
 
-// 生命周期钩子
+/* 函数 */
 onMounted(() => initCamera());
 onBeforeUnmount(() => stopCamera());
 

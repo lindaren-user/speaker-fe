@@ -38,10 +38,6 @@
         </ul>
       </div>
     </van-popup>
-
-    <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
-      <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
-    </el-dialog>
   </div>
 
   <div v-else>
@@ -86,21 +82,28 @@
 <script setup>
 import { useUlCounterStore } from '@/stores/ulCounter';
 import { useProcessedModelStore } from '@/stores/processedModel';
-import ControlPanel from '@/components/Others/ControlPanel.vue';
-import VideoList from '@/components/Others/VideoList.vue';
-import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import { files_service } from '@/apis/files_service';
 import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
+import ControlPanel from '@/components/Others/ControlPanel.vue';
+import VideoList from '@/components/Others/VideoList.vue';
+import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 
+/* 公共变量 */
 const videoList = ref([]);
-const showCameraDialog = ref(false);
-const nextVideoId = ref(1);
 const ulCounterStore = useUlCounterStore();
 const processedModelStore = useProcessedModelStore();
+const nextVideoId = ref(1);
+
+/* 移动端 */
 const isMobile = computed(() => _isMobile());
+
 const dialogTips = ref(false);
 
+/* pc端 */
+const showCameraDialog = ref(false);
+
+/* 函数 */
 // 处理添加视频
 const handleAddVideo = (file) => {
   videoList.value.push({

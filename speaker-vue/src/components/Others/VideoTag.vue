@@ -204,11 +204,10 @@
 </template>
 
 <script setup>
-import emittr from '@/utils/event-bus';
 import { _isMobile } from '@/utils/isMobile';
+import emittr from '@/utils/event-bus';
 
-const dialogTips = ref(false);
-
+/* 公共变量 */
 const props = defineProps({
   videoList: {
     type: Array,
@@ -226,12 +225,18 @@ const props = defineProps({
 
 const emit = defineEmits(['video-selected']);
 
+const selectedVideo = ref(null);
+
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
+const dialogTips = ref(false);
+
+/* pc端 */
 const iconIfShow = ref([]);
 const activeTab = ref('all');
 const activeName = ref('a');
-const selectedVideo = ref(null);
-const isMobile = computed(() => _isMobile());
 
+/* 函数 */
 const filteredVideos = computed(() => {
   switch (activeTab.value) {
     case 'tagged':

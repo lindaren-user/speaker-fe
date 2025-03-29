@@ -158,32 +158,39 @@
 
 <script setup>
 import { useUsedModelStore } from '@/stores/usedModel';
-import ControlPanel from '@/components/Others/ControlPanel.vue';
-import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import { files_service } from '@/apis/files_service';
 import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
+import ControlPanel from '@/components/Others/ControlPanel.vue';
+import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
+
+/* 公共变量 */
+const router = useRouter();
 
 const requestLocal = '/api';
-
-const isMobile = computed(() => _isMobile());
-
 const video = ref(null);
-const showCameraDialog = ref(false);
-const nextVideoId = ref(1);
+
+const usedModelStore = useUsedModelStore();
+const hasModels = computed(() => usedModelStore.usedModel && usedModelStore.usedModel.length !== 0);
+
 const previewVideoUrl = ref('');
 const videoUrl = ref('');
+
 const isTranslating = ref(false);
 const resultText = ref('');
-const usedModelStore = useUsedModelStore();
-const router = useRouter();
+
+const nextVideoId = ref(1);
+
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
 const openVideo = ref(false);
 const openResult = ref(false);
 
-const hasModels = computed(() => usedModelStore.usedModel && usedModelStore.usedModel.length !== 0);
-
+/* pc端 */
 const canBlink = ref(false);
+const showCameraDialog = ref(false);
 
+/* 函数 */
 const handleAddVideo = (file) => {
   video.value = {
     id: `video_${new Date().getTime()}${nextVideoId.value++}`,

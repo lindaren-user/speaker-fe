@@ -85,8 +85,7 @@
 <script setup>
 import { _isMobile } from '@/utils/isMobile';
 
-const isMobile = computed(() => _isMobile());
-
+/* 公共变量 */
 const props = defineProps({
   videos: {
     type: Array,
@@ -97,10 +96,16 @@ const props = defineProps({
 
 const emit = defineEmits(['delete-video']);
 
-const hoverId = ref(null);
 const showPreviewDialog = ref(false);
 const previewVideoUrl = ref('');
 
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
+
+/* pc端 */
+const hoverId = ref(null);
+
+/* 函数 */
 // 显示视频预览
 const showVideoPreview = (videoId) => {
   const video = props.videos.find((v) => v.id === videoId);

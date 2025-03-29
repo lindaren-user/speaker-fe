@@ -84,27 +84,37 @@
 
 <script setup>
 import { useProcessedModelStore } from '@/stores/processedModel';
-import VideoShow from '@/components/Others/VideoShow.vue';
-import VideoTag from '@/components/Others/VideoTag.vue';
-import emittr from '@/utils/event-bus';
 import { files_service } from '@/apis/files_service';
 import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
+import VideoShow from '@/components/Others/VideoShow.vue';
+import VideoTag from '@/components/Others/VideoTag.vue';
+import emittr from '@/utils/event-bus';
 
-const requestLocal = '/api';
-
-const videoList = ref([]);
-const currentVideoUrl = ref(null);
-const dialogVisible = ref(false);
+/* 公共变量 */
 const changeObject = ref({});
-const jd = ref(1);
+const videoList = ref([]);
+const requestLocal = '/api';
+const currentVideoUrl = ref(null);
 const tag = ref('');
-const processedModelStore = useProcessedModelStore();
-const isMobile = computed(() => _isMobile());
 
 const isTagged = computed(() => videoList.value.filter((video) => video.tag === true));
 const noTagged = computed(() => videoList.value.filter((video) => video.tag === false));
 
+const dialogVisible = ref(false);
+
+const processedModelStore = useProcessedModelStore();
+
+// 使用 map 缓存视频的链接, 减少服务器压力
+const videoUrls = new Map();
+
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
+
+/* pc端 */
+const jd = ref(1);
+
+/* 函数 */
 // 获取所有的视频
 const getAllVideos = () => {
   files_service.video
@@ -129,6 +139,11 @@ const getAllVideos = () => {
 
 // 选中的视频在左边框显示
 const handleVideoSelected = (video) => {
+  if (videoUrls.has(video.title)) {
+    currentVideoUrl.value = videoUrls.get(video.title);
+    return;
+  }
+
   files_service.video
     .getSelectVideo({
       params: {
@@ -138,6 +153,7 @@ const handleVideoSelected = (video) => {
     .then((res) => {
       if (res.code === '200') {
         currentVideoUrl.value = requestLocal + res.url;
+        videoUrls.set(video.title, currentVideoUrl.value);
       } else {
         console.log(res.msg);
         ErrorMessage(res.msg);
@@ -149,7 +165,7 @@ const handleVideoSelected = (video) => {
     });
 };
 
-// 标签点击事件 number & tag
+// 标签点击事件 number 与 tag
 const changeDialogVisible = (video) => {
   changeObject.value = video;
   jd.value = 0;

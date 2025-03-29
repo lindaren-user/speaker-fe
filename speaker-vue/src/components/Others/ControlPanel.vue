@@ -31,11 +31,14 @@
 import { ErrorMessage } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
 
+/* 公共变量 */
+const fileInput = ref(null);
 const emit = defineEmits(['add-video', 'start-recording', 'upload']);
+
+/* 移动端 */
 const isMobile = computed(() => _isMobile());
 
-const fileInput = ref(null);
-
+/* 函数 */
 // 触发文件选择框
 const triggerFileInput = () => {
   fileInput.value.click();

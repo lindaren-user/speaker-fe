@@ -77,13 +77,12 @@ import { _isMobile } from '@/utils/isMobile';
 import { SuccessMessage, ErrorMessage } from '@/utils/messageTool';
 import { user_service } from '@/apis/user_service';
 
-// 表单引用和路由实例
-const formRef = ref(null);
+/* 公共变量 */
 const router = useRouter();
 const userStore = useUserStore();
-const loading = ref(false); // 加载状态
 
-// 表单数据和验证规则
+const formRef = ref(null);
+
 const form = ref({
   username: '',
   password: '',
@@ -100,10 +99,11 @@ const rules = {
   ],
 };
 
-// 判断是否为移动端
+/* 移动端 */
 const isMobile = computed(() => _isMobile());
+const loading = ref(false);
 
-// 通用的表单验证函数
+/* 函数 */
 const validateForm = () => {
   if (!form.value.username || !form.value.password) {
     ErrorMessage('请输入账号和密码');
@@ -120,7 +120,6 @@ const validateForm = () => {
   return true;
 };
 
-// 登录请求
 const loginRequest = () => {
   loading.value = true; // 开始加载
   user_service
@@ -143,7 +142,6 @@ const loginRequest = () => {
     });
 };
 
-// 登录逻辑
 const login = () => {
   if (isMobile.value) {
     if (validateForm()) {

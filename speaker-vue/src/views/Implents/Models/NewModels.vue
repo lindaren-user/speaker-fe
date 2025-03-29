@@ -51,20 +51,25 @@
 <script setup>
 import { ArrowRight } from '@element-plus/icons-vue';
 import { useProcessedModelStore } from '@/stores/processedModel';
+import { _isMobile } from '@/utils/isMobile';
 import DataSet from '@/components/Models/DataSet.vue';
 import Tag from '@/components/Models/Tag.vue';
 import Infer from '@/components/Models/Infer.vue';
-import { _isMobile } from '@/utils/isMobile';
 
-const active = ref(0);
-const processedModelStore = useProcessedModelStore();
-const isMobile = computed(() => _isMobile());
-const modelName = computed(() => processedModelStore.processedModel.name);
+/* 公共变量 */
 const router = useRouter();
+const processedModelStore = useProcessedModelStore();
+const modelName = computed(() => processedModelStore.processedModel.name);
+
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
 const offset = ref({ x: 300, y: 400 });
 const nextStep = () => {
   active.value = (active.value + 1) % 3;
 };
+
+/* pc端 */
+const active = ref(0);
 </script>
 
 <style scoped>

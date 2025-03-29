@@ -38,14 +38,18 @@ import { models_service } from '@/apis/models_service';
 import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
 
+/* 公共变量 */
 const showIcon = ref(false); // 控制图标显示
 const showProgress = ref(false); // 控制进度条显示
 const percentage = ref(0); // 进度条的百分比
 const isTraining = ref(false);
-const isMobile = computed(() => _isMobile());
 
 const processedModelStore = useProcessedModelStore();
 
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
+
+/* 函数 */
 const train = () => {
   isTraining.value = true;
 

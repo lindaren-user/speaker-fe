@@ -68,13 +68,9 @@ import { user_service } from '@/apis/user_service';
 import { _isMobile } from '@/utils/isMobile';
 import { SuccessMessage, ErrorMessage } from '@/utils/messageTool';
 
-// 判断是否为移动端
-const isMobile = computed(() => _isMobile());
-
-// 路由实例
+/* 公共变量 */
 const router = useRouter();
-
-// 表单数据和验证规则
+const formRef = ref(null);
 const form = ref({
   username: '',
   password: '',
@@ -96,19 +92,10 @@ const rules = {
   ],
 };
 
-// 表单引用（用于 PC 端验证）
-const formRef = ref(null);
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
 
-// 表单验证逻辑
-const validateForm = () => {
-  if (form.value.password !== form.value.secondPwd) {
-    ErrorMessage('前后两次密码不一致');
-    return false;
-  }
-  return true;
-};
-
-// 注册逻辑
+/* 函数 */
 const register = () => {
   user_service
     .register({
@@ -129,7 +116,14 @@ const register = () => {
     });
 };
 
-// 提交表单
+const validateForm = () => {
+  if (form.value.password !== form.value.secondPwd) {
+    ErrorMessage('前后两次密码不一致');
+    return false;
+  }
+  return true;
+};
+
 const onSubmit = () => {
   if (isMobile.value) {
     if (validateForm()) {

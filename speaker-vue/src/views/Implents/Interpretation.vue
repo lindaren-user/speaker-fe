@@ -16,30 +16,33 @@
 </template>
 
 <script setup>
-import Sign2Text from '@/components/Interpretations/Sign2Text.vue';
-import Text2Sign from '@/components/Interpretations/Text2Sign.vue';
 import { useYiyuStore } from '@/stores/yiyu';
 import { _isMobile } from '@/utils/isMobile';
+import Sign2Text from '@/components/Interpretations/Sign2Text.vue';
+import Text2Sign from '@/components/Interpretations/Text2Sign.vue';
 
+/* 公共变量 */
 const route = useRoute();
-const isMobile = computed(() => _isMobile());
-const yiyuStore = useYiyuStore();
 
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
 const value = ref(0);
 const options = [
   { text: '手语→文本', value: 0 },
   { text: '文本→手语', value: 1 },
 ];
 
-// 路由参数和激活状态
+const yiyuStore = useYiyuStore();
+
+watch(value, () => {
+  if (isMobile.value && yiyuStore.isSuccess) yiyuStore.clearYiyu();
+});
+
+/* pc端 */
 const routeId = ref('');
 
 watchEffect(() => {
   routeId.value = route.params.id;
-});
-
-watch(value, () => {
-  if (isMobile.value && yiyuStore.isSuccess) yiyuStore.clearYiyu();
 });
 </script>
 

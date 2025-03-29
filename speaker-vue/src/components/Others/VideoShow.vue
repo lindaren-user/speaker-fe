@@ -46,35 +46,38 @@
 </template>
 
 <script setup>
-import emittr from '@/utils/event-bus';
 import { ErrorMessage, WarningMessage } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
+import emittr from '@/utils/event-bus';
 
-const isMobile = computed(() => _isMobile());
-
+/* 公共变量 */
 const props = defineProps({
   videoUrl: {
     type: String,
     default: null,
   },
+
   showObject: {
     type: Object,
     default: null,
   },
 });
 
+const emit = defineEmits(['update:videoUrl']);
+
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
 const openVideo = ref(false);
 watchEffect(() => {
   openVideo.value = props.videoUrl !== null && props.videoUrl !== '';
 });
 
+/* 函数 */
 const clearVideoData = () => {
   if (props.videoUrl.value) {
     URL.revokeObjectURL(props.videoUrl.value);
   }
 };
-
-const emit = defineEmits(['update:videoUrl']);
 
 // 处理视频加载错误
 const handleVideoError = (error) => {

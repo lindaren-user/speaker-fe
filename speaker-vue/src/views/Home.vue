@@ -27,16 +27,18 @@
       </div>
     </div>
 
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1097 1024" width="60vw">
-      <HomeSvg />
-    </svg>
+    <div style="padding-left: 10%">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1097 1024" width="60vw">
+        <HomeSvg />
+      </svg>
+    </div>
 
     <div>
-      <el-button type="success" style="margin-right: 80%" @click="router.push('/login')"
+      <el-button type="success" style="margin-left: 70%" @click="router.push('/login')"
         ><el-icon><User /></el-icon>&nbsp;登录</el-button
       >
       <div style="height: 15px"></div>
-      <el-button type="success" @click="router.push('/register')"
+      <el-button type="success" style="margin-left: 70%" @click="router.push('/register')"
         ><el-icon><Check /></el-icon>&nbsp;注册</el-button
       >
     </div>
@@ -75,8 +77,11 @@
 import { _isMobile } from '@/utils/isMobile';
 import HomeSvg from '@/components/Svgs/HomeSvg.vue';
 
-const isMobile = computed(() => _isMobile());
+/* 公共变量 */
 const router = useRouter();
+
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
 </script>
 
 <style scoped>

@@ -32,7 +32,6 @@
     <div style="height: 10vh; display: flex; justify-content: center; gap: 50px">
       <AudioRecorder @record-complete="handleRecordComplete" />
     </div>
-    <!-- <audio :src="audioUrl" controls></audio> -->
   </div>
 
   <div v-else class="body">
@@ -130,21 +129,18 @@
 
 <script setup>
 import { useElementBounding, useWindowSize } from '@vueuse/core';
-import AudioRecorder from '@/components/Recorders/AudioRecorder.vue';
 import { useYiyuStore } from '@/stores/yiyu';
 import { files_service } from '@/apis/files_service';
 import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
+import AudioRecorder from '@/components/Recorders/AudioRecorder.vue';
 
+/* 公共变量 */
 const text = ref('');
-const isCanceled = ref(false);
-const dialogVisible = ref(false);
 const speed = ref(1.5);
 const rCard = useTemplateRef('rCard');
 const { width: winWidth, height: winHeight } = useWindowSize();
 const loading = ref(true);
-
-const isMobile = computed(() => _isMobile());
 
 const yiyuStore = useYiyuStore();
 const yiyu = yiyuStore.yiyu;
@@ -163,6 +159,14 @@ const newCanFollow = ref(false);
 const yiyuHeight = 427.5;
 const yiyuWeight = 332.5;
 
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
+
+/* pc端 */
+const isCanceled = ref(false);
+const dialogVisible = ref(false);
+
+/* 函数 */
 const saveSettings = () => {
   dialogVisible.value = false;
 
@@ -216,11 +220,7 @@ const updateAvatarPosition = () => {
   yiyu.setPosition(`${top}px`, `${centerX - yiyuWeight / 2}px`);
 };
 
-const audioUrl = ref('');
-
 const handleRecordComplete = (blob) => {
-  audioUrl.value = URL.createObjectURL(blob);
-
   const audioFile = new File([blob], 'audio.wav', {
     type: 'audio/wav',
   });

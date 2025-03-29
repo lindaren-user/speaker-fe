@@ -52,23 +52,25 @@ import { ErrorMessage } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
 import { useElementBounding } from '@vueuse/core';
 
-// 状态和引用
+/* 公共逻辑 */
 const isRecording = ref(false);
 const recordingTime = ref(0);
 const timer = ref(null);
 const mediaRecorder = ref(null);
 const chunks = ref([]);
 const isFinished = ref(false);
+
+let blob;
+
+const emit = defineEmits(['record-complete']);
+
+/* 移动端 */
 const isMobile = computed(() => _isMobile());
 const beCanceled = ref(false);
 const crossBtn = useTemplateRef('crossBtn');
 const { top, right, bottom, left } = useElementBounding(crossBtn);
-let blob;
 
-// 事件发射器
-const emit = defineEmits(['record-complete']);
-
-// 生命周期钩子
+/* 函数 */
 onMounted(() => initMicrophone());
 onBeforeUnmount(() => stopMicrophone());
 

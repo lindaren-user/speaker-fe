@@ -1,1 +1,0 @@
-import{_ as o,ak as r,r as t,o as n}from"./index-CC-TFbUu.js";import"https://avatar.gbqr.net/yiyu.js";const c={};function s(_,a){const e=t("RouterView");return n(),r(e)}const i=o(c,[["render",s]]);export{i as default};

@@ -4,7 +4,10 @@
     <div style="display: flex; justify-content: right; margin-bottom: 1vh">
       <el-button type="primary" @click="newModel"><van-icon name="plus" /></el-button>
     </div>
-    <div style="height: 78vh; overflow: auto">
+    <div
+      v-if="modelList.length !== 0"
+      style="height: 78vh; overflow: auto; border-top: 1px dotted black"
+    >
       <van-list finished-text="没有更多了">
         <van-checkbox-group v-model="selectedModels">
           <van-swipe-cell
@@ -46,7 +49,7 @@
         </van-checkbox-group>
       </van-list>
     </div>
-    <div v-if="modelList.length === 0">
+    <div v-else>
       <van-empty description="您还没有模型" />
     </div>
     <van-popup
@@ -231,13 +234,14 @@ import { _isMobile } from '@/utils/isMobile';
 import { ErrorMessage, MessageBox, SuccessMessage, WarningMessage } from '@/utils/messageTool';
 import { models_service } from '@/apis/models_service';
 
+/* 公共变量 */
 const router = useRouter();
 const dialogNewModels = ref(false);
 const dialogEditModels = ref(false);
+
 const userStore = useUserStore();
 const processedModelStore = useProcessedModelStore();
 const usedModelStore = useUsedModelStore();
-const isMobile = computed(() => _isMobile());
 
 const name = ref('');
 const description = ref('');
@@ -248,6 +252,10 @@ const names = new Set();
 
 const selectedModels = ref([]);
 
+/* 移动端 */
+const isMobile = computed(() => _isMobile());
+
+/* 函数 */
 const editModelInfo = (index) => {
   processedModelStore.changeProcessedModel(modelList.value[index]);
 
