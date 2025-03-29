@@ -2,16 +2,14 @@ import { user_service } from '@/apis/user_service';
 import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
 import { clearAllStores } from './clearAllStores';
 
-const router = useRouter();
-
-export const logout = () => {
+export const logout = (router) => {
   user_service
     .logout()
     .then((res) => {
       if (res.code === '200') {
         clearAllStores();
         SuccessMessage('退出成功');
-        router.push('/');
+        router.push('/'); // 使用传递的 router
       } else {
         console.log(res.msg);
         ErrorMessage(res.msg);

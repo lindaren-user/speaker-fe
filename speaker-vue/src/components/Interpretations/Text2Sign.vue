@@ -30,7 +30,7 @@
       >
     </div>
     <div style="height: 10vh; display: flex; justify-content: center; gap: 50px">
-      <AudioRecorder @record-complete="handleRecordComplete" />
+      <AudioRecorder @record-complete="handleRecordComplete" :isAudio2Text="isAudio2Text" />
     </div>
   </div>
 
@@ -141,6 +141,7 @@ const speed = ref(1.5);
 const rCard = useTemplateRef('rCard');
 const { width: winWidth, height: winHeight } = useWindowSize();
 const loading = ref(true);
+const isAudio2Text = ref(false);
 
 const yiyuStore = useYiyuStore();
 const yiyu = yiyuStore.yiyu;
@@ -221,6 +222,8 @@ const updateAvatarPosition = () => {
 };
 
 const handleRecordComplete = (blob) => {
+  isAudio2Text.value = true;
+
   const audioFile = new File([blob], 'audio.wav', {
     type: 'audio/wav',
   });
@@ -241,6 +244,9 @@ const handleRecordComplete = (blob) => {
     .catch((err) => {
       console.log(err.message);
       ErrorMessage('识别失败');
+    })
+    .finally(() => {
+      isAudio2Text.value = false;
     });
 };
 

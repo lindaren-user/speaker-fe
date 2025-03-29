@@ -59,11 +59,7 @@ const stopCamera = () => {
 
 // 切换录制状态
 const toggleRecording = () => {
-  if (!isRecording.value) {
-    startRecording();
-  } else {
-    isPaused.value ? continueRecording() : pauseRecording();
-  }
+  isRecording.value ? (isPaused.value ? continueRecording() : pauseRecording()) : startRecording();
 };
 
 // 开始录制

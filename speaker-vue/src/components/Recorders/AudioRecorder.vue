@@ -8,7 +8,7 @@
     >
       <span
         ><el-icon v-if="!isRecording"><Microphone /></el-icon>
-        {{ isRecording ? '录音中' : '按住说话' }}</span
+        {{ props.isAudio2Text ? '识别中...' : isRecording ? '录音中' : '按住说话' }}</span
       >
     </div>
     <div v-if="isRecording" class="recording-overlay">
@@ -70,6 +70,13 @@ const beCanceled = ref(false);
 const crossBtn = useTemplateRef('crossBtn');
 const { top, right, bottom, left } = useElementBounding(crossBtn);
 
+const props = defineProps({
+  isAudio2Text: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 /* 函数 */
 onMounted(() => initMicrophone());
 onBeforeUnmount(() => stopMicrophone());
@@ -100,6 +107,8 @@ const stopMicrophone = () => {
 
 // 开始录制
 const startRecording = () => {
+  if (isMobile.value && props.isAudio2Text) return;
+
   if (mediaRecorder.value?.stream) {
     mediaRecorder.value.start();
     isRecording.value = true;
@@ -178,13 +187,10 @@ const handleTouchEnd = (event) => {
     const touch = event.changedTouches[0];
     const touchX = touch.clientX;
     const touchY = touch.clientY;
-    if (isPointInElement(touchX, touchY)) {
-      cancelAudio();
-      console.log('清除数据');
-    } else {
+    if (isPointInElement(touchX, touchY)) cancelAudio();
+    else {
       stopRecording();
       translateToText();
-      console.log('识别');
     }
   }
 };

@@ -8,8 +8,8 @@
         :touchable="false"
         :show-indicators="false"
       >
-        <van-swipe-item>视频数量限制为100，超出该数量的视频会被忽略</van-swipe-item>
-        <van-swipe-item>视频尽可能覆盖所有使用场景，否则会导致实机部署效果欠佳</van-swipe-item>
+        <van-swipe-item>视频数量限制为100，超出会被忽略</van-swipe-item>
+        <van-swipe-item>视频尽可能覆盖所有使用场景，否则会使实机部署效果欠佳</van-swipe-item>
         <van-swipe-item>每个标签的视频数量最少10份，否则训练效果可能一般</van-swipe-item>
         <van-swipe-item>每个标签的视频数量尽量接近</van-swipe-item>
       </van-swipe>
@@ -17,7 +17,9 @@
 
     <ControlPanel @add-video="handleAddVideo" @upload="handleUploadAll" />
 
-    <VideoList :videos="videoList" @delete-video="handleDeleteVideo" />
+    <div style="height: 60vh; overflow-y: auto">
+      <VideoList :videos="videoList" @delete-video="handleDeleteVideo" />
+    </div>
 
     <van-popup v-model:show="dialogTips" position="bottom" style="height: 40%" closeable>
       <van-divider><span style="color: black; font-size: large">数据采集</span></van-divider>

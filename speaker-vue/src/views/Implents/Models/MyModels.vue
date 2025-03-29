@@ -1,34 +1,27 @@
 <template>
   <div v-if="isMobile">
     <van-divider><span style="color: black; font-size: large">我的模型</span></van-divider>
-    <div style="display: flex; justify-content: right; margin-bottom: 1vh">
-      <el-button type="primary" @click="newModel"><van-icon name="plus" /></el-button>
+    <div style="display: flex; justify-content: right; margin: 0 1vw 1vh">
+      <el-button type="primary" @click="newModel">+ 新建</el-button>
     </div>
-    <div
-      v-if="modelList.length !== 0"
-      style="height: 78vh; overflow: auto; border-top: 1px dotted black"
-    >
+    <div v-if="modelList.length !== 0" class="modelList">
       <van-list finished-text="没有更多了">
         <van-checkbox-group v-model="selectedModels">
-          <van-swipe-cell
-            v-for="(model, index) in modelList"
-            :key="index"
-            style="border-bottom: 1px dotted black; height: 9vh"
-          >
+          <van-swipe-cell v-for="(model, index) in modelList" :key="index" class="modelItem">
             <div>
-              <div
-                style="height: 10vh; display: flex; justify-content: space-between; padding: 10px"
-              >
-                <span style="font-size: 1.1rem" @click="editModel(index)"
+              <div class="model">
+                <span style="font-size: 1.1rem; width: 55%" @click="editModel(index)"
                   ><van-icon name="desktop-o" /> {{ model.name }}</span
-                ><span
-                  ><span><van-checkbox :name="model.id">使用</van-checkbox></span></span
                 >
-              </div>
-              <div style="text-align: right">
-                <span style="margin-right: 10px">{{ model.datetime }}</span>
+                <span style="width: 45%"
+                  ><div class="modelInfo">
+                    <van-checkbox :name="model.id">使用</van-checkbox>
+                  </div>
+                  <div class="modelInfo" style="margin-top: 1vh">{{ model.datetime }}</div>
+                </span>
               </div>
             </div>
+
             <template #right>
               <van-button
                 square
@@ -417,6 +410,12 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.modelList {
+  height: 78vh;
+  overflow: auto;
+  border-top: 1px dotted lightgray;
+}
+
 .models-container-card {
   width: 50vw;
   margin: 0 auto;
@@ -462,10 +461,26 @@ onUnmounted(() => {
   gap: 0.5rem;
 }
 
+.modelItem {
+  border-bottom: 1px dotted lightgray;
+  height: 9vh;
+}
+
 .radio-label {
   font-size: 0.9rem;
   color: #333;
   margin-right: 10px;
+}
+
+.model {
+  height: 10vh;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+.modelInfo {
+  display: flex;
+  justify-content: right;
 }
 
 .moreFilled:hover {

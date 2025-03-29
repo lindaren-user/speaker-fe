@@ -1,6 +1,10 @@
 <template>
   <div v-if="isMobile">
-    <van-list finished-text="没有更多了" style="margin-top: 1vh">
+    <van-list
+      v-if="videos.length !== 0"
+      finished-text="没有更多了"
+      style="margin-top: 1vh; border-top: 1px dotted lightgray"
+    >
       <van-swipe-cell
         v-for="video in videos"
         :key="video.id"
@@ -18,6 +22,8 @@
         </template>
       </van-swipe-cell>
     </van-list>
+
+    <van-empty v-else description="暂无视频" />
 
     <van-popup
       v-model:show="showPreviewDialog"
@@ -37,8 +43,6 @@
         您的浏览器不支持视频播放
       </video>
     </van-popup>
-
-    <van-empty v-if="videos.length === 0" description="暂无视频" />
   </div>
 
   <div v-else class="main">

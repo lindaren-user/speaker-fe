@@ -14,12 +14,10 @@
       v-model:offset="offset"
     />
 
-    <div style="height: 76vh; overflow-y: auto; overflow-x: hidden">
-      <keep-alive
-        ><DataSet v-if="active === 0" />
-        <Tag v-else-if="active === 1" />
-        <Infer v-else
-      /></keep-alive>
+    <div class="newModel">
+      <DataSet v-if="active === 0" />
+      <Tag v-else-if="active === 1" />
+      <Infer v-else />
     </div>
   </div>
 
@@ -80,6 +78,12 @@ const active = ref(0);
 
 .step {
   margin: 10px auto 0;
+}
+
+.newModel {
+  height: 76vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .step-item {

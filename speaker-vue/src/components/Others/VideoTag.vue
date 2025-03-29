@@ -16,7 +16,7 @@
 
     <van-tabs v-model:active="activeName">
       <van-tab :title="'全部 ' + videoList.length.toString()" name="a">
-        <div v-if="videoList.length" style="height: 62vh; overflow-y: auto; margin-top: 1vh">
+        <div v-if="videoList.length" class="videoList">
           <van-list finished-text="没有更多了">
             <van-swipe-cell
               v-for="(video, index) in videoList"
@@ -40,7 +40,7 @@
         <van-empty v-else description="暂无视频" />
       </van-tab>
       <van-tab :title="'已标记 ' + isTagged.length.toString()" name="b">
-        <div v-if="isTagged.length" style="height: 62vh; overflow-y: auto; margin-top: 1vh">
+        <div v-if="isTagged.length" class="videoList">
           <van-list finished-text="没有更多了">
             <van-swipe-cell
               v-for="(video, index) in isTagged"
@@ -64,7 +64,7 @@
         <van-empty v-else description="暂无已标记视频" />
       </van-tab>
       <van-tab :title="'未标记 ' + noTagged.length.toString()" name="c">
-        <div v-if="noTagged.length" style="height: 62vh; overflow-y: auto; margin-top: 1vh">
+        <div v-if="noTagged.length" class="videoList">
           <van-list finished-text="没有更多了">
             <van-swipe-cell
               v-for="(video, index) in noTagged"
@@ -93,7 +93,7 @@
       <div class="tips-content">
         <ul>
           <li>
-            <el-icon><Star /></el-icon> 请选择对应的视频进行相应意思标注方便模型训练
+            <el-icon><Star /></el-icon> 选择对应视频进行相应意思标注方便模型训练
           </li>
           <li>
             <el-icon><Star /></el-icon> 标注字数请勿超过15字
@@ -262,12 +262,10 @@ const handleVideoClick = (video) => {
   selectedVideo.value = video;
   emit('video-selected', video);
   emittr.emit('touch', video);
-  console.log(video);
 };
 </script>
 
 <style scoped>
-/* 注意事项区域样式 */
 .notice-section {
   display: flex;
   justify-content: space-between;
@@ -280,7 +278,6 @@ const handleVideoClick = (video) => {
   line-height: 40px;
 }
 
-/* 提示内容样式 */
 .tips-content {
   padding: 10px;
 }
@@ -338,5 +335,12 @@ ul {
 
 .tag-tip {
   font-size: 1vw;
+}
+
+.videoList {
+  height: 62vh;
+  overflow-y: auto;
+  margin-top: 1vh;
+  border-top: 1px dotted lightgray;
 }
 </style>
