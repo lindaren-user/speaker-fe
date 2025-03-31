@@ -81,24 +81,23 @@ const router = createRouter({
 });
 
 // 权限验证;
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   const yiyuStore = useYiyuStore();
+
   if (to?.meta?.requireAuth) {
     try {
       const res = await user_service.check();
       if (res.code !== '200') {
         clearAllStores();
-        return next('/login'); // 确保只调用一次 next()
+        return '/login';
       }
       if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
-      next();
     } catch {
       clearAllStores();
-      return next('/login');
+      return '/login';
     }
   } else {
     if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
-    next();
   }
 });
 

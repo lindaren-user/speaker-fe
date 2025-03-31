@@ -31,8 +31,13 @@
                 @click="handleVideoClick(video)"
               />
               <template #right>
-                <van-button square type="danger" text="删除" @click="triggerDelete(video.title)" />
-                <van-button square type="primary" text="标记" @click="triggerChange(video)" />
+                <van-button
+                  square
+                  type="danger"
+                  text="删除"
+                  @click="emit('deleteVideo', video.title)"
+                />
+                <van-button square type="primary" text="标记" @click="emit('openTagDlg', video)" />
               </template>
             </van-swipe-cell>
           </van-list>
@@ -55,8 +60,13 @@
                 @click="handleVideoClick(video)"
               />
               <template #right>
-                <van-button square type="danger" text="删除" @click="triggerDelete(video.title)" />
-                <van-button square type="primary" text="标记" @click="triggerChange(video)" />
+                <van-button
+                  square
+                  type="danger"
+                  text="删除"
+                  @click="emit('deleteVideo', video.title)"
+                />
+                <van-button square type="primary" text="标记" @click="emit('openTagDlg', video)" />
               </template>
             </van-swipe-cell>
           </van-list>
@@ -78,8 +88,13 @@
                 @click="handleVideoClick(video)"
               />
               <template #right>
-                <van-button square type="danger" text="删除" @click="triggerDelete(video.title)" />
-                <van-button square type="primary" text="标记" @click="triggerChange(video)" />
+                <van-button
+                  square
+                  type="danger"
+                  text="删除"
+                  @click="emit('deleteVideo', video.title)"
+                />
+                <van-button square type="primary" text="标记" @click="emit('openTagDlg', video)" />
               </template>
             </van-swipe-cell>
           </van-list>
@@ -107,9 +122,9 @@
   </div>
 
   <div v-else>
-    <h2 style="margin-bottom: 10px">
+    <h3 style="margin-bottom: 10px">
       <el-icon><Promotion /></el-icon> 标注事宜
-    </h2>
+    </h3>
     <div style="color: red">
       <ul>
         <li>
@@ -137,7 +152,10 @@
             @mouseleave="iconIfShow[index] = false"
           >
             <span>{{ video.title }}</span>
-            <span v-show="iconIfShow[index]" @click.stop="triggerDelete(video.title)" class="right"
+            <span
+              v-show="iconIfShow[index]"
+              @click.stop="emit('deleteVideo', video.title)"
+              class="right"
               ><i class="iconfont icon-shanchu"></i>
             </span>
             <el-tooltip
@@ -147,7 +165,7 @@
               :content="video.number"
               placement="top"
             >
-              <span @click="triggerChange(video)" class="right" v-if="video.tag === true"
+              <span @click="emit('openTagDlg', video)" class="right" v-if="video.tag === true"
                 ><i class="iconfont icon-biaoshi" style="color: #41ae3c"></i>
               </span>
             </el-tooltip>
@@ -168,11 +186,14 @@
             @mouseleave="iconIfShow[index] = false"
           >
             <span>{{ video.title }}</span>
-            <span v-show="iconIfShow[index]" @click.stop="triggerDelete(video.title)" class="right"
+            <span
+              v-show="iconIfShow[index]"
+              @click.stop="emit('deleteVideo', video.title)"
+              class="right"
               ><i class="iconfont icon-shanchu"></i>
             </span>
             <el-tooltip class="box-item" effect="dark" :content="video.number" placement="top">
-              <span @click.stop="triggerChange(video)" class="right"
+              <span @click.stop="emit('openTagDlg', video)" class="right"
                 ><i class="iconfont icon-biaoshi" style="color: #41ae3c"></i>
               </span>
             </el-tooltip>
@@ -192,7 +213,10 @@
             @mouseleave="iconIfShow[index] = false"
           >
             <span>{{ video.title }}</span>
-            <span v-show="iconIfShow[index]" @click.stop="triggerDelete(video.title)" class="right"
+            <span
+              v-show="iconIfShow[index]"
+              @click.stop="emit('deleteVideo', video.title)"
+              class="right"
               ><i class="iconfont icon-shanchu"></i>
             </span>
           </div>
@@ -205,7 +229,6 @@
 
 <script setup>
 import { _isMobile } from '@/utils/isMobile';
-import emittr from '@/utils/event-bus';
 
 /* 公共变量 */
 const props = defineProps({
@@ -223,7 +246,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['video-selected']);
+const emit = defineEmits(['video-selected', 'openTagDlg', 'deleteVideo']);
 
 const selectedVideo = ref(null);
 
@@ -248,20 +271,10 @@ const filteredVideos = computed(() => {
   }
 });
 
-// 标签点击事件
-const triggerChange = (video) => {
-  emittr.emit('changeDialogVisible', video);
-};
-
-// 标签删除事件
-const triggerDelete = (videoTitle) => {
-  emittr.emit('deleteVideo', videoTitle);
-};
-
+// 处理被选中的视频
 const handleVideoClick = (video) => {
   selectedVideo.value = video;
   emit('video-selected', video);
-  emittr.emit('touch', video);
 };
 </script>
 

@@ -45,8 +45,8 @@ const triggerFileInput = () => {
 };
 
 // 处理文件选择
-const handleFileSelect = (e) => {
-  const file = e.target.files[0];
+const handleFileSelect = (event) => {
+  const file = event.target.files[0];
   if (file) {
     // 验证文件类型
     if (!file.type.includes('video')) {

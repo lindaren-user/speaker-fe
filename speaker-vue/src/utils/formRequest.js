@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const formRequest = axios.create({
-  timeout: 10000,
+  // timeout: 10000,
 });
 
 formRequest.interceptors.request.use(

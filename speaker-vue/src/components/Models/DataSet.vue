@@ -140,8 +140,8 @@ const handleUploadAll = async () => {
   }
   try {
     await Promise.all(unUploaded.map(uploadVideo)); // 等待所有的视频处理完成
-    if (unUploaded.every((v) => v.isUploaded)) {
-      SuccessMessage('全部上传成功');
+    if (unUploaded.every((video) => video.isUploaded)) {
+      SuccessMessage('全部上传成功, 可前往下一步');
       ulCounterStore.changeCounter(length);
     }
   } catch (err) {

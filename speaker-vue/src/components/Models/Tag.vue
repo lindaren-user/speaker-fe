@@ -5,9 +5,12 @@
       :isTagged="isTagged"
       :noTagged="noTagged"
       @video-selected="handleVideoSelected"
+      @deleteVideo="deleteVideo"
+      @addTag="addTag"
+      @openTagDlg="openDlg"
     ></VideoTag>
 
-    <van-popup v-model:show="dialogVisible" position="bottom" :style="{ height: '50%' }" closeable>
+    <van-popup v-model:show="openTagDlg" position="bottom" :style="{ height: '50%' }" closeable>
       <van-divider
         ><span style="color: black">{{ changeObject.title }}</span></van-divider
       >
@@ -23,40 +26,48 @@
         />
       </van-cell-group>
       <div style="display: flex; justify-content: center; gap: 30px; margin-top: 8vh">
-        <van-button type="warning" style="width: 100px" @click="dialogVisible = false"
+        <van-button type="warning" style="width: 100px" @click="openTagDlg = false"
           >取消</van-button
         >
         <van-button type="success" style="width: 100px" @click="changeTag">确认</van-button>
       </div>
     </van-popup>
 
-    <VideoShow :videoUrl="currentVideoUrl" :showObject="changeObject"></VideoShow>
+    <VideoShow
+      :videoUrl="currentVideoUrl"
+      :showObject="changeObject"
+      @update:videoUrl="updateVideoUrl"
+    ></VideoShow>
   </div>
 
-  <div v-else class="tagbody">
+  <div v-else class="tagBody">
     <div class="common-layout">
       <el-container>
         <el-aside width="500px"
-          ><VideoShow :videoUrl="currentVideoUrl" :showObject="changeObject"></VideoShow
+          ><VideoShow
+            :videoUrl="currentVideoUrl"
+            :showObject="changeObject"
+            @addTag="addTag"
+          ></VideoShow
         ></el-aside>
 
         <el-divider style="margin: 2% 3vw; height: 60vh" direction="vertical" />
 
-        <el-container>
-          <el-main style="padding: 0"
-            ><VideoTag
-              :videoList="videoList"
-              :isTagged="isTagged"
-              :noTagged="noTagged"
-              @video-selected="handleVideoSelected"
-            ></VideoTag
-          ></el-main>
-        </el-container>
+        <el-main style="padding: 0"
+          ><VideoTag
+            :videoList="videoList"
+            :isTagged="isTagged"
+            :noTagged="noTagged"
+            @video-selected="handleVideoSelected"
+            @deleteVideo="deleteVideo"
+            @openTagDlg="openDlg"
+          ></VideoTag
+        ></el-main>
       </el-container>
     </div>
 
     <el-dialog
-      v-model="dialogVisible"
+      v-model="openTagDlg"
       top="30vh"
       width="500"
       class="diaglog"
@@ -74,7 +85,7 @@
           <el-button v-if="changeObject.tag === true" type="danger" @click="deleteTag"
             >删除标签</el-button
           >
-          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button @click="openTagDlg = false">取消</el-button>
           <el-button type="primary" @click="changeTag">确认</el-button>
         </div>
       </template>
@@ -89,19 +100,18 @@ import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/util
 import { _isMobile } from '@/utils/isMobile';
 import VideoShow from '@/components/Others/VideoShow.vue';
 import VideoTag from '@/components/Others/VideoTag.vue';
-import emittr from '@/utils/event-bus';
 
 /* 公共变量 */
-const changeObject = ref({});
+const changeObject = ref(null);
 const videoList = ref([]);
 const requestLocal = '/api';
-const currentVideoUrl = ref(null);
+const currentVideoUrl = ref('');
 const tag = ref('');
 
 const isTagged = computed(() => videoList.value.filter((video) => video.tag === true));
 const noTagged = computed(() => videoList.value.filter((video) => video.tag === false));
 
-const dialogVisible = ref(false);
+const openTagDlg = ref(false);
 
 const processedModelStore = useProcessedModelStore();
 
@@ -115,6 +125,10 @@ const isMobile = computed(() => _isMobile());
 const jd = ref(1);
 
 /* 函数 */
+const updateVideoUrl = (url) => {
+  currentVideoUrl.value = url;
+};
+
 // 获取所有的视频
 const getAllVideos = () => {
   files_service.video
@@ -166,7 +180,7 @@ const handleVideoSelected = (video) => {
 };
 
 // 标签点击事件 number 与 tag
-const changeDialogVisible = (video) => {
+const openDlg = (video) => {
   changeObject.value = video;
   jd.value = 0;
   if (changeObject.value.tag) {
@@ -174,16 +188,16 @@ const changeDialogVisible = (video) => {
   } else {
     tag.value = '';
   }
-  dialogVisible.value = true;
+  openTagDlg.value = true;
 };
 
 const addTag = () => {
   if (changeObject.value) {
     if (changeObject.value.tag === true) {
-      changeDialogVisible(changeObject.value);
+      openDlg(changeObject.value);
     } else {
       tag.value = '';
-      dialogVisible.value = true;
+      openTagDlg.value = true;
       jd.value = 1;
     }
   } else {
@@ -191,8 +205,8 @@ const addTag = () => {
   }
 };
 
-const change = (video) => {
-  changeObject.value = video;
+const checkAllTags = () => {
+  return noTagged.value.length === 0;
 };
 
 const changeTag = () => {
@@ -213,9 +227,11 @@ const changeTag = () => {
         changeObject.value.tag = true;
         changeObject.value.number = tag.value;
 
-        SuccessMessage('标注成功');
-        dialogVisible.value = false;
-        // getAllVideos();
+        let nextRes = '';
+        if (checkAllTags()) nextRes = '，可以前往下一步';
+        SuccessMessage(`标注成功${nextRes}`);
+
+        openTagDlg.value = false;
       } else {
         ErrorMessage('标注失败');
       }
@@ -237,11 +253,9 @@ const deleteVideo = (videoTitle) => {
       .then((res) => {
         if (res.code === '200') {
           SuccessMessage('删除成功');
-          changeObject.value = {}; // 被选中的视频置空
+          changeObject.value = null; // 被选中的视频置空
 
           videoList.value = videoList.value.filter((video) => video.title !== videoTitle);
-
-          // getAllVideos();
         } else {
           console.log(res.msg);
           ErrorMessage('删除失败');
@@ -267,7 +281,7 @@ const deleteTag = () => {
       })
       .then((res) => {
         if (res.code === '200') {
-          dialogVisible.value = false;
+          openTagDlg.value = false;
 
           SuccessMessage('删除标识成功');
 
@@ -287,25 +301,11 @@ const deleteTag = () => {
   });
 };
 
-onMounted(() => {
-  getAllVideos();
-
-  emittr.on('changeDialogVisible', changeDialogVisible);
-  emittr.on('add', addTag);
-  emittr.on('touch', change);
-  emittr.on('deleteVideo', deleteVideo);
-});
-
-onBeforeUnmount(() => {
-  emittr.off('deleteVideo', deleteVideo);
-  emittr.off('changeDialogVisible', changeDialogVisible);
-  emittr.off('add', addTag);
-  emittr.off('touch', change);
-});
+onMounted(() => getAllVideos());
 </script>
 
 <style scoped>
-.tagbody {
+.tagBody {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;

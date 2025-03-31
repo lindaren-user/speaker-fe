@@ -42,6 +42,7 @@
         ><el-icon><Check /></el-icon>&nbsp;注册</el-button
       >
     </div>
+    <button @click="router.push('/implents/interpretation/1')">qu</button>
   </div>
   <div v-else class="contain">
     <div class="left ani">
@@ -88,27 +89,33 @@ const isMobile = computed(() => _isMobile());
 .contain {
   display: flex;
 }
+
 .right {
   flex: 5;
 }
+
 .left {
   display: flex;
   flex-direction: column;
   flex: 5;
 }
+
 .kuaggle-body {
   width: 50%;
   padding-top: 2%;
   margin-left: 12vw;
 }
+
 .number {
   font-size: 2.1875rem;
   color: #41ae3c;
 }
+
 .char {
   font-size: 1.5625rem;
   color: #d4c4b7;
 }
+
 @keyframes txx {
   from {
     opacity: 0;
@@ -117,12 +124,14 @@ const isMobile = computed(() => _isMobile());
     opacity: 100%;
   }
 }
+
 .ani {
   transition: all 1s;
   animation: txx 1s;
   text-align: center;
   margin-top: 1.25rem;
 }
+
 .kuaggle {
   text-align: left;
   margin-top: 15vh;

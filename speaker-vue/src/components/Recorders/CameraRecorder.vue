@@ -22,6 +22,7 @@ const isPaused = ref(false);
 const recordingTime = ref(0);
 const timer = ref(null);
 const chunks = ref([]);
+const canUse = ref(false);
 
 const emit = defineEmits(['record-complete']);
 
@@ -43,10 +44,19 @@ const initCamera = () => {
         emit('record-complete', blob);
         chunks.value = [];
       };
+      canUse.value = true;
     })
     .catch((err) => {
-      console.error('摄像头访问失败:', err);
-      ErrorMessage('无法访问摄像头');
+      if (err.name === 'NotAllowedError') {
+        console.error('用户拒绝了权限请求');
+        ErrorMessage('用户拒绝了权限请求');
+      } else if (err.name === 'NotFoundError') {
+        console.error('未找到摄像头');
+        ErrorMessage('未找到摄像头');
+      } else {
+        console.error('无法访问摄像头:', err.message);
+        ErrorMessage('无法访问摄像头:', err.message);
+      }
     });
 };
 
@@ -64,8 +74,11 @@ const toggleRecording = () => {
 
 // 开始录制
 const startRecording = () => {
+  if (!canUse.value) initCamera();
+
   if (mediaRecorder.value?.stream) {
     mediaRecorder.value.start();
+
     isRecording.value = true;
     isPaused.value = false;
     timer.value = setInterval(() => recordingTime.value++, 1000);

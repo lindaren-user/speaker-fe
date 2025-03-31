@@ -9,18 +9,18 @@
       @close="clearVideoData"
     >
       <van-divider
-        ><span style="color: black; font-size: large">{{ showObject.title }}</span></van-divider
+        ><span style="color: black; font-size: large">{{ showObject?.title }}</span></van-divider
       >
       <video v-if="videoUrl" :src="videoUrl" controls style="width: 100%" @error="handleVideoError">
         您的浏览器不支持视频播放
       </video>
-      <div>标注：{{ showObject.tag === true ? showObject.number : '暂无' }}</div>
+      <div>标注：{{ showObject?.tag === true ? showObject.number : '暂无' }}</div>
     </van-popup>
   </div>
 
   <div v-else>
     <div class="Show-head">
-      <span style="font-size: 20px" v-if="showObject">{{ showObject.title }}</span>
+      <span style="font-size: 20px" v-if="showObject">{{ showObject?.title }}</span>
       <el-button type="primary" @click="addTag"
         >{{ showObject?.tag ? '更改' : '新增' }}注解</el-button
       >
@@ -30,6 +30,7 @@
 
     <div class="video-show">
       <video
+        style="object-fit: fill; width: 100%; height: 100%"
         v-if="videoUrl"
         :src="videoUrl"
         controls
@@ -48,34 +49,34 @@
 <script setup>
 import { ErrorMessage, WarningMessage } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
-import emittr from '@/utils/event-bus';
 
 /* 公共变量 */
 const props = defineProps({
   videoUrl: {
     type: String,
-    default: null,
+    default: '',
   },
 
   showObject: {
     type: Object,
-    default: null,
+    default: () => null,
   },
 });
 
-const emit = defineEmits(['update:videoUrl']);
+const emit = defineEmits(['update:videoUrl', 'addTag']);
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
 const openVideo = ref(false);
 watchEffect(() => {
-  openVideo.value = props.videoUrl !== null && props.videoUrl !== '';
+  openVideo.value = props.videoUrl !== '';
 });
 
 /* 函数 */
 const clearVideoData = () => {
-  if (props.videoUrl.value) {
-    URL.revokeObjectURL(props.videoUrl.value);
+  if (props.videoUrl) {
+    URL.revokeObjectURL(props.videoUrl);
+    if (isMobile.value) emit('update:videoUrl', '');
   }
 };
 
@@ -97,7 +98,7 @@ const handleVideoError = (error) => {
     default:
       ErrorMessage('未知错误');
   }
-  emit('update:videoUrl', null);
+  emit('update:videoUrl', '');
 };
 
 // 触发新增注解事件
@@ -106,7 +107,7 @@ const addTag = () => {
     WarningMessage('请先选择视频');
     return;
   }
-  emittr.emit('add');
+  emit('addTag');
 };
 </script>
 
@@ -130,14 +131,10 @@ const addTag = () => {
 }
 
 .video-show {
-  width: 100%;
-  flex: 9;
 }
 
 .video-player {
-  width: 100%;
   height: 100%;
-  object-fit: contain;
 }
 
 .video-placeholder {

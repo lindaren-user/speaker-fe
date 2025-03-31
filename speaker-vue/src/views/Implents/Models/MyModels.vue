@@ -222,7 +222,7 @@
 <script setup>
 import { useUserStore } from '@/stores/user';
 import { useProcessedModelStore } from '@/stores/processedModel';
-import { useUsedModelStore } from '@/stores/usedModel';
+import { useUsedModelsStore } from '@/stores/usedModels';
 import { _isMobile } from '@/utils/isMobile';
 import { ErrorMessage, MessageBox, SuccessMessage, WarningMessage } from '@/utils/messageTool';
 import { models_service } from '@/apis/models_service';
@@ -234,7 +234,7 @@ const dialogEditModels = ref(false);
 
 const userStore = useUserStore();
 const processedModelStore = useProcessedModelStore();
-const usedModelStore = useUsedModelStore();
+const usedModelsStore = useUsedModelsStore();
 
 const name = ref('');
 const description = ref('');
@@ -299,10 +299,14 @@ const deleteModel = (index) => {
         if (res.code === '200') {
           names.delete(modelList.value[index].name);
 
+          // 删除模型
           modelList.value.splice(index, 1);
-          if (selectedModels.value === index) {
-            selectedModels.value = '';
-          }
+          selectedModels.value = selectedModels.value.filter(
+            (modelId) => modelId !== modelList.value[index].id,
+          );
+          usedModelsStore.usedModels = usedModelsStore.usedModels.filter(
+            (modelId) => modelId !== modelList.value[index].id,
+          );
 
           SuccessMessage('删除成功');
         } else {
@@ -399,13 +403,13 @@ const getAllModels = () => {
 onMounted(() => {
   getAllModels();
 
-  if (usedModelStore.usedModel && usedModelStore.usedModel.length !== 0) {
-    selectedModels.value = usedModelStore.usedModel;
+  if (usedModelsStore.usedModels && usedModelsStore.usedModels.length !== 0) {
+    selectedModels.value = usedModelsStore.usedModels;
   }
 });
 
 onUnmounted(() => {
-  usedModelStore.changeUsedModel(selectedModels.value);
+  usedModelsStore.changeUsedModels(selectedModels.value);
 });
 </script>
 

@@ -13,9 +13,7 @@
     </div>
     <div v-if="isRecording" class="recording-overlay">
       <div ref="crossBtn">
-        <el-button type="danger" size="large" style="border-radius: 50%; width: 20vw; height: 20vw"
-          ><van-icon name="cross"
-        /></el-button>
+        <el-button type="danger" size="large" class="crossBtn"><van-icon name="cross" /></el-button>
       </div>
       <div :class="{ willBeCanceled: beCanceled, noCanceled: !beCanceled }" class="bottomTip">
         <div class="tipText">
@@ -59,8 +57,9 @@ const timer = ref(null);
 const mediaRecorder = ref(null);
 const chunks = ref([]);
 const isFinished = ref(false);
+const canUse = ref(false);
 
-let blob;
+let blob = null;
 
 const emit = defineEmits(['record-complete']);
 
@@ -91,10 +90,19 @@ const initMicrophone = () => {
       mediaRecorder.value.onstop = () => {
         blob = new Blob(chunks.value, { type: 'audio/wav' });
       };
+      canUse.value = true;
     })
     .catch((err) => {
-      console.error('麦克风访问失败:', err);
-      ErrorMessage('无法访问麦克风');
+      if (err.name === 'NotAllowedError') {
+        console.error('用户拒绝了权限请求');
+        ErrorMessage('用户拒绝了权限请求');
+      } else if (err.name === 'NotFoundError') {
+        console.error('未找到麦克风');
+        ErrorMessage('未找到麦克风');
+      } else {
+        console.error('无法访问麦克风:', err.message);
+        ErrorMessage('无法访问麦克风:', err.message);
+      }
     });
 };
 
@@ -107,15 +115,16 @@ const stopMicrophone = () => {
 
 // 开始录制
 const startRecording = () => {
+  if (!canUse.value) initMicrophone();
+
   if (isMobile.value && props.isAudio2Text) return;
 
-  if (mediaRecorder.value?.stream) {
-    mediaRecorder.value.start();
-    isRecording.value = true;
-    isFinished.value = false;
-    beCanceled.value = false;
-    timer.value = setInterval(() => recordingTime.value++, 1000);
-  }
+  mediaRecorder.value.start();
+
+  isRecording.value = true;
+  isFinished.value = false;
+  beCanceled.value = false;
+  timer.value = setInterval(() => recordingTime.value++, 1000);
 };
 
 // 停止录制
@@ -125,7 +134,6 @@ const stopRecording = () => {
     clearInterval(timer.value);
     isRecording.value = false;
     isFinished.value = true;
-    recordingTime.value = 0;
   }
 };
 
@@ -137,12 +145,15 @@ const toggleRecording = () => {
 // 清除录音数据
 const clearAudio = () => {
   chunks.value = [];
+  blob = null;
+  recordingTime.value = 0;
   isFinished.value = false;
 };
 
 // 开始转换
 const translateToText = () => {
-  emit('record-complete', blob);
+  if (recordingTime.value < 1) ErrorMessage('说话时间太短');
+  else emit('record-complete', blob);
 
   clearAudio();
 };
@@ -271,8 +282,8 @@ const handleTouchEnd = (event) => {
 
 .recorderBtn {
   border: 1px solid lightgray;
-  height: 10vh;
-  width: 90vw;
+  height: 4vh;
+  width: 80vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -295,5 +306,11 @@ const handleTouchEnd = (event) => {
   height: 50%;
   display: grid;
   justify-content: center;
+}
+
+.crossBtn {
+  border-radius: 50%;
+  width: 20vw;
+  height: 20vw;
 }
 </style>

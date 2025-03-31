@@ -37,13 +37,14 @@ export const WarningMessage = (msg) => {
 };
 
 export const MessageBox = (object) => {
+  const message = `此操作将删除该${object}, 是否继续?`;
   if (_isMobile()) {
     return showConfirmDialog({
       title: '! 注意',
-      message: `此操作将删除该${object}, 是否继续?`,
+      message,
     });
   }
-  return ElMessageBox.confirm(`此操作将删除该${object}, 是否继续?`, '提示', {
+  return ElMessageBox.confirm(message, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',

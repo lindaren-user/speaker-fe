@@ -8,8 +8,8 @@
       @click="router.push('/implents/models')"
       style="margin-top: 1vh"
     >
-      <span v-if="hasModels">已选择{{ usedModelStore.usedModel.length }}个模型</span>
-      <span v-else>没有选择模型</span>
+      <span v-if="hasModels">已选择{{ usedModelsStore.usedModels.length }}个模型</span>
+      <span v-else>没有选择模型，点击选择</span>
     </van-notice-bar>
 
     <ControlPanel @add-video="handleAddVideo" @upload="uploadVideo" />
@@ -26,7 +26,7 @@
           <van-button square type="danger" text="删除" @click="handleDeleteVideo" />
         </template>
       </van-swipe-cell>
-      <div v-else style="height: 44px; text-align: center; align-content: center">
+      <div v-else style="height: 6vh; text-align: center; align-content: center">
         ! 没有选择视频
       </div>
     </div>
@@ -84,7 +84,7 @@
     <el-card class="lCard">
       <template #header>
         <div class="header">
-          <span v-if="hasModels">已选择{{ usedModelStore.usedModel.length }}个模型</span>
+          <span v-if="hasModels">已选择{{ usedModelsStore.usedModels.length }}个模型</span>
           <span v-else>没有选择模型</span>
           <el-button
             type="primary"
@@ -157,7 +157,7 @@
 </template>
 
 <script setup>
-import { useUsedModelStore } from '@/stores/usedModel';
+import { useUsedModelsStore } from '@/stores/usedModels';
 import { files_service } from '@/apis/files_service';
 import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
 import { _isMobile } from '@/utils/isMobile';
@@ -170,8 +170,10 @@ const router = useRouter();
 const requestLocal = '/api';
 const video = ref(null);
 
-const usedModelStore = useUsedModelStore();
-const hasModels = computed(() => usedModelStore.usedModel && usedModelStore.usedModel.length !== 0);
+const usedModelsStore = useUsedModelsStore();
+const hasModels = computed(
+  () => usedModelsStore.usedModels && usedModelsStore.usedModels.length !== 0,
+);
 
 const previewVideoUrl = ref('');
 const videoUrl = ref('');
@@ -243,7 +245,7 @@ const uploadVideo = () => {
 
   const formData = new FormData();
   formData.append('video', video.value.file);
-  formData.append('models', usedModelStore.usedModel);
+  formData.append('models', usedModelsStore.usedModel);
 
   files_service.video
     .uploadVideo(formData)

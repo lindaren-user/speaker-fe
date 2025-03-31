@@ -95,7 +95,7 @@
 <script setup>
 import { useUserStore } from '@/stores/user.js';
 import { _isMobile } from '@/utils/isMobile';
-import { logout } from './utils/logout';
+import { logout } from '@/utils/logout';
 
 /* 公共变量 */
 const router = useRouter();
@@ -202,11 +202,11 @@ const getPrivacyInfo = () => {
 }
 
 .van-tabbar {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 100;
 }
 
 :deep(.el-button:hover) {

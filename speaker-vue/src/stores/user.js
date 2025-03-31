@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref(JSON.parse(localStorage.getItem('user')) || null);
+  const user = ref(JSON.parse(localStorage.getItem('user')) || '');
 
   const changeUser = (value) => {
     user.value = value;

@@ -1,36 +1,74 @@
 <template>
   <div v-if="isMobile">
-    <div style="height: 50vh; display: flex; gap: 2vw; justify-content: center">
-      <span
-        style="height: 50vh; width: 48vw; border: 1px solid lightgray; border-radius: 5%"
-        ref="rCard"
-        ><div style="margin-top: 60%">
-          <van-loading v-show="loading" size="24px" vertical>数字人加载中...</van-loading>
-        </div>
-      </span>
-      <span style="height: 50vh; width: 48vw; border: 1px solid lightgray; border-radius: 5%"
-        ><van-cell-group inset>
-          <van-field
-            v-model="text"
-            rows="11"
-            autosize
-            label="目标文本"
-            type="textarea"
-            maxlength="450"
-            placeholder="请输入留言"
-            show-word-limit
-          />
-        </van-cell-group>
-      </span>
-    </div>
-    <div style="height: 10vh; display: flex; justify-content: center; gap: 5vh; margin-top: 2vh">
-      <van-button type="warning" @click="clearText"><van-icon name="delete-o" /> 清空</van-button>
-      <van-button type="success" @click="startTranslation" :disabled="!text || !yiyuStore.isSuccess"
-        ><van-icon name="exchange" /> 转化</van-button
+    <!-- 数字人 -->
+    <div style="height: 260px" ref="rCard">
+      <van-loading v-show="loading" size="24px" vertical style="padding-top: 10vh"
+        >数字人加载中...</van-loading
       >
     </div>
-    <div style="height: 10vh; display: flex; justify-content: center; gap: 50px">
-      <AudioRecorder @record-complete="handleRecordComplete" :isAudio2Text="isAudio2Text" />
+
+    <!-- 历史记录 -->
+    <div v-if="!isInput" class="history">
+      <van-divider style="margin: 1px"><span style="color: black">历史记录</span></van-divider>
+      <van-empty v-if="historyTexts.length === 0" style="padding: 0" />
+      <div v-else style="overflow-y: auto; height: 30vh">
+        <van-swipe-cell
+          v-for="(text, index) in historyTexts"
+          :key="index"
+          style="border-bottom: 1px solid lightgray"
+        >
+          <van-cell
+            :border="false"
+            icon="comment-o"
+            :title="text"
+            value="翻译"
+            :class="{}"
+            @click="handleSelectedText(index)"
+          />
+          <template #right>
+            <van-button square type="danger" text="删除" @click="deleteHistoryText" />
+          </template>
+        </van-swipe-cell>
+      </div>
+    </div>
+
+    <!-- 输入框 -->
+    <div class="inputDiv">
+      <div class="inputImg" :class="{ isInputting: !isRecorder }" @click="isRecorder = !isRecorder">
+        <img
+          v-show="isRecorder"
+          src="@/assets/others/keyboard.svg"
+          alt=""
+          style="width: 10vw; padding-top: 1vw"
+        />
+        <img
+          v-show="!isRecorder"
+          src="@/assets/others/Microphone.svg"
+          alt=""
+          style="width: 8vw; height: 8vw"
+        />
+      </div>
+      <div v-if="isRecorder">
+        <AudioRecorder @record-complete="handleRecordComplete" :isAudio2Text="isAudio2Text" />
+      </div>
+      <div v-else class="elInput">
+        <el-input
+          v-model="goalText"
+          :rows="2"
+          type="textarea"
+          placeholder="请输入文本"
+          autosize
+          style="width: 65vw"
+          @focus="isInput = true"
+          @blur="handleBlur()"
+        /><el-button
+          type="success"
+          style="width: 11vw; height: 5vh; margin: auto 0"
+          @click="newTranslate()"
+        >
+          确定
+        </el-button>
+      </div>
     </div>
   </div>
 
@@ -40,7 +78,7 @@
       <AudioRecorder @record-complete="handleRecordComplete" />
       <div class="center">
         <el-input
-          v-model="text"
+          v-model="goalText"
           placeholder="输入文本......"
           show-word-limit
           type="textarea"
@@ -53,7 +91,7 @@
           </el-button>
           <el-button
             type="primary"
-            :disabled="!text || !yiyuStore.isSuccess"
+            :disabled="!goalText || !yiyuStore.isSuccess"
             @click="startTranslation"
           >
             <el-icon><Switch /></el-icon> 转化
@@ -136,7 +174,7 @@ import { _isMobile } from '@/utils/isMobile';
 import AudioRecorder from '@/components/Recorders/AudioRecorder.vue';
 
 /* 公共变量 */
-const text = ref('');
+const goalText = ref('');
 const speed = ref(1.5);
 const rCard = useTemplateRef('rCard');
 const { width: winWidth, height: winHeight } = useWindowSize();
@@ -159,15 +197,25 @@ const newCanFollow = ref(false);
 // 数字人的基本属性
 const yiyuHeight = 427.5;
 const yiyuWeight = 332.5;
+const offsetX = 5;
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
+const historyTexts = ref([]);
+const isRecorder = ref(false);
+const isInput = ref(false);
 
 /* pc端 */
 const isCanceled = ref(false);
 const dialogVisible = ref(false);
 
 /* 函数 */
+const handleBlur = () => {
+  isInput.value = false;
+
+  isRecorder.value = !isRecorder.value;
+};
+
 const saveSettings = () => {
   dialogVisible.value = false;
 
@@ -191,14 +239,33 @@ const formatTooltip = (val) => {
 };
 
 const clearText = () => {
-  text.value = '';
+  goalText.value = '';
 };
 
 // 调用 SDK 进行手语翻译
 const startTranslation = () => {
   if (isCanceled.value) yiyu.cancelTranslation();
 
-  yiyu.startTranslate(text.value);
+  yiyu.startTranslate(goalText.value);
+};
+
+// 新翻译加入历史
+const newTranslate = () => {
+  startTranslation();
+
+  historyTexts.value.push(goalText.value);
+};
+
+// 处理被选中的历史文本
+const handleSelectedText = (index) => {
+  goalText.value = historyTexts.value[index];
+
+  startTranslation();
+};
+
+// 删除被选中的历史文本
+const deleteHistoryText = (index) => {
+  historyTexts.value.splice(index, 1);
 };
 
 const getCardCenter = () => {
@@ -218,7 +285,7 @@ const updateAvatarPosition = () => {
     top = centerY - (yiyuHeight * 3) / 4;
   } else top = centerY - yiyuHeight / 2;
 
-  yiyu.setPosition(`${top}px`, `${centerX - yiyuWeight / 2}px`);
+  yiyu.setPosition(`${top}px`, `${centerX - yiyuWeight / 2 - offsetX}px`);
 };
 
 const handleRecordComplete = (blob) => {
@@ -235,7 +302,7 @@ const handleRecordComplete = (blob) => {
     .toText(formData)
     .then((res) => {
       if (res.code === '200') {
-        text.value = res.data;
+        goalText.value = res.data;
       } else {
         console.log(res.msg);
         ErrorMessage(res.msg);
@@ -250,8 +317,8 @@ const handleRecordComplete = (blob) => {
     });
 };
 
-// 保证 yiyu 已经被初始化
 watchEffect(async () => {
+  // 保证 yiyu 已经被初始化
   if (yiyuStore.isSuccess) {
     loading.value = false;
 
@@ -260,14 +327,24 @@ watchEffect(async () => {
     updateAvatarPosition();
     yiyu.enableYiyuApp();
 
-    if (isMobile.value) yiyu.setAvatarSize(5);
+    if (isMobile.value) {
+      yiyu.setAvatarSize(5);
+
+      // 获取 Yiyu 的 dom，操作其样式防止遮挡其余的 dom
+      const yiyuElement = document.querySelector('.yiyuAppElement');
+      if (yiyuElement) {
+        yiyuElement.style.pointerEvents = 'none';
+        yiyuElement.style.position = 'absolute';
+        yiyuElement.style.zIndex = 1000;
+      }
+    }
 
     if (!canTextTranslate.value) yiyu.disableTextSelection();
   }
 });
 
 onMounted(() => {
-  let size;
+  let size = 0;
   if (isMobile.value) size = 5;
   else size = 1;
 
@@ -339,7 +416,40 @@ li {
   margin-top: 2vh;
 }
 
-:deep(.el-loading-text) {
-  /* color: #66c18c; */
+.inputDiv {
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2vh 2vw 0 2vw;
+  padding-top: 1vh;
+}
+
+.isInputting {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+.inputImg {
+  height: 11vw;
+  width: 11vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid lightgray;
+  border-radius: 50%;
+}
+
+.elInput {
+  width: 80vw;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1vh;
+}
+
+.history {
+  border-top: 1px solid lightgray;
+  height: 33vh;
 }
 </style>

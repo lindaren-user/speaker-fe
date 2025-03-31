@@ -1,6 +1,6 @@
 <template>
   <div v-if="isMobile">
-    <van-dropdown-menu>
+    <van-dropdown-menu class="menu">
       <van-dropdown-item v-model="value" :options="options" />
     </van-dropdown-menu>
     <div style="margin-top: 2vh">
@@ -46,4 +46,10 @@ watchEffect(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.menu {
+  border-bottom: 1px solid lightgray;
+  position: relative;
+  z-index: 1001;
+}
+</style>
