@@ -47,7 +47,7 @@
 <script setup>
 import { ArrowRight } from '@element-plus/icons-vue';
 import { useProcessedModelStore } from '@/stores/processedModel';
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import DataSet from '@/components/Models/DataSet.vue';
 import Tag from '@/components/Models/Tag.vue';
 import Infer from '@/components/Models/Infer.vue';

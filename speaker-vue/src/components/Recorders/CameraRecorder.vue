@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ErrorMessage } from '@/utils/messageTool';
+import { ErrorMessage } from '@/utils/others/messageTool';
 
 /* 公共逻辑 */
 const videoElement = ref(null);

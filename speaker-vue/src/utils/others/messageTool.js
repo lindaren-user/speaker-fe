@@ -1,4 +1,4 @@
-import { _isMobile } from './isMobile';
+import { _isMobile } from '../mobile/isMobile';
 
 export const SuccessMessage = (msg) => {
   if (_isMobile()) {

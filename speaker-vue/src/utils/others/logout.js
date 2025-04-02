@@ -1,6 +1,6 @@
 import { user_service } from '@/apis/user_service';
-import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
-import { clearAllStores } from './clearAllStores';
+import { ErrorMessage, SuccessMessage } from '@/utils/others/messageTool';
+import { clearAllStores } from '../stores/clearAllStores';
 
 export const logout = (router) => {
   user_service

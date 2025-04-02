@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { user_service } from '@/apis/user_service';
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import { useYiyuStore } from '@/stores/yiyu';
-import { clearAllStores } from '@/utils/clearAllStores';
+import { clearAllStores } from '@/utils/stores/clearAllStores';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

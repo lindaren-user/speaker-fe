@@ -32,12 +32,19 @@
               />
               <template #right>
                 <van-button
+                  style="height: 100%"
                   square
                   type="danger"
                   text="删除"
                   @click="emit('deleteVideo', video.title)"
                 />
-                <van-button square type="primary" text="标记" @click="emit('openTagDlg', video)" />
+                <van-button
+                  style="height: 100%"
+                  square
+                  type="primary"
+                  text="标记"
+                  @click="emit('openTagDlg', video)"
+                />
               </template>
             </van-swipe-cell>
           </van-list>
@@ -62,11 +69,18 @@
               <template #right>
                 <van-button
                   square
+                  style="height: 100%"
                   type="danger"
                   text="删除"
                   @click="emit('deleteVideo', video.title)"
                 />
-                <van-button square type="primary" text="标记" @click="emit('openTagDlg', video)" />
+                <van-button
+                  style="height: 100%"
+                  square
+                  type="primary"
+                  text="标记"
+                  @click="emit('openTagDlg', video)"
+                />
               </template>
             </van-swipe-cell>
           </van-list>
@@ -89,12 +103,19 @@
               />
               <template #right>
                 <van-button
+                  style="height: 100%"
                   square
                   type="danger"
                   text="删除"
                   @click="emit('deleteVideo', video.title)"
                 />
-                <van-button square type="primary" text="标记" @click="emit('openTagDlg', video)" />
+                <van-button
+                  style="height: 100%"
+                  square
+                  type="primary"
+                  text="标记"
+                  @click="emit('openTagDlg', video)"
+                />
               </template>
             </van-swipe-cell>
           </van-list>
@@ -228,7 +249,7 @@
 </template>
 
 <script setup>
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 
 /* 公共变量 */
 const props = defineProps({

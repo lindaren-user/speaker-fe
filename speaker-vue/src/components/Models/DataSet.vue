@@ -85,11 +85,16 @@
 import { useUlCounterStore } from '@/stores/ulCounter';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { files_service } from '@/apis/files_service';
-import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import VideoList from '@/components/Others/VideoList.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
+import {
+  ErrorMessage,
+  SuccessMessage,
+  WarningMessage,
+  MessageBox,
+} from '@/utils/others/messageTool';
 
 /* 公共变量 */
 const videoList = ref([]);

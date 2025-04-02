@@ -12,8 +12,8 @@
 </template>
 
 <script setup>
-import { _isMobile } from '@/utils/isMobile';
-import { logout } from '@/utils/logout';
+import { _isMobile } from '@/utils/mobile/isMobile';
+import { logout } from '@/utils/others/logout';
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());

@@ -1,29 +1,24 @@
 <template>
   <div v-if="isMobile" class="mobile-audio-recorder">
-    <div
-      @touchstart="startRecording"
-      @touchmove="handleTouchMove"
-      @touchend="handleTouchEnd"
-      class="recorderBtn"
-    >
+    <div @click="startRecording" class="recorderBtn">
       <span
         ><el-icon v-if="!isRecording"><Microphone /></el-icon>
-        {{ props.isAudio2Text ? '识别中...' : isRecording ? '录音中' : '按住说话' }}</span
+        {{ props.isAudio2Text ? '识别中...' : isRecording ? '录音中' : '点击说话' }}</span
       >
     </div>
     <div v-if="isRecording" class="recording-overlay">
       <div ref="crossBtn">
-        <el-button type="danger" size="large" class="crossBtn"><van-icon name="cross" /></el-button>
+        <el-button type="danger" size="large" class="crossBtn" @click="cancelAudio"
+          ><van-icon name="cross"
+        /></el-button>
       </div>
-      <div :class="{ willBeCanceled: beCanceled, noCanceled: !beCanceled }" class="bottomTip">
+      <div class="bottomTip" @click="handleToText">
         <div class="tipText">
           <div style="text-align: center">
             <el-icon class="blinking"><Microphone /></el-icon>
             <span class="recording-time">{{ formatTime(recordingTime) }}</span>
           </div>
-          <div>
-            {{ beCanceled ? '松开取消识别' : '正在录音，松开后识别' }}
-          </div>
+          <div>正在录音，点击此处识别</div>
         </div>
       </div>
     </div>
@@ -45,10 +40,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, defineEmits, useTemplateRef } from 'vue';
-import { ErrorMessage } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
-import { useElementBounding } from '@vueuse/core';
+import { ErrorMessage } from '@/utils/others/messageTool';
+import { _isMobile } from '@/utils/mobile/isMobile';
 
 /* 公共逻辑 */
 const isRecording = ref(false);
@@ -65,9 +58,6 @@ const emit = defineEmits(['record-complete']);
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
-const beCanceled = ref(false);
-const crossBtn = useTemplateRef('crossBtn');
-const { top, right, bottom, left } = useElementBounding(crossBtn);
 
 const props = defineProps({
   isAudio2Text: {
@@ -123,7 +113,7 @@ const startRecording = () => {
 
   isRecording.value = true;
   isFinished.value = false;
-  beCanceled.value = false;
+  recordingTime.value = 0;
   timer.value = setInterval(() => recordingTime.value++, 1000);
 };
 
@@ -166,44 +156,16 @@ const cancelAudio = () => {
   }
 };
 
+const handleToText = () => {
+  stopRecording();
+  translateToText();
+};
+
 // 格式化时间
 const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
-
-// 判断点是否在元素区域内
-const isPointInElement = (pointX, pointY) => {
-  return (
-    pointX >= left.value && pointX <= right.value && pointY >= top.value && pointY <= bottom.value
-  );
-};
-
-// 处理触摸移动事件
-const handleTouchMove = (event) => {
-  if (isRecording.value) {
-    const touch = event.changedTouches[0];
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-    if (isPointInElement(touchX, touchY)) {
-      beCanceled.value = true;
-    } else beCanceled.value = false;
-  }
-};
-
-// 处理触摸结束事件
-const handleTouchEnd = (event) => {
-  if (isRecording.value) {
-    const touch = event.changedTouches[0];
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-    if (isPointInElement(touchX, touchY)) cancelAudio();
-    else {
-      stopRecording();
-      translateToText();
-    }
-  }
 };
 </script>
 
@@ -219,10 +181,10 @@ const handleTouchEnd = (event) => {
   justify-content: center;
   align-items: center;
   z-index: 1001;
+  pointer-events: auto;
 }
 
 .noCanceled {
-  background-color: lightgray;
 }
 
 .willBeCanceled {
@@ -297,6 +259,7 @@ const handleTouchEnd = (event) => {
   height: 20%;
   z-index: 1000;
   border-radius: 50% 50% 0 0;
+  background-color: lightgray;
 }
 
 .tipText {

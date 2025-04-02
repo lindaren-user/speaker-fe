@@ -73,8 +73,8 @@
 
 <script setup>
 import { useUserStore } from '@/stores/user';
-import { _isMobile } from '@/utils/isMobile';
-import { SuccessMessage, ErrorMessage } from '@/utils/messageTool';
+import { _isMobile } from '@/utils/mobile/isMobile';
+import { SuccessMessage, ErrorMessage } from '@/utils/others/messageTool';
 import { user_service } from '@/apis/user_service';
 
 /* 公共变量 */

@@ -3,7 +3,7 @@
     <van-popup
       v-model:show="openVideo"
       position="bottom"
-      style="height: 60vh"
+      style="height: auto"
       closeable
       :close-on-click-overlay="false"
       @close="clearVideoData"
@@ -11,10 +11,18 @@
       <van-divider
         ><span style="color: black; font-size: large">{{ showObject?.title }}</span></van-divider
       >
-      <video v-if="videoUrl" :src="videoUrl" controls style="width: 100%" @error="handleVideoError">
-        您的浏览器不支持视频播放
-      </video>
-      <div>标注：{{ showObject?.tag === true ? showObject.number : '暂无' }}</div>
+      <div class="videoCenter">
+        <video
+          v-if="videoUrl"
+          :src="videoUrl"
+          controls
+          style="height: 100%"
+          @error="handleVideoError"
+        >
+          您的浏览器不支持视频播放
+        </video>
+      </div>
+      <div class="videoTag">标注：{{ showObject?.tag === true ? showObject.number : '暂无' }}</div>
     </van-popup>
   </div>
 
@@ -30,7 +38,7 @@
 
     <div class="video-show">
       <video
-        style="object-fit: fill; width: 100%; height: 100%"
+        style="height: 75%"
         v-if="videoUrl"
         :src="videoUrl"
         controls
@@ -47,8 +55,9 @@
 </template>
 
 <script setup>
-import { ErrorMessage, WarningMessage } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
+import { WarningMessage } from '@/utils/others/messageTool';
+import { _isMobile } from '@/utils/mobile/isMobile';
+import { handleVideoErrorFunc } from '@/utils/others/handleVideoError';
 
 /* 公共变量 */
 const props = defineProps({
@@ -59,7 +68,7 @@ const props = defineProps({
 
   showObject: {
     type: Object,
-    default: () => null,
+    default: () => {},
   },
 });
 
@@ -82,22 +91,7 @@ const clearVideoData = () => {
 
 // 处理视频加载错误
 const handleVideoError = (error) => {
-  switch (error.target.error.code) {
-    case error.target.error.MEDIA_ERR_ABORTED:
-      ErrorMessage('视频加载被中止');
-      break;
-    case error.target.error.MEDIA_ERR_NETWORK:
-      ErrorMessage('网络错误，无法加载视频');
-      break;
-    case error.target.error.MEDIA_ERR_DECODE:
-      ErrorMessage('视频解码错误，可能是格式不支持');
-      break;
-    case error.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-      ErrorMessage('视频格式不支持');
-      break;
-    default:
-      ErrorMessage('未知错误');
-  }
+  handleVideoErrorFunc(error);
   emit('update:videoUrl', '');
 };
 
@@ -131,6 +125,9 @@ const addTag = () => {
 }
 
 .video-show {
+  height: 440px;
+  display: flex;
+  justify-content: center;
 }
 
 .video-player {
@@ -140,5 +137,11 @@ const addTag = () => {
 .video-placeholder {
   margin: 10% auto;
   color: #666;
+}
+
+.videoTag {
+  width: 100%;
+  text-align: center;
+  padding: 5px;
 }
 </style>

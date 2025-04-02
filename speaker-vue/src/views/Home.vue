@@ -42,7 +42,6 @@
         ><el-icon><Check /></el-icon>&nbsp;注册</el-button
       >
     </div>
-    <button @click="router.push('/implents/interpretation/1')">qu</button>
   </div>
   <div v-else class="contain">
     <div class="left ani">
@@ -75,7 +74,7 @@
 </template>
 
 <script setup>
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import HomeSvg from '@/components/Svgs/HomeSvg.vue';
 
 /* 公共变量 */

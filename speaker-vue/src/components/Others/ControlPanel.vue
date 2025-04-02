@@ -28,8 +28,8 @@
 </template>
 
 <script setup>
-import { ErrorMessage } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
+import { ErrorMessage } from '@/utils/others/messageTool';
+import { _isMobile } from '@/utils/mobile/isMobile';
 
 /* 公共变量 */
 const fileInput = ref(null);

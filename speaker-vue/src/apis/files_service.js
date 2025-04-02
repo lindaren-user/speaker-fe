@@ -1,5 +1,5 @@
-import request from '@/utils/request';
-import formRequest from '@/utils/formRequest';
+import request from '@/utils/requests/request';
+import formRequest from '@/utils/requests/formRequest';
 
 export const files_service = {
   video: {

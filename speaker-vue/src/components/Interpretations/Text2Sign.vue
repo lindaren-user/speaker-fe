@@ -1,7 +1,7 @@
 <template>
   <div v-if="isMobile">
     <!-- 数字人 -->
-    <div style="height: 260px" ref="rCard">
+    <div style="height: 260px" ref="rCard" @click="">
       <van-loading v-show="loading" size="24px" vertical style="padding-top: 10vh"
         >数字人加载中...</van-loading
       >
@@ -22,11 +22,16 @@
             icon="comment-o"
             :title="text"
             value="翻译"
-            :class="{}"
             @click="handleSelectedText(index)"
           />
           <template #right>
-            <van-button square type="danger" text="删除" @click="deleteHistoryText" />
+            <van-button
+              style="height: 100%"
+              square
+              type="danger"
+              text="删除"
+              @click="deleteHistoryText"
+            />
           </template>
         </van-swipe-cell>
       </div>
@@ -34,7 +39,7 @@
 
     <!-- 输入框 -->
     <div class="inputDiv">
-      <div class="inputImg" :class="{ isInputting: !isRecorder }" @click="isRecorder = !isRecorder">
+      <div class="inputImg" @click="changeInput">
         <img
           v-show="isRecorder"
           src="@/assets/others/keyboard.svg"
@@ -54,17 +59,18 @@
       <div v-else class="elInput">
         <el-input
           v-model="goalText"
-          :rows="2"
+          :rows="1"
           type="textarea"
           placeholder="请输入文本"
-          autosize
+          :autosize="{ minRows: 1, maxRows: 1 }"
           style="width: 65vw"
           @focus="isInput = true"
-          @blur="handleBlur()"
+          @blur="handleBlur"
         /><el-button
           type="success"
-          style="width: 11vw; height: 5vh; margin: auto 0"
-          @click="newTranslate()"
+          style="width: 11vw; height: 30px; margin: auto 0"
+          @click="newTranslate"
+          :disabled="goalText === ''"
         >
           确定
         </el-button>
@@ -169,8 +175,8 @@
 import { useElementBounding, useWindowSize } from '@vueuse/core';
 import { useYiyuStore } from '@/stores/yiyu';
 import { files_service } from '@/apis/files_service';
-import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
+import { ErrorMessage, SuccessMessage } from '@/utils/others/messageTool';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import AudioRecorder from '@/components/Recorders/AudioRecorder.vue';
 
 /* 公共变量 */
@@ -210,10 +216,23 @@ const isCanceled = ref(false);
 const dialogVisible = ref(false);
 
 /* 函数 */
-const handleBlur = () => {
-  isInput.value = false;
-
+const changeInput = () => {
   isRecorder.value = !isRecorder.value;
+};
+
+const handleBlur = (event) => {
+  // 失焦事件不会触发之后的点击事件，使用延时操作，先触发点击事件，后触发失焦事件
+  setTimeout(() => {
+    // const relatedTarget = event.relatedTarget; // 获取失去焦点后焦点的目标
+    // if (relatedTarget && relatedTarget.tagName === 'BUTTON') {
+    //   // console.log('焦点转移到了按钮');
+    //   return;
+    // }
+    // // console.log('焦点未转移到按钮');
+    isInput.value = false;
+
+    // isRecorder.value = !isRecorder.value;
+  }, 50);
 };
 
 const saveSettings = () => {
@@ -252,7 +271,6 @@ const startTranslation = () => {
 // 新翻译加入历史
 const newTranslate = () => {
   startTranslation();
-
   historyTexts.value.push(goalText.value);
 };
 
@@ -301,11 +319,13 @@ const handleRecordComplete = (blob) => {
   files_service.audio
     .toText(formData)
     .then((res) => {
-      if (res.code === '200') {
+      if (res.code === '200' && res.data !== 'No speech could be recognized.') {
         goalText.value = res.data;
+        historyTexts.value.push(goalText.value);
       } else {
-        console.log(res.msg);
-        ErrorMessage(res.msg);
+        // console.log(res.msg);
+        // ErrorMessage(res.msg);
+        ErrorMessage('识别失败');
       }
     })
     .catch((err) => {

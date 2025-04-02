@@ -18,7 +18,13 @@
           @click="showVideoPreview(video.id)"
         />
         <template #right>
-          <van-button square type="danger" text="删除" @click="emit('delete-video', video.id)" />
+          <van-button
+            style="height: 100%"
+            square
+            type="danger"
+            text="删除"
+            @click="emit('delete-video', video.id)"
+          />
         </template>
       </van-swipe-cell>
     </van-list>
@@ -28,20 +34,23 @@
     <van-popup
       v-model:show="showPreviewDialog"
       position="bottom"
-      style="height: 50vh"
+      style="height: auto"
       closeable
       :close-on-click-overlay="false"
     >
       <van-divider><span style="color: black; font-size: large">视频预览</span></van-divider>
-      <video
-        v-if="previewVideoUrl"
-        :src="previewVideoUrl"
-        controls
-        style="width: 100%"
-        @error="handleVideoError"
-      >
-        您的浏览器不支持视频播放
-      </video>
+      <div class="videoCenter">
+        <video
+          v-if="previewVideoUrl"
+          :src="previewVideoUrl"
+          controls
+          style="height: 100%"
+          @error="handleVideoError"
+        >
+          您的浏览器不支持视频播放
+        </video>
+      </div>
+      <div style="width: 100%; padding: 5px"></div>
     </van-popup>
   </div>
 
@@ -72,13 +81,25 @@
       </div>
 
       <!-- 视频预览模态框 -->
-      <el-dialog v-model="showPreviewDialog" title="视频预览" :close-on-click-modal="false">
-        <video :src="previewVideoUrl" controls class="video-player" preload="auto">
-          您的浏览器不支持视频播放
-        </video>
-        <template #footer>
-          <el-button @click="closeDlg">关闭</el-button>
-        </template>
+      <el-dialog
+        style="height: 550px"
+        v-model="showPreviewDialog"
+        title="视频预览"
+        :close-on-click-modal="false"
+        @close="closeDlg"
+      >
+        <div style="height: 440px">
+          <video
+            style="height: 100%"
+            :src="previewVideoUrl"
+            controls
+            class="video-player"
+            preload="auto"
+            @error="handleVideoError"
+          >
+            您的浏览器不支持视频播放
+          </video>
+        </div>
       </el-dialog>
     </div>
 
@@ -87,7 +108,8 @@
 </template>
 
 <script setup>
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
+import { handleVideoErrorFunc } from '@/utils/others/handleVideoError';
 
 /* 公共变量 */
 const props = defineProps({
@@ -123,6 +145,10 @@ const showVideoPreview = (videoId) => {
 const closeDlg = () => {
   showPreviewDialog.value = false;
   URL.revokeObjectURL(previewVideoUrl.value);
+};
+
+const handleVideoError = (error) => {
+  handleVideoErrorFunc(error);
 };
 </script>
 

@@ -17,18 +17,20 @@
       <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
     </el-dialog>
 
-    <div
-      style="margin-top: 3vh; border-top: 1px solid lightgray; border-bottom: 1px solid lightgray"
-    >
+    <div class="sign">
       <van-swipe-cell v-if="video">
         <van-cell icon="video-o" :border="false" :title="video.id" @click="openVideo = true" />
         <template #right>
-          <van-button square type="danger" text="删除" @click="handleDeleteVideo" />
+          <van-button
+            style="height: 100%"
+            square
+            type="danger"
+            text="删除"
+            @click="handleDeleteVideo"
+          />
         </template>
       </van-swipe-cell>
-      <div v-else style="height: 6vh; text-align: center; align-content: center">
-        ! 没有选择视频
-      </div>
+      <div v-else class="noSign">! 没有选择视频</div>
     </div>
 
     <div style="height: 40vh; margin-top: 5vh">
@@ -41,7 +43,10 @@
         style="margin-top: 1vh"
       >
         <span v-if="videoUrl">查看转换结果</span>
-        <span v-else>无转换</span>
+        <span v-else>
+          <span v-if="isTranslating">转换中，请稍后...</span>
+          <span v-else>无转换</span>
+        </span>
       </van-notice-bar>
       <video v-if="videoUrl" :src="videoUrl" controls style="width: 100%" @error="handleVideoError">
         您的浏览器不支持视频播放
@@ -64,19 +69,23 @@
     <van-popup
       v-model:show="openVideo"
       position="bottom"
-      style="height: 35vh"
+      style="height: auto"
       closeable
       :close-on-click-overlay="false"
     >
-      <video
-        v-if="previewVideoUrl"
-        :src="previewVideoUrl"
-        controls
-        style="width: 100%"
-        @error="handleVideoError"
-      >
-        您的浏览器不支持视频播放
-      </video>
+      <van-divider><span style="color: black; font-size: large">视频预览</span></van-divider>
+      <div class="videoCenter">
+        <video
+          v-if="previewVideoUrl"
+          :src="previewVideoUrl"
+          controls
+          style="height: 100%"
+          @error="handleVideoError"
+        >
+          您的浏览器不支持视频播放
+        </video>
+      </div>
+      <div style="width: 100%; padding: 5px"></div>
     </van-popup>
   </div>
 
@@ -108,6 +117,7 @@
         <video
           v-if="previewVideoUrl"
           :src="previewVideoUrl"
+          style="height: 100%"
           controls
           class="video-player"
           @error="handleVideoError"
@@ -148,7 +158,7 @@
         >
           您的浏览器不支持视频播放
         </video>
-        <div v-else class="video-placeholder">
+        <div v-else>
           <el-empty description="暂无结果" />
         </div>
       </div>
@@ -159,10 +169,16 @@
 <script setup>
 import { useUsedModelsStore } from '@/stores/usedModels';
 import { files_service } from '@/apis/files_service';
-import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
+import { handleVideoErrorFunc } from '@/utils/others/handleVideoError';
+import {
+  ErrorMessage,
+  SuccessMessage,
+  WarningMessage,
+  MessageBox,
+} from '@/utils/others/messageTool';
 
 /* 公共变量 */
 const router = useRouter();
@@ -245,7 +261,7 @@ const uploadVideo = () => {
 
   const formData = new FormData();
   formData.append('video', video.value.file);
-  formData.append('models', usedModelsStore.usedModel);
+  formData.append('models', usedModelsStore.usedModels);
 
   files_service.video
     .uploadVideo(formData)
@@ -269,22 +285,7 @@ const uploadVideo = () => {
 };
 
 const handleVideoError = (error) => {
-  switch (error.target.error.code) {
-    case error.target.error.MEDIA_ERR_ABORTED:
-      ErrorMessage('视频加载被中止');
-      break;
-    case error.target.error.MEDIA_ERR_NETWORK:
-      ErrorMessage('网络错误，无法加载视频');
-      break;
-    case error.target.error.MEDIA_ERR_DECODE:
-      ErrorMessage('视频解码错误，可能是格式不支持');
-      break;
-    case error.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-      ErrorMessage('视频格式不支持');
-      break;
-    default:
-      ErrorMessage('未知错误');
-  }
+  handleVideoErrorFunc(error);
 };
 
 const getResultText = () => {
@@ -346,6 +347,7 @@ ul {
 .video-show {
   margin-top: 5vh;
   border-radius: 0.3125rem;
+  height: 400px;
 }
 
 .video-show2 {
@@ -359,6 +361,18 @@ ul {
 
 .el-main {
   border: 0.0625rem solid black;
+}
+
+.sign {
+  margin-top: 3vh;
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+}
+
+.noSign {
+  height: 6vh;
+  text-align: center;
+  align-content: center;
 }
 
 @keyframes blink {

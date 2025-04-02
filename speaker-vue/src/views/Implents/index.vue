@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 
 /* 公共变量 */
 const route = useRoute();

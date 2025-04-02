@@ -40,10 +40,10 @@
     ></VideoShow>
   </div>
 
-  <div v-else class="tagBody">
-    <div class="common-layout">
+  <div v-else>
+    <div class="tagBody">
       <el-container>
-        <el-aside width="500px"
+        <el-aside width="590px"
           ><VideoShow
             :videoUrl="currentVideoUrl"
             :showObject="changeObject"
@@ -51,7 +51,7 @@
           ></VideoShow
         ></el-aside>
 
-        <el-divider style="margin: 2% 3vw; height: 60vh" direction="vertical" />
+        <el-divider style="margin: 15px; height: 60vh" direction="vertical" />
 
         <el-main style="padding: 0"
           ><VideoTag
@@ -96,10 +96,15 @@
 <script setup>
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { files_service } from '@/apis/files_service';
-import { ErrorMessage, SuccessMessage, WarningMessage, MessageBox } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import VideoShow from '@/components/Others/VideoShow.vue';
 import VideoTag from '@/components/Others/VideoTag.vue';
+import {
+  ErrorMessage,
+  SuccessMessage,
+  WarningMessage,
+  MessageBox,
+} from '@/utils/others/messageTool';
 
 /* 公共变量 */
 const changeObject = ref(null);
@@ -153,6 +158,8 @@ const getAllVideos = () => {
 
 // 选中的视频在左边框显示
 const handleVideoSelected = (video) => {
+  changeObject.value = video; // 注意更新
+
   if (videoUrls.has(video.title)) {
     currentVideoUrl.value = videoUrls.get(video.title);
     return;

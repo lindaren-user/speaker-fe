@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia';
 
 export const useProcessedModelStore = defineStore('processedModel', () => {
-  const processedModel = ref(JSON.parse(localStorage.getItem('processedModel')) || null);
+  const processedModel = ref(JSON.parse(localStorage.getItem('sp-processedModel')) || null);
 
   const changeProcessedModel = (value) => {
     processedModel.value = value;
-    localStorage.setItem('processedModel', JSON.stringify(value));
+    localStorage.setItem('sp-processedModel', JSON.stringify(value));
   };
 
   const clearStore = () => {
-    localStorage.removeItem('processedModel');
+    localStorage.removeItem('sp-processedModel');
   };
 
   return { processedModel, changeProcessedModel, clearStore };

@@ -94,8 +94,8 @@
 
 <script setup>
 import { useUserStore } from '@/stores/user.js';
-import { _isMobile } from '@/utils/isMobile';
-import { logout } from '@/utils/logout';
+import { _isMobile } from '@/utils/mobile/isMobile';
+import { logout } from '@/utils/others/logout';
 
 /* 公共变量 */
 const router = useRouter();
@@ -105,7 +105,7 @@ const userStore = useUserStore();
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
 const isActive = computed(() => route.path.startsWith('/implents/interpretation'));
-const isLogin = computed(() => userStore.user !== null);
+const isLogin = computed(() => userStore.user !== '');
 
 /* pc端 */
 const notifyDrawer = ref(false);
@@ -202,7 +202,7 @@ const getPrivacyInfo = () => {
 }
 
 .van-tabbar {
-  position: absolute;
+  position: relative;
   bottom: 0;
   left: 0;
   width: 100%;

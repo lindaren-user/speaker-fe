@@ -17,7 +17,7 @@
 
 <script setup>
 import { useYiyuStore } from '@/stores/yiyu';
-import { _isMobile } from '@/utils/isMobile';
+import { _isMobile } from '@/utils/mobile/isMobile';
 import Sign2Text from '@/components/Interpretations/Sign2Text.vue';
 import Text2Sign from '@/components/Interpretations/Text2Sign.vue';
 

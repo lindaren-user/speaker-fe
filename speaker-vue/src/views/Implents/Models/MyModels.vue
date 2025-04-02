@@ -1,7 +1,8 @@
 <template>
   <div v-if="isMobile">
     <van-divider><span style="color: black; font-size: large">我的模型</span></van-divider>
-    <div style="display: flex; justify-content: right; margin: 0 1vw 1vh">
+    <div style="display: flex; justify-content: space-between; margin: 10px">
+      <span>总共{{ modelList.length }}个，已使用{{ selectedModels.length }}个</span>
       <el-button type="primary" @click="newModel">+ 新建</el-button>
     </div>
     <div v-if="modelList.length !== 0" class="modelList">
@@ -15,7 +16,8 @@
                 >
                 <span style="width: 45%"
                   ><div class="modelInfo">
-                    <van-checkbox :name="model.id">使用</van-checkbox>
+                    <van-checkbox v-if="model.iftrained" :name="model.id">使用</van-checkbox>
+                    <span v-else>未训练</span>
                   </div>
                   <div class="modelInfo" style="margin-top: 1vh">{{ model.datetime }}</div>
                 </span>
@@ -56,7 +58,7 @@
       <van-cell-group inset>
         <van-field v-model="name" label="名称" placeholder="模型名称" required="auto" />
         <van-field
-          v-model="description"
+          v-model="profile"
           rows="5"
           label="描述"
           type="textarea"
@@ -81,7 +83,7 @@
       <van-cell-group inset style="margin-top: 10%">
         <van-field v-model="name" label="名称" placeholder="模型名称" required="auto" />
         <van-field
-          v-model="description"
+          v-model="profile"
           rows="5"
           label="描述"
           type="textarea"
@@ -104,7 +106,7 @@
         <div class="header-container">
           <span style="font-size: 1.25rem"
             >我的模型<span style="font-size: 1rem; margin-left: 10px"
-              >总共{{ modelList.length }}个,已使用{{ selectedModels.length }}个</span
+              >总共{{ modelList.length }}个，已使用{{ selectedModels.length }}个</span
             ></span
           >
           <el-button type="primary" @click="newModel">新建模型</el-button>
@@ -119,7 +121,7 @@
                   ><el-icon><Memo /></el-icon> {{ model.name }}</span
                 >
                 <div class="model-actions">
-                  <el-checkbox :value="model.id">
+                  <el-checkbox v-if="model.iftrained" :value="model.id">
                     <span class="radio-label">翻译使用</span>
                   </el-checkbox>
                   <el-dropdown>
@@ -168,7 +170,7 @@
       />
       <div class="header">简介：</div>
       <el-input
-        v-model="description"
+        v-model="profile"
         :rows="5"
         type="textarea"
         placeholder="请输入对于该模型的简单介绍"
@@ -179,7 +181,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="resetModelInfo">重置</el-button>
-          <el-button type="primary" @click="">确定</el-button>
+          <el-button type="primary" @click="createModel">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -201,7 +203,7 @@
       />
       <div class="header">简介：</div>
       <el-input
-        v-model="description"
+        v-model="profile"
         :rows="5"
         type="textarea"
         placeholder="请输入对于该模型的简单介绍"
@@ -223,8 +225,13 @@
 import { useUserStore } from '@/stores/user';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { useUsedModelsStore } from '@/stores/usedModels';
-import { _isMobile } from '@/utils/isMobile';
-import { ErrorMessage, MessageBox, SuccessMessage, WarningMessage } from '@/utils/messageTool';
+import { _isMobile } from '@/utils/mobile/isMobile';
+import {
+  ErrorMessage,
+  MessageBox,
+  SuccessMessage,
+  WarningMessage,
+} from '@/utils/others/messageTool';
 import { models_service } from '@/apis/models_service';
 
 /* 公共变量 */
@@ -237,7 +244,7 @@ const processedModelStore = useProcessedModelStore();
 const usedModelsStore = useUsedModelsStore();
 
 const name = ref('');
-const description = ref('');
+const profile = ref('');
 
 const modelList = ref([]);
 
@@ -255,24 +262,25 @@ const editModelInfo = (index) => {
   dialogEditModels.value = true;
 
   name.value = modelList.value[index].name;
-  description.value = modelList.value[index]?.description;
+  profile.value = modelList.value[index]?.profile;
 };
 
 const saveModelInfo = () => {
   const modelId = processedModelStore.processedModel.id;
+  const isTrained = processedModelStore.processedModel.isTrained;
+  console.log(111);
   models_service
     .updateModel({
       name: name.value,
-      profile: description.value,
+      profile: profile.value,
       id: modelId,
       author: userStore.user,
+      iftrained: isTrained,
     })
     .then((res) => {
       if (res.code === '200') {
         const index = modelList.value.findIndex((model) => model.id === modelId);
-        modelList.value[index].name = res.data.name;
-        modelList.value[index].description = res.data.profile;
-        modelList.value[index].datetime = res.data.datetime;
+        modelList.value[index] = res.data;
 
         SuccessMessage('编辑成功');
         dialogEditModels.value = false;
@@ -347,7 +355,7 @@ const createModel = () => {
   models_service
     .addModel({
       name: name.value,
-      profile: description.value,
+      profile: profile.value,
       author: userStore.user,
     })
     .then((res) => {
@@ -356,7 +364,7 @@ const createModel = () => {
 
         const newModel = {
           name: name.value,
-          description: description.value,
+          profile: profile.value,
           datetime,
           id,
         };
@@ -378,7 +386,7 @@ const createModel = () => {
 
 const resetModelInfo = () => {
   name.value = '';
-  description.value = '';
+  profile.value = '';
 };
 
 const getAllModels = () => {

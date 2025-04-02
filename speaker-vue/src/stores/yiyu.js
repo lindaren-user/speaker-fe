@@ -15,7 +15,6 @@ export const useYiyuStore = defineStore('yiyu', () => {
       yiyu.disableYiyuApp();
 
       isSuccess.value = true;
-      console.log('yiyu 初始化成功');
     });
   } catch (err) {
     console.error('yiyu 初始化失败', err);

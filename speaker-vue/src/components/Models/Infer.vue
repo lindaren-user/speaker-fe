@@ -8,7 +8,7 @@
       :percentage="percentage"
       stroke-width="8"
       color="lightgreen"
-      style="width: 80%; transition: width 1s ease; margin: auto"
+      class="mobile-progress"
     />
   </div>
 
@@ -26,7 +26,7 @@
         striped
         :striped-flow="percentage < 100"
         :duration="10"
-        style="width: 90%; transition: width 1s ease"
+        class="progress"
       />
     </div>
   </div>
@@ -35,8 +35,8 @@
 <script setup>
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { models_service } from '@/apis/models_service';
-import { ErrorMessage, SuccessMessage } from '@/utils/messageTool';
-import { _isMobile } from '@/utils/isMobile';
+import { ErrorMessage, SuccessMessage } from '@/utils/others/messageTool';
+import { _isMobile } from '@/utils/mobile/isMobile';
 
 /* 公共变量 */
 const showIcon = ref(false); // 控制图标显示
@@ -69,6 +69,8 @@ const startProgress = () => {
     .then((res) => {
       if (res.code === '200') {
         percentage.value += 4;
+
+        processedModelStore.processedModel.isTrained = true;
       } else {
         ErrorMessage('训练失败');
         return;
@@ -143,5 +145,16 @@ const startProgress = () => {
   font-size: 1rem;
   font-weight: bold;
   color: #409eff;
+}
+
+.progress {
+  width: 90%;
+  transition: width 1s ease;
+}
+
+.mobile-progress {
+  width: 80%;
+  transition: width 1s ease;
+  margin: auto;
 }
 </style>
