@@ -2,7 +2,11 @@
   <div v-if="isMobile">
     <van-divider><span style="color: black; font-size: large">我的模型</span></van-divider>
     <div style="display: flex; justify-content: space-between; margin: 10px">
-      <span>总共{{ modelList.length }}个，已使用{{ selectedModels.length }}个</span>
+      <span
+        >总共{{ modelList.length }}个，可使用{{ canUsedModelsCounter }}个，已使用{{
+          selectedModels.length
+        }}个</span
+      >
       <el-button type="primary" @click="newModel">+ 新建</el-button>
     </div>
     <div v-if="modelList.length !== 0" class="modelList">
@@ -106,7 +110,9 @@
         <div class="header-container">
           <span style="font-size: 1.25rem"
             >我的模型<span style="font-size: 1rem; margin-left: 10px"
-              >总共{{ modelList.length }}个，已使用{{ selectedModels.length }}个</span
+              >总共{{ modelList.length }}个，可使用{{ canUsedModelsCounter }}个，已使用{{
+                selectedModels.length
+              }}个</span
             ></span
           >
           <el-button type="primary" @click="newModel">新建模型</el-button>
@@ -252,6 +258,10 @@ const names = new Set();
 
 const selectedModels = ref([]);
 
+const canUsedModelsCounter = computed(
+  () => modelList.value.filter((model) => model.iftrained === true).length,
+);
+
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
 
@@ -308,13 +318,13 @@ const deleteModel = (index) => {
           names.delete(modelList.value[index].name);
 
           // 删除模型
-          modelList.value.splice(index, 1);
           selectedModels.value = selectedModels.value.filter(
             (modelId) => modelId !== modelList.value[index].id,
           );
           usedModelsStore.usedModels = usedModelsStore.usedModels.filter(
             (modelId) => modelId !== modelList.value[index].id,
           );
+          modelList.value.splice(index, 1); // 注意删除顺序
 
           SuccessMessage('删除成功');
         } else {
