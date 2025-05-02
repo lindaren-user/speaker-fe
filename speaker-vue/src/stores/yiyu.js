@@ -6,9 +6,9 @@ export const useYiyuStore = defineStore('yiyu', () => {
 
   try {
     yiyu.init({
-      name: 'F2fJg0+ypmOAyq0qrhBOYhDWwHhqdpk0j9eeR/rInUzzQhbLLGR7PWqLSDfA7bhJLw0ZawVLvl+eYa8hp94Dd/mDEY/6bjHbo1zDdfb7ceOyu1r1OqWa0QenMkej8RTmJGHQyZ3iYEMerj1IfZm8dFvGE+1F7PuexlfWoIJtP9c=',
+      name: import.meta.env.VITE_YIYU_KEY,
       readLocalResource: false,
-      // draggable: false, // 可否拖拽
+      draggable: false, // 不可拖拽
     });
 
     yiyu.onAppReady(() => {

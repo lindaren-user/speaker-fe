@@ -204,6 +204,7 @@ const newCanFollow = ref(false);
 const yiyuHeight = 427.5;
 const yiyuWeight = 332.5;
 const offsetX = 5;
+const offsetY = 50;
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
@@ -349,14 +350,14 @@ watchEffect(async () => {
 
     if (isMobile.value) {
       yiyu.setAvatarSize(5);
+    }
 
-      // 获取 Yiyu 的 dom，操作其样式防止遮挡其余的 dom
-      const yiyuElement = document.querySelector('.yiyuAppElement');
-      if (yiyuElement) {
-        yiyuElement.style.pointerEvents = 'none';
-        yiyuElement.style.position = 'absolute';
-        yiyuElement.style.zIndex = 1000;
-      }
+    // 获取 Yiyu 的 dom，操作其样式防止遮挡其余的 dom
+    const yiyuElement = document.querySelector('.yiyuAppElement');
+    if (yiyuElement) {
+      yiyuElement.style.pointerEvents = 'none';
+      yiyuElement.style.position = 'absolute';
+      yiyuElement.style.zIndex = 1000;
     }
 
     if (!canTextTranslate.value) yiyu.disableTextSelection();
@@ -374,6 +375,8 @@ onMounted(() => {
 onUnmounted(() => {
   if (yiyuStore.isSuccess) {
     yiyu.setAvatarSize(3);
+
+    yiyu.setPosition(parseInt(window.innerHeight - yiyuHeight - offsetY), 0);
   }
 });
 

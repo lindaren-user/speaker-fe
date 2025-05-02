@@ -82,22 +82,22 @@ const router = createRouter({
 
 // 权限验证;
 router.beforeEach(async (to) => {
-  const yiyuStore = useYiyuStore();
+  // const yiyuStore = useYiyuStore();
 
   if (to?.meta?.requireAuth) {
     try {
       const res = await user_service.check();
       if (res.code !== '200') {
-        clearAllStores();
+        // clearAllStores();
         return '/login';
       }
-      if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
+      // if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
     } catch {
-      clearAllStores();
+      // clearAllStores();
       return '/login';
     }
   } else {
-    if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
+    // if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
   }
 });
 
