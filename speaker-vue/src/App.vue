@@ -139,7 +139,7 @@ const getPrivacyInfo = () => {
   display: flex;
   align-items: center;
   font-size: 1.5625rem;
-  color: #229453;
+  color: var(--theme-heavyColor);
 }
 
 .logo .iconfont {
@@ -168,11 +168,11 @@ const getPrivacyInfo = () => {
 }
 
 .nav-item:hover {
-  color: #66c18c;
+  color: var(--theme-lightColor);
 }
 
 .my-active-class {
-  color: #66c18c;
+  color: var(--theme-lightColor);
 }
 
 .content {
@@ -188,7 +188,7 @@ const getPrivacyInfo = () => {
 
 .el-divider span {
   font-size: 0.9375rem;
-  color: #20894d;
+  color: var(--theme-heavyColor);
 }
 
 :deep(.el-divider) {
@@ -210,8 +210,8 @@ const getPrivacyInfo = () => {
 }
 
 :deep(.el-button:hover) {
-  border: 0.0625rem solid #66c18c !important;
-  background-color: #66c18c !important;
+  border: 0.0625rem solid var(--theme-lightColor) !important;
+  background-color: var(--theme-lightColor) !important;
   color: white !important;
 }
 

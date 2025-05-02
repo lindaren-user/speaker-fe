@@ -87,10 +87,12 @@ const active = ref(0);
 .step-item {
   cursor: pointer;
 }
+
 :deep(.el-card__header) {
   padding-top: 5px;
 }
+
 :deep(.el-breadcrumb__inner:hover) {
-  color: #66c18c;
+  color: var(--theme-lightColor);
 }
 </style>

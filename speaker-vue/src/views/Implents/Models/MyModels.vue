@@ -2,12 +2,12 @@
   <div v-if="isMobile">
     <van-divider><span style="color: black; font-size: large">我的模型</span></van-divider>
     <div style="display: flex; justify-content: space-between; margin: 10px">
-      <span>总共{{ modelList.length }}个，已使用{{ selectedModels.length }}个</span>
+      <span>总共{{ modelList.length }}个，{{ selectedModel !== -1 ? '已选择' : '未选择' }}</span>
       <el-button type="primary" @click="newModel">+ 新建</el-button>
     </div>
     <div v-if="modelList.length !== 0" class="modelList">
       <van-list finished-text="没有更多了">
-        <van-checkbox-group v-model="selectedModels">
+        <van-radio-group v-model="selectedModel">
           <van-swipe-cell v-for="(model, index) in modelList" :key="index" class="modelItem">
             <div>
               <div class="model">
@@ -16,7 +16,7 @@
                 >
                 <span style="width: 45%"
                   ><div class="modelInfo">
-                    <van-checkbox v-if="model.iftrained" :name="model.id">使用</van-checkbox>
+                    <van-radio v-if="model.iftrained" :name="model.id">使用</van-radio>
                     <span v-else>未训练</span>
                   </div>
                   <div class="modelInfo" style="margin-top: 1vh">{{ model.datetime }}</div>
@@ -41,7 +41,7 @@
               />
             </template>
           </van-swipe-cell>
-        </van-checkbox-group>
+        </van-radio-group>
       </van-list>
     </div>
     <div v-else>
@@ -106,24 +106,24 @@
         <div class="header-container">
           <span style="font-size: 1.25rem"
             >我的模型<span style="font-size: 1rem; margin-left: 10px"
-              >总共{{ modelList.length }}个，已使用{{ selectedModels.length }}个</span
+              >总共{{ modelList.length }}个，{{ selectedModel !== -1 ? '已选择' : '未选择' }}</span
             ></span
           >
           <el-button type="primary" @click="newModel">新建模型</el-button>
         </div>
       </template>
       <div class="models-list-container">
-        <template v-if="modelList.length">
-          <el-checkbox-group v-model="selectedModels" size="small">
+        <div v-if="modelList.length">
+          <el-radio-group v-model="selectedModel" class="radio-group">
             <el-card v-for="(model, index) in modelList" :key="model.id" class="model-item">
               <div class="model-content">
                 <span class="model-name" @click="editModel(index)"
                   ><el-icon><Memo /></el-icon> {{ model.name }}</span
                 >
                 <div class="model-actions">
-                  <el-checkbox v-if="model.iftrained" :value="model.id">
+                  <el-radio v-if="model.iftrained" :value="model.id">
                     <span class="radio-label">翻译使用</span>
-                  </el-checkbox>
+                  </el-radio>
                   <el-dropdown>
                     <el-icon size="20" class="moreFilled"><MoreFilled /></el-icon>
                     <template #dropdown>
@@ -139,13 +139,13 @@
                   </el-dropdown>
                 </div>
               </div>
-              <el-divider style="margin: 2% auto" />
+              <el-divider style="margin: 10px auto" />
               <div class="footer">
                 <span>{{ model.datetime }}</span>
               </div>
             </el-card>
-          </el-checkbox-group>
-        </template>
+          </el-radio-group>
+        </div>
         <div v-else class="noModel">
           <el-empty description="暂无模型" />
         </div>
@@ -224,7 +224,7 @@
 <script setup>
 import { useUserStore } from '@/stores/user';
 import { useProcessedModelStore } from '@/stores/processedModel';
-import { useUsedModelsStore } from '@/stores/usedModels';
+import { useUsedModelStore } from '@/stores/usedModel';
 import { _isMobile } from '@/utils/mobile/isMobile';
 import {
   ErrorMessage,
@@ -241,7 +241,7 @@ const dialogEditModels = ref(false);
 
 const userStore = useUserStore();
 const processedModelStore = useProcessedModelStore();
-const usedModelsStore = useUsedModelsStore();
+const usedModelStore = useUsedModelStore();
 
 const name = ref('');
 const profile = ref('');
@@ -250,7 +250,7 @@ const modelList = ref([]);
 
 const names = new Set();
 
-const selectedModels = ref([]);
+const selectedModel = ref(-1);
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
@@ -308,13 +308,11 @@ const deleteModel = (index) => {
           names.delete(modelList.value[index].name);
 
           // 删除模型
+          selectedModel.value =
+            selectedModel.value === modelList.value[index].id ? -1 : selectedModel.value;
+          usedModelStore.usedModel =
+            usedModelStore.usedModel === modelList.value[index].id ? -1 : usedModelStore.usedModel;
           modelList.value.splice(index, 1);
-          selectedModels.value = selectedModels.value.filter(
-            (modelId) => modelId !== modelList.value[index].id,
-          );
-          usedModelsStore.usedModels = usedModelsStore.usedModels.filter(
-            (modelId) => modelId !== modelList.value[index].id,
-          );
 
           SuccessMessage('删除成功');
         } else {
@@ -411,21 +409,64 @@ const getAllModels = () => {
 onMounted(() => {
   getAllModels();
 
-  if (usedModelsStore.usedModels && usedModelsStore.usedModels.length !== 0) {
-    selectedModels.value = usedModelsStore.usedModels;
+  if (usedModelStore.usedModel && usedModelStore.usedModel.length !== 0) {
+    selectedModel.value = usedModelStore.usedModel;
   }
 });
 
 onUnmounted(() => {
-  usedModelsStore.changeUsedModels(selectedModels.value);
+  usedModelStore.changeUsedModel(selectedModel.value);
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .modelList {
   height: 78vh;
   overflow: auto;
   border-top: 1px dotted lightgray;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .model-item {
+    width: 100%;
+    .model-content {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .model-name {
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+
+      .model-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .radio-label {
+          font-size: 0.9rem;
+          color: #333;
+        }
+
+        .moreFilled:hover {
+          color: var(--theme-lightColor);
+          cursor: pointer;
+        }
+      }
+    }
+
+    .footer {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 0.9rem;
+    }
+  }
 }
 
 .models-container-card {
@@ -434,6 +475,14 @@ onUnmounted(() => {
   height: 85vh;
   display: flex;
   flex-direction: column;
+
+  .models-list-container {
+    padding: 0.5rem;
+    height: 75vh !important;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .header-container {
@@ -441,47 +490,13 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
-.models-list-container {
-  flex: 1;
-  padding: 0.5rem;
-  height: 75vh !important;
-  overflow-y: auto;
-}
-
-.model-item {
-  margin-bottom: 1rem;
-}
-
 .model-item:hover {
   transform: translateY(-0.1875rem);
-}
-
-.model-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.model-name {
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.model-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .modelItem {
   border-bottom: 1px dotted lightgray;
   height: 9vh;
-}
-
-.radio-label {
-  font-size: 0.9rem;
-  color: #333;
-  margin-right: 10px;
 }
 
 .model {
@@ -493,17 +508,6 @@ onUnmounted(() => {
 .modelInfo {
   display: flex;
   justify-content: right;
-}
-
-.moreFilled:hover {
-  color: #66c18c;
-  cursor: pointer;
-}
-
-.footer {
-  display: flex;
-  justify-content: flex-end;
-  font-size: 0.9rem;
 }
 
 .noModel {

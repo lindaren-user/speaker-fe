@@ -61,7 +61,7 @@ watchEffect(() => {
 }
 
 .el-menu--vertical .el-menu-item.is-active {
-  color: #66c18c;
+  color: var(--theme-lightColor);
   background-color: rgb(242, 244, 243);
 }
 
@@ -76,7 +76,7 @@ watchEffect(() => {
 }
 
 :deep(.el-menu-item:hover) {
-  color: lightgreen;
+  color: var(--theme-lightColor);
   background-color: rgb(242, 244, 243);
 }
 

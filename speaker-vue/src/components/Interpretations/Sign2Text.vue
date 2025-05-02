@@ -1,14 +1,14 @@
 <template>
   <div v-if="isMobile">
     <van-notice-bar
-      :color="hasModels ? '#1989fa' : ''"
-      :background="hasModels ? '#ecf9ff' : ''"
+      :color="hasModel ? '#1989fa' : ''"
+      :background="hasModel ? '#ecf9ff' : ''"
       left-icon="info-o"
       mode="link"
       @click="router.push('/implents/models')"
       style="margin-top: 1vh"
     >
-      <span v-if="hasModels">已选择{{ usedModelsStore.usedModels.length }}个模型</span>
+      <span v-if="hasModel">已选择模型</span>
       <span v-else>没有选择模型，点击选择</span>
     </van-notice-bar>
 
@@ -93,13 +93,13 @@
     <el-card class="lCard">
       <template #header>
         <div class="header">
-          <span v-if="hasModels">已选择{{ usedModelsStore.usedModels.length }}个模型</span>
+          <span v-if="hasModel">已选择模型</span>
           <span v-else>没有选择模型</span>
           <el-button
             type="primary"
-            :class="canBlink && !hasModels ? 'blink-btn' : ''"
+            :class="canBlink && !hasModel ? 'blink-btn' : ''"
             @click="router.push('/implents/models/myModels')"
-            >{{ hasModels ? '重新选择' : '前往选择' }}</el-button
+            >{{ hasModel ? '重新选择' : '前往选择' }}</el-button
           >
         </div>
       </template>
@@ -167,7 +167,7 @@
 </template>
 
 <script setup>
-import { useUsedModelsStore } from '@/stores/usedModels';
+import { useUsedModelStore } from '@/stores/usedModel';
 import { files_service } from '@/apis/files_service';
 import { _isMobile } from '@/utils/mobile/isMobile';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
@@ -186,10 +186,8 @@ const router = useRouter();
 const requestLocal = '/api';
 const video = ref(null);
 
-const usedModelsStore = useUsedModelsStore();
-const hasModels = computed(
-  () => usedModelsStore.usedModels && usedModelsStore.usedModels.length !== 0,
-);
+const usedModelStore = useUsedModelStore();
+const hasModel = computed(() => usedModelStore.usedModel && usedModelStore.usedModel != -1);
 
 const previewVideoUrl = ref('');
 const videoUrl = ref('');
@@ -245,7 +243,7 @@ const uploadVideo = () => {
     return;
   }
 
-  if (!hasModels.value) {
+  if (!hasModel.value) {
     WarningMessage('未选择模型');
 
     canBlink.value = true;
@@ -261,7 +259,7 @@ const uploadVideo = () => {
 
   const formData = new FormData();
   formData.append('video', video.value.file);
-  formData.append('models', usedModelsStore.usedModels);
+  formData.append('models', usedModelStore.usedModel);
 
   files_service.video
     .uploadVideo(formData)

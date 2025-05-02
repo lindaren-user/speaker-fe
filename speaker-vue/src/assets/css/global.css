@@ -20,3 +20,8 @@ body {
   display: flex;
   justify-content: center;
 }
+
+:root {
+  --theme-lightColor: #66c18c;
+  --theme-heavyColor: #229453;
+}

@@ -107,7 +107,7 @@ const isMobile = computed(() => _isMobile());
 
 .number {
   font-size: 2.1875rem;
-  color: #41ae3c;
+  color: var(--theme-lightColor);
 }
 
 .char {

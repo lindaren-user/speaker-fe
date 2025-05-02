@@ -6,7 +6,7 @@ export const useYiyuStore = defineStore('yiyu', () => {
 
   try {
     yiyu.init({
-      name: 'Jop+waWe6cOFzz92RpqptN/D029oP9i81SifDLndpFFqqh0s93JRBZzWWWouTNMFOfotGPcyaDRJ+T/cUjwosfwYM9IqCEajgNSRJaxnykb2eOEAp5CrNFrq2Mmrv8BktC8SdK008WoBYGqlJgza+tFtLxVQNRY2YSTzJkcetbY=',
+      name: 'F2fJg0+ypmOAyq0qrhBOYhDWwHhqdpk0j9eeR/rInUzzQhbLLGR7PWqLSDfA7bhJLw0ZawVLvl+eYa8hp94Dd/mDEY/6bjHbo1zDdfb7ceOyu1r1OqWa0QenMkej8RTmJGHQyZ3iYEMerj1IfZm8dFvGE+1F7PuexlfWoIJtP9c=',
       readLocalResource: false,
       // draggable: false, // 可否拖拽
     });
