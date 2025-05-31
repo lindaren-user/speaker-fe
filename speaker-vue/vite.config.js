@@ -28,7 +28,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://8.134.24.85:9090',
+        target: 'http://139.199.173.240:9090',
+        // target: 'https://0mzy.xyz',
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },

@@ -1,1 +1,0 @@
-import{_ as o,c as s,a as t,o as a}from"./index-DMa1mtUc.js";import"https://avatar.gbqr.net/yiyu.js";const r={},n={class:"about"};function c(_,e){return a(),s("div",n,e[0]||(e[0]=[t("h1",null,"This is an about page",-1)]))}const d=o(r,[["render",c]]);export{d as default};

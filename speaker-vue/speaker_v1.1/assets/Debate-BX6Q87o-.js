@@ -1,0 +1,1 @@
+import{_ as t,c as s,a,o}from"./index-DZpPFXcy.js";import"https://avatar.gbqr.net/yiyu.js";const n={},r={class:"about"};function c(_,e){return o(),s("div",r,e[0]||(e[0]=[a("h1",null,"This is an Debate page",-1)]))}const d=t(n,[["render",c]]);export{d as default};

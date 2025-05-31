@@ -88,12 +88,12 @@ router.beforeEach(async (to) => {
     try {
       const res = await user_service.check();
       if (res.code !== '200') {
-        // clearAllStores();
+        clearAllStores();
         return '/login';
       }
       // if (_isMobile() && yiyuStore.isSuccess) yiyuStore.clearYiyu();
     } catch {
-      // clearAllStores();
+      clearAllStores();
       return '/login';
     }
   } else {
