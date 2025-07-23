@@ -32,11 +32,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/api/ws/video': {
+      '/ws/video': {
         target: 'ws://8.138.239.79:9090',
         ws: true,
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },

@@ -78,25 +78,19 @@ const props = defineProps({
 const initWS = () => {
   if (!props.isOpened) return;
 
-  console.log(props.isOpened);
-
-  console.log('initWS');
-
   if (curFrame) URL.revokeObjectURL(curFrame.src);
 
   const JSESSIONID = parseCookies().JSESSIONID;
-  console.log(JSESSIONID);
 
-  if (JSESSIONID)
-    ws = new WebSocket(`ws://${location.host}/api/ws/video` + `?JSESSIONID=${JSESSIONID}`);
-  else {
+  if (JSESSIONID) {
+    const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${wsProtocol}//${location.host}/ws/video?JSESSIONID=${JSESSIONID}`);
+  } else {
     ErrorMessage('您还未登录');
     router.push('/login');
   }
 
   ws.onopen = () => {
-    console.log('ws成功连接');
-
     isSuccessful.value = true;
     // closeByErr = false;
 
@@ -104,8 +98,6 @@ const initWS = () => {
   };
 
   ws.onmessage = (event) => {
-    console.log('接收到', event.data);
-
     if (event.data) {
       const blob = new Blob([event.data], { type: 'image/jpg' });
 
@@ -128,8 +120,6 @@ const initWS = () => {
   };
 
   ws.onclose = () => {
-    console.log('ws连接关闭');
-
     isSuccessful.value = false;
 
     // 清空计时器
@@ -148,10 +138,7 @@ const initWS = () => {
 
 // 得到的是防抖函数的返回值，每次执行的都是返回值函数
 const reconnect = debounce(() => {
-  if (props.isOpened) {
-    console.log('reconnect');
-    initWS();
-  }
+  if (props.isOpened) initWS();
 }, 2000);
 
 // 定时将帧渲染
@@ -190,8 +177,6 @@ const parseCookies = () => {
 
 const closeWS = () => {
   if (ws) {
-    console.log('closeWS');
-
     ws.close();
     ws = null;
   }
