@@ -121,7 +121,7 @@ const openTagDlg = ref(false);
 const processedModelStore = useProcessedModelStore();
 
 // 使用 map 缓存视频的链接, 减少服务器压力
-const videoUrls = new Map();
+const videoUrlCache = new Map();
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
@@ -160,8 +160,8 @@ const getAllVideos = () => {
 const handleVideoSelected = (video) => {
   changeObject.value = video; // 注意更新
 
-  if (videoUrls.has(video.title)) {
-    currentVideoUrl.value = videoUrls.get(video.title);
+  if (videoUrlCache.has(video.title)) {
+    currentVideoUrl.value = videoUrlCache.get(video.title);
     return;
   }
 
@@ -174,7 +174,7 @@ const handleVideoSelected = (video) => {
     .then((res) => {
       if (res.code === '200') {
         currentVideoUrl.value = requestLocal + res.url;
-        videoUrls.set(video.title, currentVideoUrl.value);
+        videoUrlCache.set(video.title, currentVideoUrl.value);
       } else {
         console.log(res.msg);
         ErrorMessage(res.msg);
@@ -251,6 +251,11 @@ const changeTag = () => {
 
 const deleteVideo = (videoTitle) => {
   MessageBox('视频').then(() => {
+    if (videoUrlCache.has(videoTitle)) {
+      if (currentVideoUrl.value === videoUrlCache[videoTitle]) currentVideoUrl.value = '';
+      videoUrlCache.delete(videoTitle);
+    }
+
     files_service.video
       .deleteVideo({
         params: {

@@ -66,7 +66,9 @@
       <ControlPanel
         @add-video="handleAddVideo"
         @start-recording="showCameraDialog = true"
+        @necklace-recording="handleNecklaceRecordInit"
         @upload="handleUploadAll"
+        :isNecklace="true"
       />
 
       <el-divider style="margin: 2% auto" />
@@ -77,11 +79,27 @@
       <el-dialog v-model="showCameraDialog" title="摄像头录制" :close-on-click-modal="false">
         <CameraRecorder v-if="showCameraDialog" @record-complete="handleRecordComplete" />
       </el-dialog>
+
+      <!-- 项链录制 -->
+      <!-- 内部组件延迟渲染，所以一开始的framePlayer === null -->
+      <el-dialog
+        v-model="showNecklaceVideo"
+        title="项链录制"
+        :close-on-click-modal="false"
+        @close="handleNecklaceRecordClose"
+      >
+        <FramePlayer
+          ref="framePlayerRef"
+          @record-complete="handleRecordComplete"
+          :isOpened="showNecklaceVideo"
+        />
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script setup>
+import { nextTick } from 'vue';
 import { useUlCounterStore } from '@/stores/ulCounter';
 import { useProcessedModelStore } from '@/stores/processedModel';
 import { files_service } from '@/apis/files_service';
@@ -89,6 +107,7 @@ import { _isMobile } from '@/utils/mobile/isMobile';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import VideoList from '@/components/Others/VideoList.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
+import FramePlayer from './FramePlayer.vue';
 import {
   ErrorMessage,
   SuccessMessage,
@@ -102,6 +121,8 @@ const ulCounterStore = useUlCounterStore();
 const processedModelStore = useProcessedModelStore();
 const nextVideoId = ref(1);
 
+const emit = defineEmits(['upload-finish']);
+
 /* 移动端 */
 const isMobile = computed(() => _isMobile());
 
@@ -109,6 +130,9 @@ const dialogTips = ref(false);
 
 /* pc端 */
 const showCameraDialog = ref(false);
+const showNecklaceVideo = ref(false);
+
+const framePlayerRef = ref(null);
 
 /* 函数 */
 // 处理添加视频
@@ -122,16 +146,47 @@ const handleAddVideo = (file) => {
   });
 };
 
+// 开启项链录制
+const handleNecklaceRecordInit = () => {
+  showNecklaceVideo.value = true;
+
+  // 用 nextTick 确保 DOM 渲染完成
+  nextTick(() => {
+    if (framePlayerRef.value) {
+      framePlayerRef.value.initWS();
+    }
+  });
+};
+
+// 关闭项链录制
+const handleNecklaceRecordClose = () => {
+  showNecklaceVideo.value = false; // 手动关闭，避免 isOpened 判断错误
+  if (framePlayerRef.value) {
+    framePlayerRef.value.closeWS();
+  }
+};
+
 // 处理录制完成
 // blob 对象是摄像头录制过程中产生的二进制数据，包含了录制的视频内容
-const handleRecordComplete = (blob) => {
+const handleRecordComplete = (blob, type) => {
   // 获取当前时间戳作为文件名
   const timeStamp = Date.now();
-  // 转换为AVI格式的File对象，文件名使用时间戳
-  const aviFile = new File([blob], `${timeStamp}.avi`, {
-    type: 'video/x-msvideo',
-  });
-  handleAddVideo(aviFile);
+
+  // 转换为File对象，文件名使用时间戳
+  let file = null;
+  if (type === 'avi')
+    file = new File([blob], `${timeStamp}.avi`, {
+      type: 'video/x-msvideo',
+    });
+  else
+    file = new File([blob], `${timeStamp}.webm`, {
+      type: 'video/webm',
+    });
+
+  // file = new File([blob], `${timeStamp}.avi`, {
+  //   type: 'video/x-msvideo',
+  // });
+  handleAddVideo(file);
   showCameraDialog.value = false;
 };
 
@@ -146,9 +201,10 @@ const handleUploadAll = async () => {
   try {
     await Promise.all(unUploaded.map(uploadVideo)); // 等待所有的视频处理完成
     if (unUploaded.every((video) => video.isUploaded)) {
-      SuccessMessage('全部上传成功, 可前往下一步');
+      SuccessMessage('全部上传成功');
       ulCounterStore.changeCounter(length);
     }
+    emit('upload-finish');
   } catch (err) {
     console.error('上传失败:', err);
     ErrorMessage('上传失败，请检查网络连接');

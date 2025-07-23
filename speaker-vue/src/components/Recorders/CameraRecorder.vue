@@ -41,7 +41,7 @@ const initCamera = () => {
       mediaRecorder.value.ondataavailable = (e) => chunks.value.push(e.data);
       mediaRecorder.value.onstop = () => {
         const blob = new Blob(chunks.value, { type: 'video/x-msvideo' });
-        emit('record-complete', blob);
+        emit('record-complete', blob, 'avi');
         chunks.value = [];
       };
       canUse.value = true;

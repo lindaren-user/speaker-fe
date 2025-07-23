@@ -19,6 +19,10 @@
       </el-button>
     </el-tooltip>
 
+    <el-button v-if="props.isNecklace" type="info" @click="necklaceRecording">
+      <i class="iconfont icon-luzhi" />&nbsp;项链录制
+    </el-button>
+
     <el-button type="warning" @click="emit('upload')">
       <i class="iconfont icon-shangchuan1" />&nbsp;一键上传
     </el-button>
@@ -33,7 +37,20 @@ import { _isMobile } from '@/utils/mobile/isMobile';
 
 /* 公共变量 */
 const fileInput = ref(null);
-const emit = defineEmits(['add-video', 'start-recording', 'upload']);
+const emit = defineEmits(['add-video', 'start-recording', 'necklace-recording', 'upload']);
+
+const props = defineProps({
+  // 是否显示项链录制的功能
+  isNecklace: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const necklaceRecording = () => {
+  // 检测是否开启该功能
+  if (props.isNecklace) emit('necklace-recording');
+};
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());

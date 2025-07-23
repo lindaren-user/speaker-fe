@@ -93,7 +93,7 @@
     <el-card class="lCard">
       <template #header>
         <div class="header">
-          <span v-if="hasModel">已选择模型</span>
+          <span v-if="hasModel">已选择模型: {{ modelName }}</span>
           <span v-else>没有选择模型</span>
           <el-button
             type="primary"
@@ -173,6 +173,7 @@ import { _isMobile } from '@/utils/mobile/isMobile';
 import ControlPanel from '@/components/Others/ControlPanel.vue';
 import CameraRecorder from '@/components/Recorders/CameraRecorder.vue';
 import { handleVideoErrorFunc } from '@/utils/others/handleVideoError';
+import { useProcessedModelStore } from '@/stores/processedModel';
 import {
   ErrorMessage,
   SuccessMessage,
@@ -196,6 +197,9 @@ const isTranslating = ref(false);
 const resultText = ref('');
 
 const nextVideoId = ref(1);
+
+const processedModelStore = useProcessedModelStore();
+const modelName = computed(() => processedModelStore.processedModel.name);
 
 /* 移动端 */
 const isMobile = computed(() => _isMobile());

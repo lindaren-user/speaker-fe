@@ -184,9 +184,6 @@ const formatTime = (seconds) => {
   pointer-events: auto;
 }
 
-.noCanceled {
-}
-
 .willBeCanceled {
   background-color: rgb(226, 132, 132);
 }

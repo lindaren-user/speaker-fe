@@ -10,29 +10,45 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('@/views/Home.vue'),
+      meta: {
+        title: '首页',
+      },
     },
     {
       path: '/share',
       component: () => import('@/views/Share.vue'),
+      meta: {
+        title: '分享',
+      },
     },
     {
       path: '/debate',
       name: 'debate',
       component: () => import('@/views/Debate.vue'),
+      meta: {
+        title: '讨论',
+      },
     },
     {
       path: '/login',
       component: () => import('@/views/Login.vue'),
+      meta: {
+        title: '登录',
+      },
     },
     {
       path: '/register',
       component: () => import('@/views/Register.vue'),
+      meta: {
+        title: '注册',
+      },
     },
     {
       path: '/privacy',
       name: 'privacy',
       component: () => import('@/views/Privacy.vue'),
       meta: {
+        title: '个人信息',
         requireAuth: true,
       },
     },
@@ -40,6 +56,7 @@ const router = createRouter({
       path: '/implents',
       component: () => import('@/views/Implents/Index.vue'),
       meta: {
+        title: '应用',
         requireAuth: true,
       },
       children: [
@@ -83,6 +100,13 @@ const router = createRouter({
 // 权限验证;
 router.beforeEach(async (to) => {
   // const yiyuStore = useYiyuStore();
+
+  // 设置标题
+  if (to.meta.title) {
+    document.title = '灵眸智译 - ' + to.meta.title;
+  } else {
+    document.title = '灵眸智译';
+  }
 
   if (to?.meta?.requireAuth) {
     try {

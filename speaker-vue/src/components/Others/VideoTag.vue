@@ -332,6 +332,23 @@ ul {
   display: flex;
   flex-direction: column;
   height: 45vh;
+
+  scrollbar-width: thin;
+  scrollbar-color: #999 #f0f0f0;
+
+  :deep(::-webkit-scrollbar) {
+    width: 5px;
+    height: 5px;
+  }
+
+  :deep(::-webkit-scrollbar-track) {
+    background: #f0f0f0;
+  }
+
+  :deep(::-webkit-scrollbar-thumb) {
+    background: #999;
+    border-radius: 4px;
+  }
 }
 
 .videoinf {

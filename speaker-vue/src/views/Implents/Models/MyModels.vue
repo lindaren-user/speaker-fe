@@ -268,7 +268,7 @@ const editModelInfo = (index) => {
 const saveModelInfo = () => {
   const modelId = processedModelStore.processedModel.id;
   const isTrained = processedModelStore.processedModel.isTrained;
-  console.log(111);
+
   models_service
     .updateModel({
       name: name.value,

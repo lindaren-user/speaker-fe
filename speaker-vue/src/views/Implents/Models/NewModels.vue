@@ -37,7 +37,7 @@
             <el-step title="模型训练" class="step-item" @click="active = 2" />
           </el-steps></div
       ></template>
-      <DataSet v-if="active === 0" />
+      <DataSet v-if="active === 0" @upload-finish="active = 1" />
       <Tag v-else-if="active === 1" />
       <Infer v-else />
     </el-card>

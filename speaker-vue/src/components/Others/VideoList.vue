@@ -136,7 +136,7 @@ const hoverId = ref(null);
 const showVideoPreview = (videoId) => {
   const video = props.videos.find((v) => v.id === videoId);
   if (video) {
-    previewVideoUrl.value = URL.createObjectURL(video.file);
+    if (video.file) previewVideoUrl.value = URL.createObjectURL(video.file);
     showPreviewDialog.value = true;
   }
 };
@@ -144,7 +144,7 @@ const showVideoPreview = (videoId) => {
 // 关闭预览弹窗
 const closeDlg = () => {
   showPreviewDialog.value = false;
-  URL.revokeObjectURL(previewVideoUrl.value);
+  if (previewVideoUrl.value) URL.revokeObjectURL(previewVideoUrl.value);
 };
 
 const handleVideoError = (error) => {
@@ -152,10 +152,27 @@ const handleVideoError = (error) => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .main {
   overflow: auto;
   height: 18.75rem;
+
+  scrollbar-width: thin;
+  scrollbar-color: #999 #f0f0f0;
+
+  :deep(::-webkit-scrollbar) {
+    width: 5px;
+    height: 5px;
+  }
+
+  :deep(::-webkit-scrollbar-track) {
+    background: #f0f0f0;
+  }
+
+  :deep(::-webkit-scrollbar-thumb) {
+    background: #999;
+    border-radius: 4px;
+  }
 }
 
 .video-grid {

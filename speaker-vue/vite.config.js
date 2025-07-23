@@ -28,8 +28,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://139.199.173.240:9090',
-        // target: 'https://0mzy.xyz',
+        target: 'http://8.138.239.79:9090',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/api/ws/video': {
+        target: 'ws://8.138.239.79:9090',
+        ws: true,
+        changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
